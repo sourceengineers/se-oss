@@ -3,6 +3,7 @@
 import json
 import hashlib
 import re
+import subprocess
 import sys
 
 
@@ -11,6 +12,12 @@ import sys
 #     global id_counter
 #     id_counter += 1
 #     return id_counter
+
+def git_revision_hash() -> str:
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+
+def git_repo_is_dirty() -> bool:
+    return subprocess.check_output(['git', 'status', '--porcelain']).decode('ascii').strip() != ""
 
 def get_id(string: str):
     hash_valued = hashlib.sha256(string.encode('utf-8')).digest()
@@ -26,7 +33,7 @@ if __name__ == '__main__':
     messages = {}
     id_counter = 0
     for symbol in sys.stdin:
-        match = re.search("getStringId<(?:se_oss::)?TemplateText<(.*) >", symbol)
+        match = re.search("getResourceId<(?:se_oss::)?ResourceIdentifier<(.*) >", symbol)
         if match is None:
             continue
 
@@ -41,9 +48,10 @@ if __name__ == '__main__':
     lookup_functions = []
     for string_id, message in messages.items():
         template_parameters = ", ".join(str(ord(c)) for c in list(message))
-        lookup_functions.append(f"//! Get ID for string '{message}'")
+        cleaned_message = message.encode('unicode_escape').decode('utf-8')
+        lookup_functions.append(f"//! Get ID for string '{cleaned_message}'")
         lookup_functions.append("template<>")
-        lookup_functions.append(f"uint32_t getStringId<TemplateText<{template_parameters}, 0>>() {{ return 0x{string_id:08X}; }}\n")
+        lookup_functions.append(f"uint32_t getResourceId<ResourceIdentifier<{template_parameters}, 0>>() {{ return 0x{string_id:08X}; }}\n")
 
     template_file = open(database_template)
     template_cpp = template_file.read()
@@ -57,6 +65,13 @@ if __name__ == '__main__':
 
     # create the string look-up database
     with open(database_output_json, "w") as file:
-        json.dump(messages, file, indent=2)
+        resource_db = {
+            "revision": {
+                "git-hash": git_revision_hash(),
+                "dirty": git_repo_is_dirty(),
+            },
+            "resources": messages
+        }
+        json.dump(resource_db, file, indent=2)
 
     exit(0)

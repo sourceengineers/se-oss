@@ -6,7 +6,9 @@ project(se_log)
 
 
 option(SE_LOG_REPLACE_STRINGS "Replace format strings with IDs" OFF)
-
+option(SE_LOG_SUPPORT_CBOR "Support CBOR binary encoding" OFF)
+option(SE_LOG_EXAMPLES "Compile se-log examples" OFF)
+option(SE_LOG_TESTS "Compile se-log tests" OFF)
 
 if (${PROJECT_IS_TOP_LEVEL})
     enable_language(CXX)
@@ -18,22 +20,10 @@ if (${PROJECT_IS_TOP_LEVEL})
     set(CMAKE_C_EXTENSIONS OFF)
 
     set(SE_LOG_EXAMPLES ON CACHE BOOL "" FORCE)
-    set(SE_LOG_TEST ON CACHE BOOL "" FORCE)
+    set(SE_LOG_TESTS ON CACHE BOOL "" FORCE)
 endif ()
 
-# todo: move to /lib
-include(FetchContent)
-set(WITH_FLOATING_POINT ON CACHE BOOL "" FORCE)
-set(WITH_CBOR2JSON OFF CACHE BOOL "" FORCE)
-set(WITH_TOOLS OFF CACHE BOOL "" FORCE)
-FetchContent_Declare(
-        tinycbor
-        GIT_REPOSITORY https://github.com/intel/tinycbor.git
-        GIT_TAG 17362494e2ddc567ba5ccba7b4e16f0639f578a3 # need to use main, because cmake version is no release yet
-)
-FetchContent_MakeAvailable(tinycbor)
-
-
+add_subdirectory(lib)
 
 add_library(
         se_log
@@ -47,11 +37,13 @@ target_include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-target_link_libraries(
-        se_log
-        PUBLIC
-        tinycbor
-)
+if (${SE_LOG_SUPPORT_CBOR})
+    target_link_libraries(
+            se_log
+            PUBLIC
+            tinycbor
+    )
+endif ()
 
 if (${SE_LOG_REPLACE_STRINGS})
     message(STATUS "[se-log] Replacing format strings enabled")
@@ -70,7 +62,7 @@ if (${SE_LOG_EXAMPLES})
     add_subdirectory(examples)
 endif ()
 
-if (${SE_LOG_TEST})
+if (${SE_LOG_TESTS})
     message(STATUS "[se-log] Building Tests")
     enable_testing()
     add_subdirectory(test)

@@ -20,12 +20,21 @@ public:
         char* stringBuffer = static_cast<char*>(buffer);
 
         // todo: format timestamp -> is set to u32 here because u64 cannot be formatted with libnano
-        int32_t messageLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
-        if (messageLength < 0) {
+        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
+        if (metaInfoLength < 0) {
             return 0U;
         }
 
-        return std::snprintf(stringBuffer + messageLength, bufferSize - messageLength, "string id 0x%" PRIX32 " (arguments not supported)\n", formatStringId) + messageLength + 1U;
+        int32_t messageLength = std::snprintf(stringBuffer + metaInfoLength, bufferSize - metaInfoLength, "string id 0x%" PRIX32 " (arguments not supported)\n", formatStringId);
+        size_t overallLength = metaInfoLength + messageLength + 2U;
+        if (messageLength < 0 || overallLength > bufferSize) {
+            return 0U;
+        }
+
+        *(stringBuffer + overallLength - 2U) = '\n';
+        *(stringBuffer + overallLength - 1U) = '\0';
+
+        return overallLength;
     }
 
     template<typename... Values>
@@ -35,12 +44,21 @@ public:
         char* stringBuffer = static_cast<char*>(buffer);
 
         // todo: format timestamp -> is set to u32 here because u64 cannot be formatted with libnano
-        int32_t messageLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
-        if (messageLength < 0) {
+        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
+        if (metaInfoLength < 0) {
             return 0U;
         }
 
-        return std::snprintf(stringBuffer + messageLength, bufferSize - messageLength, formatString, values...) + messageLength + 1U;
+        int32_t messageLength = std::snprintf(stringBuffer + metaInfoLength, bufferSize - metaInfoLength, formatString, values...);
+        size_t overallLength = metaInfoLength + messageLength + 2U;
+        if (messageLength < 0 || overallLength > bufferSize) {
+            return 0U;
+        }
+
+        *(stringBuffer + overallLength - 2U) = '\n';
+        *(stringBuffer + overallLength - 1U) = '\0';
+
+        return overallLength;
     }
 
     size_t format(void* buffer, std::size_t bufferSize, LogRecord record, const char *const formatString)
@@ -48,14 +66,19 @@ public:
         (void) this;
         char* stringBuffer = static_cast<char*>(buffer);
         // todo: format timestamp -> is set to u32 here because u64 cannot be formatted with libnano
-        int32_t messageLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIu32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
-        std::size_t formatLength = std::strlen(formatString);
+        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIu32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
+        std::size_t messageLength = std::strlen(formatString);
 
-        if (messageLength < 0 || formatLength > bufferSize - messageLength) {
+        size_t overallLength = metaInfoLength + messageLength + 2U;
+        if (metaInfoLength < 0 || overallLength > bufferSize) {
             return 0U;
         }
-        std::strncat(stringBuffer, formatString, bufferSize - messageLength);
-        return messageLength + formatLength + 1U;
+        std::strncat(stringBuffer, formatString, bufferSize - metaInfoLength);
+
+        *(stringBuffer + overallLength - 2U) = '\n';
+        *(stringBuffer + overallLength - 1U) = '\0';
+
+        return overallLength;
     }
 };
 ;

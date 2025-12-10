@@ -8,9 +8,8 @@
 #include "LogComponents.h"
 #include "se-log/Log.h"
 #include "se-log/LogRegistry.h"
+#include "se-log/ResourceDatabase.h"
 #include "se-log/format/CborFormatter.h"
-#include "se-log/format/StringLookUp.h"
-#include "se-log/sink/ConsoleSink.h"
 
 #include <chrono>
 

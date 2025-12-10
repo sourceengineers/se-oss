@@ -6,10 +6,10 @@
  * Generated file! Do not edit!
  */
 
-#ifndef SE_GENERATED_STRINGDATABASE_H
-#define SE_GENERATED_STRINGDATABASE_H
+#ifndef SE_GENERATED_RESOURCEDATABASE_H
+#define SE_GENERATED_RESOURCEDATABASE_H
 
-#include "se-log/format/StringLookUp.h"
+#include "se-log/ResourceDatabase.h"
 
 namespace se_oss {
 
@@ -17,4 +17,4 @@ namespace se_oss {
 
 } // namespace se_oss
 
-#endif // SE_GENERATED_STRINGDATABASE_H
+#endif // SE_GENERATED_RESOURCEDATABASE_H

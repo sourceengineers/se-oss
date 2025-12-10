@@ -11,7 +11,7 @@
 #include "ILogFilter.h"
 #include "buffer/AtomicCircularBufferSpSc.h"
 #include "sink/ILogSink.h"
-#include "format/StringLookUp.h"
+#include "ResourceDatabase.h"
 
 #include <memory>
 
@@ -26,12 +26,12 @@
 
 #else
 
-#define LOG_TRACE(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::TRACE, se_oss::getStringId<decltype(se_oss::buildStringTypename<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
-#define LOG_DEBUG(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::DEBUG, se_oss::getStringId<decltype(se_oss::buildStringTypename<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
-#define LOG_INFO(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::INFO, se_oss::getStringId<decltype(se_oss::buildStringTypename<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
-#define LOG_WARN(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::WARN, se_oss::getStringId<decltype(se_oss::buildStringTypename<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
-#define LOG_ERROR(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::ERROR, se_oss::getStringId<decltype(se_oss::buildStringTypename<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
-#define LOG_FATAL(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::FATAL, se_oss::getStringId<decltype(se_oss::buildStringTypename<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
+#define LOG_TRACE(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::TRACE, se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
+#define LOG_DEBUG(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::DEBUG, se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
+#define LOG_INFO(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::INFO, se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
+#define LOG_WARN(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::WARN, se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
+#define LOG_ERROR(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::ERROR, se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
+#define LOG_FATAL(logger, format, ...) do { struct FormatString { const char* characters = format; }; logger.log(se_oss::LogLevel::FATAL, se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>(), ##__VA_ARGS__); } while (false)
 
 #endif
 

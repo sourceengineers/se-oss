@@ -10,7 +10,7 @@
 #include "LogComponents.h"
 #include "se-log/Log.h"
 #include "se-log/LogRegistry.h"
-#include "se-log/format/StringLookUp.h"
+#include "../include/se-log/StringLookUp.h"
 #include "se-log/sink/ConsoleSink.h"
 
 #include <chrono>

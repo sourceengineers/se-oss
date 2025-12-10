@@ -1,0 +1,17 @@
+# Copyright (c) 2025 Source Engineers GmbH
+# SPDX-License-Identifier: MIT
+
+include(FetchContent)
+
+if (${SE_LOG_SUPPORT_CBOR})
+    message(STATUS "[se-log] Support for CBOR enabled")
+    set(WITH_FLOATING_POINT ON CACHE BOOL "" FORCE)
+    set(WITH_CBOR2JSON OFF CACHE BOOL "" FORCE)
+    set(WITH_TOOLS OFF CACHE BOOL "" FORCE)
+    FetchContent_Declare(
+            tinycbor
+            GIT_REPOSITORY https://github.com/intel/tinycbor.git
+            GIT_TAG 17362494e2ddc567ba5ccba7b4e16f0639f578a3 # need to use main, because cmake version is no release yet
+    )
+    FetchContent_MakeAvailable(tinycbor)
+endif ()
