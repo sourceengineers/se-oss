@@ -7,13 +7,15 @@
 #ifndef SE_LOG_LOG_H
 #define SE_LOG_LOG_H
 
-#include "Format.h"
+#include "format/NullFormatter.h"
 #include "ILogFilter.h"
-#include "buffer/AtomicCircularBufferSpSc.h"
+#include "buffer/AtomicBuffer.h"
 #include "sink/ILogSink.h"
 #include "ResourceDatabase.h"
 
 #include <memory>
+
+#include "Conf.h"
 
 #ifndef SE_LOG_REPLACE_STRINGS
 
@@ -53,28 +55,24 @@ public:
     Logger& operator=(Logger&&) = delete;
 
 
-    template<typename... Values>
-    void log(LogLevel level, const char* format, const Values&... values);
-
-    template<typename... Values>
-    void log(LogLevel level, uint32_t formatId, const Values&... values);
-
+    template<typename TFormat, typename... Values>
+    void log(LogLevel level, TFormat format, const Values&... values);
 
     void setLogLevel(LogLevel level) { _level = level; }
     LogStatistics statistics() const { return _statistics; }
-    void distributeMessages();
+    void distributeMessages(std::size_t maxNumberOfMessages = 20U) const;
 
 private:
     LogLevel _level {LogLevel::INFO};
-    // todo: configurable buffer size
-    AtomicCircularBufferSpSc<1024> _buffer {};
+    std::unique_ptr<IBuffer> _buffer {logConfCreateBuffer()};
     LogStatistics _statistics {};
     ILogSink& _sink;
 
     uint8_t _id;
     const char* _name {nullptr};
-
     const std::function<uint64_t()> _timeProvider {};
+
+    LogRecord createRecord(LogLevel level) const;
 };
 
 inline Logger::Logger(uint8_t id, const char* name, ILogSink& sink, const std::function<uint64_t()>& timeProvider) :
@@ -86,11 +84,10 @@ inline Logger::Logger(uint8_t id, const char* name, ILogSink& sink, const std::f
 
 }
 
-inline void Logger::distributeMessages()
+inline void Logger::distributeMessages(std::size_t maxNumberOfMessages) const
 {
-    // todo: make number of messages configurable
-    for (size_t i = 0; i < 20U; ++i) {
-        bool readSuccessful = _buffer.read([&](const void* buffer, std::size_t size) {
+    for (size_t i = 0; i < maxNumberOfMessages; ++i) {
+        bool readSuccessful = _buffer->read([&](const void* buffer, std::size_t size) {
             LogHeader header {};
             auto* bufferPosition = deserialize(header, buffer, size);
             _sink.write(header.metadata, bufferPosition, header.messageLength);
@@ -104,25 +101,22 @@ inline void Logger::distributeMessages()
     }
 }
 
-template<typename ... Values>
-void Logger::log(LogLevel level, const char* format, const Values&... values)
+template<typename TFormat, typename... Values>
+void Logger::log(LogLevel level, TFormat format, const Values&... values)
 {
+    static_assert(std::is_same<TFormat, const char*>::value || std::is_same<TFormat, uint32_t>::value, "Format type must be either const char* or uint32_t");
+
     if (level < _level) {
         return;
     }
 
-    LogRecord record {};
-    record.metadata.logLevel = level;
-    record.metadata.sourceId = _id;
-    // todo: tag
-    record.sourceName = _name;
-    if (_timeProvider) {
-        record.timestamp = _timeProvider();
-    }
+    LogRecord record = createRecord(level);
+    std::size_t maxMessageLength = logConfMaxMessageLength();
 
-    // todo: configure format size
-    bool writeSuccessful = _buffer.write(256, [&](void* buffer, size_t size) {
-        std::size_t bytesWritten = ::se_oss::format(static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE, size - LogHeader::PACKED_SIZE, record, format, std::forward<const Values>(values)...);
+    bool writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, size_t size) {
+        uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
+        std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
+        std::size_t bytesWritten = logConfFormat(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
         if (bytesWritten > 0U) {
             LogHeader header {};
             header.metadata = record.metadata;
@@ -135,16 +129,14 @@ void Logger::log(LogLevel level, const char* format, const Values&... values)
 
     if (!writeSuccessful) {
         _statistics.droppedMessages++;
+
+    } else if (_buffer->capacity() == 0U) {
+        distributeMessages(1U);
     }
 }
 
-template<typename ... Values>
-void Logger::log(LogLevel level, uint32_t formatId, const Values&... values)
+inline LogRecord Logger::createRecord(LogLevel level) const
 {
-    if (level < _level) {
-        return;
-    }
-
     LogRecord record {};
     record.metadata.logLevel = level;
     record.metadata.sourceId = _id;
@@ -153,23 +145,7 @@ void Logger::log(LogLevel level, uint32_t formatId, const Values&... values)
     if (_timeProvider) {
         record.timestamp = _timeProvider();
     }
-
-    // todo: configure format size
-    bool writeSuccessful = _buffer.write(256, [&](void* buffer, size_t size) {
-        std::size_t bytesWritten = ::se_oss::format(static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE, size - LogHeader::PACKED_SIZE, record, formatId, std::forward<const Values>(values)...);
-        if (bytesWritten > 0U) {
-            LogHeader header {};
-            header.metadata = record.metadata;
-            header.messageLength = bytesWritten;
-            (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
-            bytesWritten += LogHeader::PACKED_SIZE;
-        }
-        return bytesWritten;
-    });
-
-    if (!writeSuccessful) {
-        _statistics.droppedMessages++;
-    }
+    return record;
 }
 
 } // namespace se

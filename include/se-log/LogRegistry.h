@@ -8,7 +8,6 @@
 #define SE_LOG_REGISTRY_H
 
 #include "Log.h"
-#include "buffer/IWriter.h"
 #include "sink/AggregatedSink.h"
 
 #include <cassert>

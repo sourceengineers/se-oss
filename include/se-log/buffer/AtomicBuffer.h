@@ -7,7 +7,7 @@
 #ifndef SE_SE_LOG_BUFFER_ATOMICRINGBUFFER_H
 #define SE_SE_LOG_BUFFER_ATOMICRINGBUFFER_H
 
-#include "IReader.h"
+#include "IBuffer.h"
 
 #include <array>
 #include <atomic>
@@ -15,27 +15,28 @@
 
 namespace se_oss {
 /**
+ * Atomic circular SPSC buffer
  *
  * @tparam SIZE
  *
  * Based on the lock-free ring-buffer by ferrous systems: https://ferrous-systems.com/blog/lock-free-ring-buffer/
  */
 template<std::size_t SIZE = 1024>
-class AtomicCircularBufferSpSc final : public IReader
+class AtomicBuffer final : public IBuffer
 {
 public:
-    AtomicCircularBufferSpSc() = default;
-    ~AtomicCircularBufferSpSc() override = default;
-    AtomicCircularBufferSpSc(const AtomicCircularBufferSpSc&) = delete;
-    AtomicCircularBufferSpSc(AtomicCircularBufferSpSc&&) = delete;
-    AtomicCircularBufferSpSc& operator=(const AtomicCircularBufferSpSc&) = delete;
-    AtomicCircularBufferSpSc& operator=(AtomicCircularBufferSpSc&&) = delete;
+    AtomicBuffer() = default;
+    ~AtomicBuffer() override = default;
+    AtomicBuffer(const AtomicBuffer&) = delete;
+    AtomicBuffer(AtomicBuffer&&) = delete;
+    AtomicBuffer& operator=(const AtomicBuffer&) = delete;
+    AtomicBuffer& operator=(AtomicBuffer&&) = delete;
 
-    constexpr std::size_t capacity() const { return _buffer.size(); }
+    std::size_t capacity() const override { return _buffer.size(); }
 
     // todo: test and fix +1/-1 for capacity and size
 
-    std::size_t size() const
+    std::size_t size() const override
     {
         auto writer = _writer.load();
         auto reader = _reader.load();
@@ -51,7 +52,7 @@ public:
     std::size_t free() const { return capacity() - size(); }
 
 
-    bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer)
+    bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
     {
         auto writer = _writer.load();
         auto reader = _reader.load();
@@ -122,22 +123,6 @@ public:
             _watermark.store(watermark);
         }
         return true;
-    }
-
-    size_t write(const void* data, std::size_t size)
-    {
-        bool writeSuccessful = write(size, [&](void* buffer, std::size_t bufferSize) {
-            return std::memcpy(buffer, data, bufferSize);
-        });
-        return writeSuccessful ? size : 0U;
-    }
-
-    size_t read(void* data, std::size_t size)
-    {
-        bool readSuccessful = read([&](const void* buffer, std::size_t bufferSize) {
-            return std::memcpy(data, buffer, bufferSize);
-        });
-        return readSuccessful ? size : 0U;
     }
 
 private:

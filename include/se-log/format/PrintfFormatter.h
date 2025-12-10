@@ -7,6 +7,9 @@
 #ifndef SE_SE_LOG_FORMAT_PRINTFFORMATTER_H
 #define SE_SE_LOG_FORMAT_PRINTFFORMATTER_H
 
+#include <cinttypes>
+#include <cstdio>
+
 namespace se_oss {
 
 // todo: template for time and other format stuff
@@ -26,13 +29,10 @@ public:
         }
 
         int32_t messageLength = std::snprintf(stringBuffer + metaInfoLength, bufferSize - metaInfoLength, "string id 0x%" PRIX32 " (arguments not supported)\n", formatStringId);
-        size_t overallLength = metaInfoLength + messageLength + 2U;
+        size_t overallLength = metaInfoLength + messageLength + 1U;
         if (messageLength < 0 || overallLength > bufferSize) {
             return 0U;
         }
-
-        *(stringBuffer + overallLength - 2U) = '\n';
-        *(stringBuffer + overallLength - 1U) = '\0';
 
         return overallLength;
     }
