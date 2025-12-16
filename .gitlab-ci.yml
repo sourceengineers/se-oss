@@ -1,0 +1,25 @@
+image: $CI_REGISTRY/sourceengineers/playground/container-armgcc:642302bd
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_FORCE_HTTPS: "true"
+
+build-for-target:
+  # Prevent dubious ownership alerts
+  before_script:
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+  script:
+    - cmake --workflow --preset ci-example
+    - cmake --workflow --preset ci-example-string-replacement
+    - cmake --install build/x86_64/host --component example
+    - cmake --install build/x86_64/string_replacment --component example
+  artifacts:
+    name: binaries-target-${CI_COMMIT_SHA}
+    paths:
+      - release
+    expire_in: 1 day
+  cache:
+    key: build-target-$CI_COMMIT_REF_SLUG
+    paths:
+      - build
+    policy: push
