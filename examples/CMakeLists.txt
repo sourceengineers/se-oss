@@ -27,6 +27,6 @@ if (${SE_LOG_REPLACE_STRINGS})
     install(
             TARGETS example_log_cbor_string_replacement
             DESTINATION ${CMAKE_INSTALL_PREFIX}
-            COMPONENT examples
+            COMPONENT example-string-replacement
     )
 endif ()
