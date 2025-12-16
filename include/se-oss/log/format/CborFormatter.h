@@ -7,7 +7,7 @@
 #ifndef SE_SE_LOG_FORMAT_CBORFORMATTER_H
 #define SE_SE_LOG_FORMAT_CBORFORMATTER_H
 
-#include "se-log/Types.h"
+#include "se-oss/log/Types.h"
 
 #include <cbor.h>
 

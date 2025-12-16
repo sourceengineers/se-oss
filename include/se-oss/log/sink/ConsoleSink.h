@@ -8,7 +8,7 @@
 #define SE_LOG_PRINTFSINK_H
 
 #include "ILogSink.h"
-#include "se-log/ILogFilter.h"
+#include "se-oss/log/ILogFilter.h"
 
 namespace se_oss {
 

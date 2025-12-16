@@ -7,7 +7,7 @@
 #ifndef SE_LOG_ISINK_H
 #define SE_LOG_ISINK_H
 
-#include "se-log/Types.h"
+#include "se-oss/log/Types.h"
 
 #include <cstring>
 

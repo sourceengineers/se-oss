@@ -6,6 +6,7 @@
 
 #ifndef SE_LOG_AGGREGATEDSINK_H
 #define SE_LOG_AGGREGATEDSINK_H
+
 #include "ILogSink.h"
 
 #include <unordered_map>

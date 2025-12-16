@@ -9,7 +9,7 @@
 #ifndef SE_GENERATED_RESOURCEDATABASE_H
 #define SE_GENERATED_RESOURCEDATABASE_H
 
-#include "se-log/ResourceDatabase.h"
+#include "se-oss/log/ResourceDatabase.h"
 
 namespace se_oss {
 

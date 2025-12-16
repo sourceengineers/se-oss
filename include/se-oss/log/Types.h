@@ -7,7 +7,6 @@
 #ifndef SE_LOG_TYPES_H
 #define SE_LOG_TYPES_H
 
-#include <array>
 #include <cstdint>
 
 namespace se_oss {

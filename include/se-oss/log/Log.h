@@ -7,11 +7,10 @@
 #ifndef SE_LOG_LOG_H
 #define SE_LOG_LOG_H
 
-#include "format/NullFormatter.h"
-#include "ILogFilter.h"
-#include "buffer/AtomicBuffer.h"
-#include "sink/ILogSink.h"
 #include "ResourceDatabase.h"
+#include "buffer/AtomicBuffer.h"
+#include "format/NullFormatter.h"
+#include "sink/ILogSink.h"
 
 #include <memory>
 

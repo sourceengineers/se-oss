@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "se-log/sink/ConsoleSink.h"
+#include "se-oss/log/sink/ConsoleSink.h"
 
 #include <cstdio>
 
