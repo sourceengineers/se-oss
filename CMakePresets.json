@@ -62,24 +62,13 @@
         },
         {
             "name": "ci-test",
-            "displayName": "Host toolchain for testing",
+            "displayName": "Host toolchain for testing and coverage",
             "inherits": "gcc-x86_64",
             "binaryDir": "build/x86_64/test",
             "installDir": "release/test",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "SE_LOG_TESTS": "ON",
-                "TESTING": "ON"
-            }
-        },
-        {
-            "name": "ci-coverage",
-            "displayName": "Host toolchain for coverage",
-            "inherits": "gcc-x86_64",
-            "binaryDir": "build/x86_64/coverage",
-            "installDir": "release/coverage",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
                 "TESTING": "ON",
                 "CMAKE_CXX_FLAGS": "--coverage",
                 "CMAKE_C_FLAGS": "--coverage"
@@ -101,21 +90,16 @@
         {
             "name": "ci-test",
             "configurePreset": "ci-test",
+            "targets": [ "se_oss_unit_tests" ]
+        },
+        {
+            "name": "ci-coverage-report",
+            "configurePreset": "ci-test",
             "targets": [ ]
         },
         {
             "name": "ci-static-analysis",
             "configurePreset": "ci-test",
-            "targets": [ ]
-        },
-        {
-            "name": "ci-coverage",
-            "configurePreset": "ci-coverage",
-            "inherits": "ci-test"
-        },
-        {
-            "name": "ci-coverage-report",
-            "configurePreset": "ci-coverage",
             "targets": [ ]
         }
     ],
@@ -125,13 +109,8 @@
             "name": "ci-test",
             "configurePreset": "ci-test",
             "output": {
-                "outputJUnitFile": "test-reports/test-report.xml"
+                "outputJUnitFile": "${sourceDir}/release/report/se-oss-test-report.xml"
             }
-        },
-        {
-            "name": "ci-coverage",
-            "configurePreset": "ci-coverage",
-            "inherits": "ci-test"
         }
     ],
 
@@ -161,7 +140,8 @@
             "steps": [
                 { "type": "configure", "name": "ci-test" },
                 { "type": "build",     "name": "ci-test" },
-                { "type": "test",      "name": "ci-test" }
+                { "type": "test",      "name": "ci-test" },
+                { "type": "build",     "name": "ci-coverage-report" }
             ]
         },
         {
@@ -170,16 +150,6 @@
             "steps": [
                 { "type": "configure", "name": "ci-test" },
                 { "type": "build",     "name": "ci-static-analysis" }
-            ]
-        },
-        {
-            "name": "ci-coverage",
-            "displayName": "Create coverage report",
-            "steps": [
-                { "type": "configure", "name": "ci-coverage" },
-                { "type": "build",     "name": "ci-coverage" },
-                { "type": "test",      "name": "ci-coverage" },
-                { "type": "build",     "name": "ci-coverage-report" }
             ]
         }
     ]

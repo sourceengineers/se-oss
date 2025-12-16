@@ -1,8 +1,6 @@
 # Copyright (c) 2025 Source Engineers GmbH
 # SPDX-License-Identifier: MIT
 
-# todo :)
-
 enable_testing()
 
 include(FetchContent)
@@ -15,17 +13,18 @@ FetchContent_MakeAvailable(googletest)
 
 
 add_executable(
-        unit_tests
+        se_oss_unit_tests
         CborFormatterTest.cpp
 )
 
 target_link_libraries(
-        unit_tests
+        se_oss_unit_tests
         PRIVATE
         se::log
         GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(unit_tests)
+gtest_discover_tests(se_oss_unit_tests)
 
+install(TARGETS se_oss_unit_tests DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT tests)
