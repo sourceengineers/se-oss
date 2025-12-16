@@ -7,14 +7,13 @@
 #ifndef SE_LOG_LOG_H
 #define SE_LOG_LOG_H
 
+#include "Conf.h"
 #include "ResourceDatabase.h"
 #include "buffer/AtomicBuffer.h"
-#include "format/NullFormatter.h"
 #include "sink/ILogSink.h"
 
 #include <memory>
 
-#include "Conf.h"
 
 #ifndef SE_LOG_REPLACE_STRINGS
 
@@ -112,7 +111,7 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
     LogRecord record = createRecord(level);
     std::size_t maxMessageLength = logConfMaxMessageLength();
 
-    bool writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, size_t size) {
+    bool writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
         uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
         std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
         std::size_t bytesWritten = logConfFormat(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);

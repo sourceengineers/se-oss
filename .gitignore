@@ -1,0 +1,16 @@
+# CLion
+cmake-build-*/
+build/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/vcs.xml
+.idea/**/modules.xml
+.idea/watchdog-test.iml
+
+# Python
+.venv
+venv
+__pycache__/
+
+# Logs
+log

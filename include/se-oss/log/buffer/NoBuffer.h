@@ -8,6 +8,7 @@
 #define SE_SE_LOG_BUFFER_NOBUFFER_H
 
 #include "IBuffer.h"
+#include "se-oss/log/sink/ILogSink.h"
 
 namespace se_oss {
 

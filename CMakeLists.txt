@@ -10,19 +10,6 @@ option(SE_LOG_SUPPORT_CBOR "Support CBOR binary encoding" OFF)
 option(SE_LOG_EXAMPLES "Compile se-log examples" OFF)
 option(SE_LOG_TESTS "Compile se-log tests" OFF)
 
-if (${PROJECT_IS_TOP_LEVEL})
-    enable_language(CXX)
-    set(CMAKE_CXX_STANDARD 14)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-
-    enable_language(C)
-    set(CMAKE_C_STANDARD 11)
-    set(CMAKE_C_EXTENSIONS OFF)
-
-    set(SE_LOG_EXAMPLES ON CACHE BOOL "" FORCE)
-    set(SE_LOG_TESTS ON CACHE BOOL "" FORCE)
-endif ()
-
 add_subdirectory(lib)
 
 add_library(

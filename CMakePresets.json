@@ -1,0 +1,186 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 25,
+        "patch": 0
+    },
+
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_C_STANDARD": "11",
+                "CMAKE_C_STANDARD_REQUIRED": "ON",
+                "CMAKE_C_EXTENSIONS": "OFF",
+                "CMAKE_CXX_STANDARD": "14",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "OFF",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_C_FLAGS_DEBUG": "-O0 -g3",
+                "CMAKE_CXX_FLAGS_DEBUG": "-O0 -g3",
+                "CMAKE_C_FLAGS_RELEASE": "-O2 -g",
+                "CMAKE_CXX_FLAGS_RELEASE": "-O2 -g"
+            },
+            "environment": {
+                "COMMON_COMPILER_FLAGS": "-Wall -Wextra -Wpedantic"
+            }
+        },
+        {
+            "name": "gcc-x86_64",
+            "inherits": "base",
+            "displayName": "Host toolchain",
+            "generator": "Ninja",
+            "vendor": {
+                "jetbrains.com/clion": {
+                    "toolchain": "Docker ARM Cortex-M"
+                }
+            }
+        },
+        {
+            "name": "ci-host",
+            "displayName": "Host toolchain for host binaries",
+            "inherits": "gcc-x86_64",
+            "binaryDir": "build/x86_64/release",
+            "installDir": "release/host",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "SE_LOG_EXAMPLES": "ON",
+                "SE_LOG_SUPPORT_CBOR": "ON"
+            }
+        },
+        {
+            "name": "ci-example-string-replacement",
+            "displayName": "Host example for compile time string replacement.",
+            "inherits": "ci-host",
+            "binaryDir": "build/x86_64/string_replacment",
+            "cacheVariables": {
+                "SE_LOG_REPLACE_STRINGS": "ON"
+            }
+        },
+        {
+            "name": "ci-test",
+            "displayName": "Host toolchain for testing",
+            "inherits": "gcc-x86_64",
+            "binaryDir": "build/x86_64/test",
+            "installDir": "release/test",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "SE_LOG_TESTS": "ON",
+                "TESTING": "ON"
+            }
+        },
+        {
+            "name": "ci-coverage",
+            "displayName": "Host toolchain for coverage",
+            "inherits": "gcc-x86_64",
+            "binaryDir": "build/x86_64/coverage",
+            "installDir": "release/coverage",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "TESTING": "ON",
+                "CMAKE_CXX_FLAGS": "--coverage",
+                "CMAKE_C_FLAGS": "--coverage"
+            }
+        }
+    ],
+
+    "buildPresets": [
+        {
+            "name": "ci-example",
+            "configurePreset": "ci-host",
+            "targets": [ "example_log_printf", "example_log_cbor" ]
+        },
+        {
+            "name": "ci-example-string-replacement",
+            "configurePreset": "ci-example-string-replacement",
+            "targets": [ "example_log_cbor_string_replacement" ]
+        },
+        {
+            "name": "ci-test",
+            "configurePreset": "ci-test",
+            "targets": [ ]
+        },
+        {
+            "name": "ci-static-analysis",
+            "configurePreset": "ci-test",
+            "targets": [ ]
+        },
+        {
+            "name": "ci-coverage",
+            "configurePreset": "ci-coverage",
+            "inherits": "ci-test"
+        },
+        {
+            "name": "ci-coverage-report",
+            "configurePreset": "ci-coverage",
+            "targets": [ ]
+        }
+    ],
+
+    "testPresets": [
+        {
+            "name": "ci-test",
+            "configurePreset": "ci-test",
+            "output": {
+                "outputJUnitFile": "test-reports/test-report.xml"
+            }
+        },
+        {
+            "name": "ci-coverage",
+            "configurePreset": "ci-coverage",
+            "inherits": "ci-test"
+        }
+    ],
+
+    "packagePresets": [
+    ],
+
+    "workflowPresets": [
+        {
+            "name": "ci-example",
+            "displayName": "Build examples",
+            "steps": [
+                { "type": "configure", "name": "ci-host" },
+                { "type": "build",     "name": "ci-example" }
+            ]
+        },
+        {
+            "name": "ci-example-string-replacement",
+            "displayName": "Build compile time string replacement example",
+            "steps": [
+                { "type": "configure", "name": "ci-example-string-replacement" },
+                { "type": "build",     "name": "ci-example-string-replacement" }
+            ]
+        },
+        {
+            "name": "ci-test",
+            "displayName": "Run tests",
+            "steps": [
+                { "type": "configure", "name": "ci-test" },
+                { "type": "build",     "name": "ci-test" },
+                { "type": "test",      "name": "ci-test" }
+            ]
+        },
+        {
+            "name": "ci-static-analysis",
+            "displayName": "Run static analysis",
+            "steps": [
+                { "type": "configure", "name": "ci-test" },
+                { "type": "build",     "name": "ci-static-analysis" }
+            ]
+        },
+        {
+            "name": "ci-coverage",
+            "displayName": "Create coverage report",
+            "steps": [
+                { "type": "configure", "name": "ci-coverage" },
+                { "type": "build",     "name": "ci-coverage" },
+                { "type": "test",      "name": "ci-coverage" },
+                { "type": "build",     "name": "ci-coverage-report" }
+            ]
+        }
+    ]
+}
