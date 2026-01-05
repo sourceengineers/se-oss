@@ -23,7 +23,7 @@ public:
         char* stringBuffer = static_cast<char*>(buffer);
 
         // todo: format timestamp -> is set to u32 here because u64 cannot be formatted with libnano
-        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
+        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.level));
         if (metaInfoLength < 0) {
             return 0U;
         }
@@ -44,7 +44,7 @@ public:
         char* stringBuffer = static_cast<char*>(buffer);
 
         // todo: format timestamp -> is set to u32 here because u64 cannot be formatted with libnano
-        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
+        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.level));
         if (metaInfoLength < 0) {
             return 0U;
         }
@@ -66,7 +66,7 @@ public:
         (void) this;
         char* stringBuffer = static_cast<char*>(buffer);
         // todo: format timestamp -> is set to u32 here because u64 cannot be formatted with libnano
-        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIu32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.logLevel));
+        int32_t metaInfoLength = std::snprintf(stringBuffer, bufferSize, "%08" PRIX32 " [%s] %s ", static_cast<uint32_t>(record.timestamp), record.sourceName, toString(record.metadata.level));
         std::size_t messageLength = std::strlen(formatString);
 
         size_t overallLength = metaInfoLength + messageLength + 2U;

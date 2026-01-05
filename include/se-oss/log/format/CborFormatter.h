@@ -119,7 +119,7 @@ private:
         cbor_encode_uint(encoder, record.timestamp);
 
         cbor_encode_uint(encoder, toUint(CborLogKeys::LOG_LEVEL));
-        cbor_encode_uint(encoder, toUint(record.metadata.logLevel));
+        cbor_encode_uint(encoder, toUint(record.metadata.level));
 
         cbor_encode_uint(encoder, toUint(CborLogKeys::SOURCE_ID));
         cbor_encode_uint(encoder, record.metadata.sourceId);

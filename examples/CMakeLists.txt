@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 
+add_executable(example_log_minimal log_minimal.cpp)
+target_link_libraries(example_log_minimal PRIVATE se::log)
+
+
 add_executable(example_log_printf log_printf.cpp)
 target_link_libraries(example_log_printf PRIVATE se::log)
 
@@ -12,6 +16,7 @@ target_link_libraries(example_log_cbor PRIVATE se::log)
 
 install(
         TARGETS
+        example_log_minimal
         example_log_printf
         example_log_cbor
         DESTINATION ${CMAKE_INSTALL_PREFIX}
