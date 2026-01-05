@@ -7,18 +7,20 @@
 #ifndef SE_LOG_ISINK_H
 #define SE_LOG_ISINK_H
 
+#include "se-oss/log/ILogFilter.h"
+#include "se-oss/log/IWriter.h"
 #include "se-oss/log/Types.h"
 
 #include <cstring>
 
 namespace se_oss {
 
-class ILogSink
+class ILogSink : public ILogFilter
 {
 protected:
     ILogSink() = default;
 public:
-    virtual ~ILogSink() = default;
+    ~ILogSink() override = default;
     ILogSink(const ILogSink&) = delete;
     ILogSink(ILogSink&&) = delete;
     ILogSink& operator=(const ILogSink&) = delete;
@@ -27,8 +29,9 @@ public:
     virtual void write(LogMetadata metadata, const void* data, std::size_t length) = 0;
     virtual void flush() = 0;
 
-    virtual void setLogLevel(LogLevel level) = 0;
-    virtual void setComponentLogLevel(LogLevel level, uint8_t componentId) = 0;
+    // ILogFilter implementation
+    void setLogLevel(LogLevel level) override = 0;
+    void setFilter(std::function<bool(LogMetadata)> filter) override = 0;
 };
 
 struct LogHeader

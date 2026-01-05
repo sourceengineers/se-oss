@@ -6,7 +6,10 @@
 
 #ifndef SE_SE_LOG_ILOGFILTER_H
 #define SE_SE_LOG_ILOGFILTER_H
+
 #include "Types.h"
+
+#include <functional>
 
 namespace se_oss {
 class ILogFilter
@@ -21,7 +24,7 @@ public:
     ILogFilter& operator=(ILogFilter&&) = delete;
 
     virtual void setLogLevel(LogLevel level) = 0;
-    virtual void setComponentLogLevel(LogLevel level, uint8_t componentId) = 0;
+    virtual void setFilter(std::function<bool(LogMetadata)> filter) = 0;
 };
 } // namespace se
 

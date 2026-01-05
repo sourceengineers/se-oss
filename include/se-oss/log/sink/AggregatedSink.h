@@ -43,12 +43,19 @@ public:
         for (const auto& sink : _sinks) {
             sink.second->setLogLevel(level);
         }
+        _filter = nullptr;
     }
 
-    void setComponentLogLevel(LogLevel level, uint8_t componentId) override
+    void setFilter(std::function<bool(LogMetadata)> filter) override
     {
+        _filter = filter;
         for (const auto& sink : _sinks) {
-            sink.second->setComponentLogLevel(level, componentId);
+            sink.second->setFilter([this](LogMetadata metadata) -> bool {
+                if (_filter == nullptr) {
+                    return false;
+                }
+                return _filter(metadata);
+            });
         }
     }
 
@@ -63,6 +70,7 @@ public:
 
 private:
     std::unordered_map<TSink, std::unique_ptr<ILogSink>> _sinks {};
+    std::function<bool(LogMetadata)> _filter {};
 };
 
 } // namespace se

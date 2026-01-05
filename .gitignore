@@ -12,5 +12,3 @@ build/
 venv
 __pycache__/
 
-# Logs
-log

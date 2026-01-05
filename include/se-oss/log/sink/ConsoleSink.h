@@ -12,9 +12,7 @@
 
 namespace se_oss {
 
-class ConsoleSink final :
-    public ILogSink,
-    public ILogFilter
+class ConsoleSink final : public IWriter
 {
 public:
     explicit ConsoleSink(bool hexOutput = false);
@@ -24,11 +22,8 @@ public:
     ConsoleSink& operator=(const ConsoleSink&) = delete;
     ConsoleSink& operator=(ConsoleSink&&) = delete;
 
-    void write(LogMetadata metadata, const void* data, size_t length) override;
+    void write(const void* data, size_t length) override;
     void flush() override {}
-
-    void setLogLevel(LogLevel level) override;
-    void setComponentLogLevel(LogLevel level, uint8_t componentId) override;
 
 private:
     bool _hexOutput;

@@ -15,14 +15,10 @@ ConsoleSink::ConsoleSink(bool hexOutput) : _hexOutput {hexOutput}
 
 }
 
-void ConsoleSink::write(LogMetadata metadata, const void* data, size_t length)
+void ConsoleSink::write(const void* data, size_t length)
 {
-    if (metadata.logLevel < _level) {
-        return;
-    }
-
     if (!_hexOutput) {
-        printf("%s\n", static_cast<const char*>(data));
+        fputs(static_cast<const char*>(data), stdout);
     } else {
         auto byteData = static_cast<const uint8_t*>(data);
         for (size_t i = 0; i < length; ++i) {
@@ -30,17 +26,6 @@ void ConsoleSink::write(LogMetadata metadata, const void* data, size_t length)
         }
         putchar('\n');
     }
-}
-
-void ConsoleSink::setLogLevel(LogLevel level)
-{
-    _level = level;
-}
-
-void ConsoleSink::setComponentLogLevel(LogLevel level, uint8_t componentId)
-{
-    // todo: component filter
-    _level = level;
 }
 
 } // namespace ${SE_NAMESPACE}

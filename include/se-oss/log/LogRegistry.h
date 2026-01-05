@@ -9,6 +9,8 @@
 
 #include "Log.h"
 #include "sink/AggregatedSink.h"
+#include "sink/ConsoleSink.h"
+#include "sink/FilteredSink.h"
 
 #include <cassert>
 #include <memory>
@@ -16,7 +18,23 @@
 
 namespace se_oss {
 
-template<typename TComponent, typename TSink>
+enum class DefaultLogComponents : uint8_t
+{
+    DEFAULT = 0
+};
+
+constexpr const char* toString(DefaultLogComponents component)
+{
+    (void) component;
+    return "default";
+}
+
+enum class DefaultLogSinks : uint8_t
+{
+    CONSOLE = 0
+};
+
+template<typename TComponent = DefaultLogComponents, typename TSink = DefaultLogSinks>
 class LogRegistry
 {
 public:
@@ -30,7 +48,7 @@ public:
 
     Logger& createOrGetLogger(TComponent component)
     {
-        assert(!_sinkHandler.empty());
+        assert(checkSinkHandler<TSink>());
 
         if (_logger.find(component) == _logger.end()) {
             _logger.emplace(
@@ -71,6 +89,22 @@ private:
         } else {
             return UINT64_MAX;
         }
+    }
+
+    template <typename T = TSink>
+    std::enable_if_t<!std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler()
+    {
+        return !_sinkHandler.empty();
+    }
+
+    template<typename  T = DefaultLogSinks>
+    std::enable_if_t<std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler()
+    {
+        // In case of the default logger create the console sink ad hoc
+        if (_sinkHandler.empty()) {
+            attachSink(DefaultLogSinks::CONSOLE, std::make_unique<FilteredSink<ConsoleSink>>());
+        }
+        return true;
     }
 };
 

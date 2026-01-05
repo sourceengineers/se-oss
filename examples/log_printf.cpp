@@ -12,6 +12,8 @@
 
 #include <chrono>
 
+#include "se-oss/log/sink/FilteredSink.h"
+
 // Configure logger
 constexpr std::size_t LOG_BUFFER_SIZE {2048U};
 constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
@@ -24,13 +26,13 @@ auto se_oss::logConf<>()
 
 int main()
 {
-    auto shellSink = std::make_unique<se_oss::ConsoleSink>(true);
+    auto consoleSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>();
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<LogComponents, LogSinks>>();
     logRegistry->setTimeProvider([]() {
         return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     });
-    logRegistry->attachSink(LogSinks::SHELL, std::move(shellSink));
+    logRegistry->attachSink(LogSinks::SHELL, std::move(consoleSink));
     logRegistry->getSink(LogSinks::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
 
     se_oss::Logger& logger = logRegistry->createOrGetLogger(LogComponents::CELLULAR);

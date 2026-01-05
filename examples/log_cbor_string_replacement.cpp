@@ -9,6 +9,7 @@
 #include "se-oss/log/LogRegistry.h"
 #include "se-oss/log/format/CborFormatter.h"
 #include "se-oss/log/sink/ConsoleSink.h"
+#include "se-oss/log/sink/FilteredSink.h"
 
 #include <chrono>
 
@@ -24,7 +25,7 @@ auto se_oss::logConf<>()
 
 int main()
 {
-    auto shellSink = std::make_unique<se_oss::ConsoleSink>(true);
+    auto shellSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>(true);
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<LogComponents, LogSinks>>();
     logRegistry->setTimeProvider([]() {
