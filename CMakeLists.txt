@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 cmake_minimum_required(VERSION 3.26)
-project(se_log)
+project(se_oss)
 
 
 option(SE_LOG_REPLACE_STRINGS "Replace format strings with IDs" OFF)
