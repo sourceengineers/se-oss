@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_BUFFER_NOBUFFER_H
-#define SE_SE_LOG_BUFFER_NOBUFFER_H
+#pragma once
 
 #include "IBuffer.h"
 #include "se-oss/log/sink/ILogSink.h"
@@ -53,5 +52,3 @@ private:
 };
 
 } // namespace se
-
-#endif // SE_SE_LOG_BUFFER_NOBUFFER_H

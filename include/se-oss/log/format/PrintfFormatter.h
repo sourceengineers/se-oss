@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_FORMAT_PRINTFFORMATTER_H
-#define SE_SE_LOG_FORMAT_PRINTFFORMATTER_H
+#pragma once
 
 #include <cinttypes>
 #include <cstdio>
@@ -83,5 +82,3 @@ public:
 };
 ;
 } // namespace se_oss
-
-#endif // SE_SE_LOG_FORMAT_PRINTFFORMATTER_H

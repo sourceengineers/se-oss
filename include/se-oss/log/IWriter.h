@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_IWRITER_H
-#define SE_SE_LOG_IWRITER_H
+#pragma once
 
 #include <cstddef>
 
@@ -25,5 +24,3 @@ public:
     virtual void flush() = 0;
 };
 } // namespace se
-
-#endif // SE_SE_LOG_IWRITER_H

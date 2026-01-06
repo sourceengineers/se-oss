@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_FORMAT_FORMAT_H
-#define SE_SE_LOG_FORMAT_FORMAT_H
+#pragma once
 
 #include "se-oss/log/Types.h"
 
@@ -39,5 +38,3 @@ private:
 };
 
 } // namespace se
-
-#endif // SE_SE_LOG_FORMAT_FORMAT_H

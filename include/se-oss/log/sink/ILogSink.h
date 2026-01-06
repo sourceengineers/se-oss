@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_LOG_ISINK_H
-#define SE_LOG_ISINK_H
+#pragma once
 
 #include "se-oss/log/ILogFilter.h"
 #include "se-oss/log/IWriter.h"
@@ -78,5 +77,3 @@ constexpr const void* deserialize(LogHeader& header, const void* buffer, std::si
 
 
 } // namespace se
-
-#endif // SE_LOG_ISINK_H

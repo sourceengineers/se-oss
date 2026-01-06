@@ -4,15 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_CONF_H
-#define SE_SE_LOG_CONF_H
+#pragma once
 
 #include "buffer/IBuffer.h"
 #include "buffer/NoBuffer.h"
 #include "format/PrintfFormatter.h"
 
 #include <memory>
-
 
 namespace se_oss {
 
@@ -53,5 +51,3 @@ std::size_t logConfMaxMessageLength()
 }
 
 } // namespace se_oss
-
-#endif // SE_SE_LOG_CONF_H

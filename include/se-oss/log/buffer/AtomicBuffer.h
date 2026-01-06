@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_BUFFER_ATOMICRINGBUFFER_H
-#define SE_SE_LOG_BUFFER_ATOMICRINGBUFFER_H
+#pragma once
 
 #include "IBuffer.h"
 
@@ -134,5 +133,3 @@ private:
 
 };
 } // namespace se
-
-#endif // SE_SE_LOG_BUFFER_ATOMICRINGBUFFER_H

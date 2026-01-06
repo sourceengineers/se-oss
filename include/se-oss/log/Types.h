@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_LOG_TYPES_H
-#define SE_LOG_TYPES_H
+#pragma once
 
 #include <cstdint>
 
@@ -56,5 +55,3 @@ struct LogRecord
 };
 
 } // namespace se
-
-#endif // SE_LOG_TYPES_H

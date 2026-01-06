@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_LOG_RESOURCEDATABASE_H
-#define SE_LOG_RESOURCEDATABASE_H
+#pragma once
 
 #include <cstdint>
 #include <utility>
@@ -25,5 +24,3 @@ decltype(auto) buildResourceIdentifier(std::index_sequence<indices...>) {
 
 
 } // namespace se
-
-#endif // SE_LOG_RESOURCEDATABASE_H

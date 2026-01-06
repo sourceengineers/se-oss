@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_OSS_LOG_SINK_FILTEREDSINK_H
-#define SE_SE_OSS_LOG_SINK_FILTEREDSINK_H
+#pragma once
 
 #include "ILogSink.h"
 #include "se-oss/log/ILogFilter.h"
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace se_oss
-
-#endif // SE_SE_OSS_LOG_SINK_FILTEREDSINK_H

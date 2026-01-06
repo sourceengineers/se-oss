@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_LOG_AGGREGATEDSINK_H
-#define SE_LOG_AGGREGATEDSINK_H
+#pragma once
 
 #include "ILogSink.h"
 
@@ -74,5 +73,3 @@ private:
 };
 
 } // namespace se
-
-#endif // SE_LOG_AGGREGATEDSINK_H

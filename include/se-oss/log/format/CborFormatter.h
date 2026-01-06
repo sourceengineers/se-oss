@@ -4,15 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_FORMAT_CBORFORMATTER_H
-#define SE_SE_LOG_FORMAT_CBORFORMATTER_H
+#pragma once
 
 #include "se-oss/log/Types.h"
 
 #include <cbor.h>
 
 #include <cstddef>
-
 
 namespace se_oss {
 
@@ -126,5 +124,3 @@ private:
     }
 };
 } // namespace se
-
-#endif // SE_SE_LOG_FORMAT_CBORFORMATTER_H

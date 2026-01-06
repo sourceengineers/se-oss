@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_LOG_LOG_H
-#define SE_LOG_LOG_H
+#pragma once
 
 #include "Conf.h"
 #include "ResourceDatabase.h"
@@ -150,5 +149,3 @@ inline LogRecord Logger::createRecord(LogLevel level) const
 }
 
 } // namespace se
-
-#endif // SE_LOG_LOG_H

@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_BUFFER_IREADER_H
-#define SE_SE_LOG_BUFFER_IREADER_H
+#pragma once
 
 #include <functional>
 
@@ -28,5 +27,3 @@ public:
     virtual bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) = 0;
 };
 } // namespace se
-
-#endif // SE_SE_LOG_BUFFER_IREADER_H

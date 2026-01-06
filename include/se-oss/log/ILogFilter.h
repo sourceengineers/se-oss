@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_SE_LOG_ILOGFILTER_H
-#define SE_SE_LOG_ILOGFILTER_H
+#pragma once
 
 #include "Types.h"
 
@@ -27,5 +26,3 @@ public:
     virtual void setFilter(std::function<bool(LogMetadata)> filter) = 0;
 };
 } // namespace se
-
-#endif // SE_SE_LOG_ILOGFILTER_H
