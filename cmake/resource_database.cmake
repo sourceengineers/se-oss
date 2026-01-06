@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Source Engineers GmbH
+# SPDX-License-Identifier: MIT
+
 function(se_create_resource_database)
     set(prefix SE_LOG_DB)
     set(singleValues TARGET)

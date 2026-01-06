@@ -9,6 +9,8 @@ option(SE_LOG_REPLACE_STRINGS "Replace format strings with IDs" OFF)
 option(SE_LOG_SUPPORT_CBOR "Support CBOR binary encoding" OFF)
 option(SE_LOG_EXAMPLES "Compile se-log examples" OFF)
 option(SE_LOG_TESTS "Compile se-log tests" OFF)
+set(SE_LOG_MAX_LEVEL "TRACE" CACHE STRING "Log levels above here will be included in the output binary")
+set(SE_LOG_RELEASE_MAX_LEVEL "INFO" CACHE STRING "Log levels above here will be included in the output binary")
 
 add_subdirectory(lib)
 
@@ -40,6 +42,13 @@ if (${SE_LOG_REPLACE_STRINGS})
             SE_LOG_REPLACE_STRINGS
     )
 endif ()
+
+include(cmake/set_max_log_level.cmake)
+se_set_max_log_level(
+        TARGET se_log
+        MAX_LEVEL ${SE_LOG_MAX_LEVEL}
+        RELEASE_MAX_LEVEL ${SE_LOG_RELEASE_MAX_LEVEL}
+)
 
 add_library(se::log ALIAS se_log)
 

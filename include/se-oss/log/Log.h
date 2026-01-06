@@ -63,6 +63,7 @@ public:
     void distributeMessages(std::size_t maxNumberOfMessages = 20U) const;
 
 private:
+    static constexpr LogLevel MAX_LEVEL {toLogLevel(SE_LOG_MAX_LOG_LEVEL)};
     LogLevel _level {LogLevel::INFO};
     std::unique_ptr<IBuffer> _buffer {logConfCreateBuffer()};
     LogStatistics _statistics {};
@@ -106,7 +107,7 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
 {
     static_assert(std::is_same<TFormat, const char*>::value || std::is_same<TFormat, uint32_t>::value, "Format type must be either const char* or uint32_t");
 
-    if (level < _level) {
+    if (level < MAX_LEVEL || level < _level) {
         return;
     }
 
