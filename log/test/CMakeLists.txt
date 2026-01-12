@@ -6,6 +6,7 @@ enable_testing()
 add_executable(
         se_oss_unit_tests
         CborFormatterTest.cpp
+        AtomicBufferTest.cpp
 )
 
 target_link_libraries(
