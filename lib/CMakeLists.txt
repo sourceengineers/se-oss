@@ -3,7 +3,7 @@
 
 include(FetchContent)
 
-if (${SE_LOG_SUPPORT_CBOR})
+if (${SE_OSS_SUPPORT_CBOR})
     message(STATUS "[se-log] Support for CBOR enabled")
     set(WITH_FLOATING_POINT ON CACHE BOOL "" FORCE)
     set(WITH_CBOR2JSON OFF CACHE BOOL "" FORCE)
