@@ -37,8 +37,8 @@ This repository contains the following software components:
 ### Structure
 
 The repository is organized into software components. Each component can be used
-independently and is contained in its own directory. Every directory follows a
-common structure:
+independently and is contained in its own directory. Packaging a single software
+component is thus easy. Every directory follows a common structure:
 
 - `cmake` (optional): CMake functions and macros.
 - `examples`: Example usage of the component.
@@ -93,3 +93,48 @@ commands to build and run all tests and examples:
 cmake --workflow --preset ci-example
 cmake --workflow --preset ci-test
 ```
+
+## Contributing
+
+### Semantic Versioning
+
+The goal is to use [Semantic Versioning](https://semver.org/) on a component level.
+In summary:
+
+> Given a version number MAJOR.MINOR.PATCH, increment the:
+> 1. MAJOR version when you make incompatible API changes
+> 2. MINOR version when you add functionality in a backward compatible manner
+> 3. PATCH version when you make backward compatible bug fixes
+> 
+> Additional labels for pre-release and build metadata are available as extensions to the MAJOR.MINOR.PATCH format.
+
+### Commit Messages
+
+This repository uses [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0).
+
+In summary a commit message consists of:
+
+```text
+<type>[optional scope]: <description>
+```
+
+where `<type>` is one of the following:
+
+- `feat`: _Introduces a new feature to the codebase (this correlates with MINOR in Semantic Versioning)_ ([Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0))
+- `fix`: _Patches a bug in your codebase (this correlates with PATCH in Semantic Versioning)_ ([Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0))
+- `build`: Changes to build scripts (e.g., CMake scripts)
+- `chore`: Routine tasks such as dependency dependencies or containers
+- `ci`: Changes to the CI configuration files and scripts
+- `docs`: Changes in the documentation
+- `style`: File formatting, no functional changes
+- `refactor`: Refactoring production code
+- `test`: Adding or updating tests
+
+Furthermore, must breaking changes use an exclamation mark `!` after the type.
+
+For example:
+
+- `feat(log): add support for compile-time string replacement`
+- `feat(log)!: remove trace log level from api`
+- `fix(log): resolve buffer deadlock issue`
+- `docs(readme): add contribution guidelines`
