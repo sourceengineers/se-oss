@@ -15,3 +15,13 @@ if (${SE_OSS_SUPPORT_CBOR})
     )
     FetchContent_MakeAvailable(tinycbor)
 endif ()
+
+if (${SE_OSS_TESTS})
+    include(FetchContent)
+    FetchContent_Declare(
+            googletest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+            GIT_TAG        v1.17.0
+    )
+    FetchContent_MakeAvailable(googletest)
+endif ()
