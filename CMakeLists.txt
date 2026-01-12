@@ -15,13 +15,19 @@ option(SE_OSS_TESTS "Compile se-oss tests" OFF)
 option(SE_OSS_BENCHMARKS "Compile se-oss benchmarks" OFF)
 
 # set component features
-# note: these can be overriden by the parent project by forcing the variables
+# note: these can be overridden by the parent project by forcing the variables
 #       into the cache
 set(SE_OSS_LOG_EXAMPLES ${SE_OSS_EXAMPLES} CACHE BOOL "")
 set(SE_OSS_LOG_TESTS ${SE_OSS_TESTS} CACHE BOOL "")
 set(SE_OSS_LOG_BENCHMARKS $SE_OSS_BENCHMARKS} CACHE BOOL "")
 
 add_subdirectory(lib)
+
+if (${SE_OSS_TESTS})
+    enable_testing()
+    include(cmake/coverage.cmake)
+    se_coverage()
+endif ()
 
 if (${SE_OSS_COMPONENT_LOG})
     message(STATUS "[se-oss] Log component enabled")

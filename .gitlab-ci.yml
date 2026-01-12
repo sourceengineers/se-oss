@@ -29,15 +29,13 @@ unit-tests:
   script:
     - cmake --workflow --preset ci-test
     - cmake --install build/x86_64/test --component tests
-    - mkdir -p release/report/coverage
-    - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o release/report/se-oss-coverage-report.xml --html --html-theme github.dark-green --html-details release/report/coverage/index.html --root ${CI_PROJECT_DIR} -e '/.*/build/' -e '/.*/test/' -e '/usr*' -e '/.*/lib/'
   artifacts:
     name: unit-test-${CI_COMMIT_SHA}
     reports:
       junit: release/report/se-oss-test-report.xml
       coverage_report:
         coverage_format: cobertura
-        path: release/report/se-oss-coverage-report.xml
+        path: release/report/se-oss-test-coverage-report.xml
     paths:
       - release
     expire_in: 1 day

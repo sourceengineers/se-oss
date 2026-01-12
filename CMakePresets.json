@@ -92,12 +92,12 @@
         {
             "name": "ci-test",
             "configurePreset": "ci-test",
-            "targets": [ "se_oss_unit_tests" ]
+            "targets": [ "se_log_tests" ]
         },
         {
             "name": "ci-coverage-report",
             "configurePreset": "ci-test",
-            "targets": [ ]
+            "targets": [ "se_oss_coverage" ]
         },
         {
             "name": "ci-static-analysis",
