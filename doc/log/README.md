@@ -12,31 +12,31 @@ target_link_libraries(my_application PRIVATE se::log)
 
 The logging library supports the following options in CMake:
 
-| Option                     | Description                                                         | Default | Options                                                     |
-|----------------------------|---------------------------------------------------------------------|---------|-------------------------------------------------------------|
-| `SE_LOG_REPLACE_STRINGS`   | Replace format strings with IDs                                     | `OFF`   | `ON`, `OFF`                                                 |
-| `SE_LOG_SUPPORT_CBOR`      | Support CBOR binary encoding                                        | `OFF`   | `ON`, `OFF`                                                 |
-| `SE_LOG_EXAMPLES`          | Compile se-log examples                                             | `OFF`   | `ON`, `OFF`                                                 |
-| `SE_LOG_TESTS`             | Compile se-log tests                                                | `OFF`   | `ON`, `OFF`                                                 |
-| `SE_LOG_MAX_LEVEL`         | Log levels above here will be included in the output binary         | `TRACE` | `TRACE`, `DEBUG`, `WARN`, `INFO`, `WARN`, `ERROR`, `FATAL`  |
-| `SE_LOG_RELEASE_MAX_LEVEL` | Log levels above here will be included in the output release binary | `INFO`  | `TRACE`, `DEBUG`, `WARN`, `INFO`, `WARN`, `ERROR`, `FATAL`  |
+| Option                         | Description                                                         | Default | Options                                                    |
+|--------------------------------|---------------------------------------------------------------------|---------|------------------------------------------------------------|
+| `SE_OSS_LOG_REPLACE_STRINGS`   | Replace format strings with IDs                                     | `OFF`   | `ON`, `OFF`                                                |
+| `SE_OSS_LOG_SUPPORT_CBOR`      | Support CBOR binary encoding                                        | `OFF`   | `ON`, `OFF`                                                |
+| `SE_OSS_LOG_EXAMPLES`          | Compile se-log examples                                             | `OFF`   | `ON`, `OFF`                                                |
+| `SE_OSS_LOG_TESTS`             | Compile se-log tests                                                | `OFF`   | `ON`, `OFF`                                                |
+| `SE_OSS_LOG_MAX_LEVEL`         | Log levels above here will be included in the output binary         | `TRACE` | `TRACE`, `DEBUG`, `WARN`, `INFO`, `WARN`, `ERROR`, `FATAL` |
+| `SE_OSS_LOG_RELEASE_MAX_LEVEL` | Log levels above here will be included in the output release binary | `INFO`  | `TRACE`, `DEBUG`, `WARN`, `INFO`, `WARN`, `ERROR`, `FATAL` |
 
 
 An option can be turned on in CMake by forcing the variable in the cache:
 
 ```cmake
-set(SE_LOG_REPLACE_STRINGS ON CACHE BOOL "" FORCE)
-set(SE_LOG_MAX_LEVEL "INFO" CACHE STRING "" FORCE)
+set(SE_OSS_LOG_REPLACE_STRINGS ON CACHE BOOL "" FORCE)
+set(SE_OSS_LOG_MAX_LEVEL "INFO" CACHE STRING "" FORCE)
 ```
 
-#### `SE_LOG_SUPPORT_CBOR`
+#### `SE_OSS_LOG_SUPPORT_CBOR`
 
 Whith this option enabled`se-oss` will fetch [intel/tinycbor](https://github.com/intel/tinycbor) (MIT License) as a dependency.
 
 See the [Binary Formatter](#binary-serialization-cborformatter) for more information.
 
 
-#### `SE_LOG_REPLACE_STRINGS`
+#### `SE_OSS_LOG_REPLACE_STRINGS`
 
 This option enables string replacement in format calls. The format strings will
 be replaced at compile time with `u32` hash values. This reduces the size of the
@@ -128,7 +128,7 @@ leads to the output
 
 ### Binary Serialization `CborFormatter`
 
-This formatter requires the `SE_LOG_SUPPORT_CBOR` CMake option.
+This formatter requires the `SE_OSS_LOG_SUPPORT_CBOR` CMake option.
 
 This formatter requires a tool on the host to interpret the log message.
 
@@ -160,6 +160,6 @@ A5                                      # map(5)
       18 2A                             # unsigned(42)
 ```
 
-The format string or its hash value (depending on `SE_LOG_REPLACE_STRINGS`) is 
+The format string or its hash value (depending on `SE_OSS_LOG_REPLACE_STRINGS`) is 
 serialized together with the arguments and additional record metada (timestamp, 
 log level, source id).

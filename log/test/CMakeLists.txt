@@ -20,7 +20,7 @@ add_executable(
 target_link_libraries(
         se_oss_unit_tests
         PRIVATE
-        se::log
+        se_oss::log
         GTest::gtest_main
 )
 

@@ -22,7 +22,8 @@
                 "CMAKE_C_FLAGS_DEBUG": "-O0 -g3",
                 "CMAKE_CXX_FLAGS_DEBUG": "-O0 -g3",
                 "CMAKE_C_FLAGS_RELEASE": "-O2 -g",
-                "CMAKE_CXX_FLAGS_RELEASE": "-O2 -g"
+                "CMAKE_CXX_FLAGS_RELEASE": "-O2 -g",
+                "SE_OSS_COMPONENT_LOG": "ON"
             },
             "environment": {
                 "COMMON_COMPILER_FLAGS": "-Wall -Wextra -Wpedantic"
@@ -47,9 +48,9 @@
             "installDir": "release/host",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "SE_LOG_EXAMPLES": "ON",
-                "SE_LOG_SUPPORT_CBOR": "ON",
-                "SE_LOG_BENCHMARKS": "ON"
+                "SE_OSS_EXAMPLES": "ON",
+                "SE_OSS_SUPPORT_CBOR": "ON",
+                "SE_OSS_BENCHMARKS": "ON"
             }
         },
         {
@@ -69,7 +70,7 @@
             "installDir": "release/test",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "SE_LOG_TESTS": "ON",
+                "SE_OSS_TESTS": "ON",
                 "TESTING": "ON",
                 "CMAKE_CXX_FLAGS": "--coverage",
                 "CMAKE_C_FLAGS": "--coverage"

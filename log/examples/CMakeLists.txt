@@ -4,15 +4,15 @@
 
 
 add_executable(example_log_minimal log_minimal.cpp)
-target_link_libraries(example_log_minimal PRIVATE se::log)
+target_link_libraries(example_log_minimal PRIVATE se_oss::log)
 
 
 add_executable(example_log_printf log_printf.cpp)
-target_link_libraries(example_log_printf PRIVATE se::log)
+target_link_libraries(example_log_printf PRIVATE se_oss::log)
 
 
 add_executable(example_log_cbor log_cbor.cpp)
-target_link_libraries(example_log_cbor PRIVATE se::log)
+target_link_libraries(example_log_cbor PRIVATE se_oss::log)
 
 install(
         TARGETS
@@ -25,8 +25,8 @@ install(
 
 if (${SE_LOG_REPLACE_STRINGS})
     add_executable(example_log_cbor_string_replacement log_cbor_string_replacement.cpp)
-    target_link_libraries(example_log_cbor_string_replacement PRIVATE se::log)
-    include(${CMAKE_SOURCE_DIR}/cmake/resource_database.cmake)
+    target_link_libraries(example_log_cbor_string_replacement PRIVATE se_oss::log)
+    include(../cmake/resource_database.cmake)
     se_create_resource_database(TARGET example_log_cbor_string_replacement)
 
     install(
