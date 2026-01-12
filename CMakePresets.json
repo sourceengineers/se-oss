@@ -48,7 +48,8 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "SE_LOG_EXAMPLES": "ON",
-                "SE_LOG_SUPPORT_CBOR": "ON"
+                "SE_LOG_SUPPORT_CBOR": "ON",
+                "SE_LOG_BENCHMARKS": "ON"
             }
         },
         {
@@ -101,6 +102,11 @@
             "name": "ci-static-analysis",
             "configurePreset": "ci-test",
             "targets": [ ]
+        },
+        {
+            "name": "ci-benchmark",
+            "configurePreset": "ci-host",
+            "targets": [ "se_log_benchmark" ]
         }
     ],
 
