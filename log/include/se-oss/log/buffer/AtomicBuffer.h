@@ -31,9 +31,7 @@ public:
     AtomicBuffer& operator=(const AtomicBuffer&) = delete;
     AtomicBuffer& operator=(AtomicBuffer&&) = delete;
 
-    std::size_t capacity() const override { return _buffer.size(); }
-
-    // todo: test and fix +1/-1 for capacity and size
+    std::size_t capacity() const override { return _buffer.size() - MIN_READER_WRITER_DISTANCE; }
 
     std::size_t size() const override
     {
@@ -41,14 +39,25 @@ public:
         auto reader = _reader.load();
         auto watermark = _watermark.load();
 
-        if (writer <= watermark) {
+        if (writer >= reader) {
             return writer - reader;
         } else {
-            return watermark - reader + writer;
+            return (watermark - reader) + writer;
         }
     }
 
-    std::size_t free() const { return capacity() - size(); }
+    std::size_t free() const
+    {
+        auto writer = _writer.load();
+        auto reader = _reader.load();
+        auto watermark = _watermark.load();
+
+        if (writer >= reader) {
+            return (watermark - writer) + reader - MIN_READER_WRITER_DISTANCE;
+        } else {
+            return reader - writer - MIN_READER_WRITER_DISTANCE;
+        }
+    }
 
 
     bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
@@ -59,13 +68,13 @@ public:
         bool updateWatermark {false};
 
         // writer is behind reader -> check size up to reader
-        if (writer < reader && reader - writer < reserveSize) {
+        if (writer < reader && reader - writer <= reserveSize) {
             return false;
         }
         // writer is ahead of reader -> check size up to watermark
         if (writer >= reader && watermark - writer < reserveSize) {
             // no space until watermark try wrap around
-            if (reader < reserveSize) {
+            if (reader <= reserveSize) {
                 return false;
             }
 
@@ -77,11 +86,10 @@ public:
 
         auto bytesWritten = producer(_buffer.data() + writer, reserveSize);
         if (bytesWritten > 0U) {
-            // todo: sanity check
             if (updateWatermark) {
                 _watermark.store(watermark);
             }
-            _writer.store(writer + bytesWritten);
+            _writer.store(writer + std::min(bytesWritten, reserveSize));
         }
         return true;
     }
@@ -96,7 +104,7 @@ public:
 
         if (reader >= watermark) {
             reader = 0U;
-            watermark = capacity() - 1;
+            watermark = _buffer.size();
             updateWatermark = true;
         }
 
@@ -112,8 +120,7 @@ public:
 
 
         auto bytesRead = consumer(_buffer.data() + reader, bytesAvailable);
-        // todo: sanity check
-        _reader.store(reader + bytesRead);
+        _reader.store(reader + std::min(bytesRead, bytesAvailable));
         if (updateWatermark) {
             // The watermark is only update here when the reader is ahead of the
             // writer. On the other hand, the writer can only update the
@@ -125,11 +132,12 @@ public:
     }
 
 private:
-    std::array<uint8_t, SIZE> _buffer {};
+    static constexpr std::size_t MIN_READER_WRITER_DISTANCE {1U};
+    std::array<uint8_t, SIZE + MIN_READER_WRITER_DISTANCE> _buffer {};
 
     std::atomic<std::size_t> _reader {0U};
     std::atomic<std::size_t> _writer {0U};
-    std::atomic<std::size_t> _watermark {SIZE - 1};
+    std::atomic<std::size_t> _watermark {_buffer.size()};
 
 };
 } // namespace se
