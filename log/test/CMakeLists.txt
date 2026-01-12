@@ -7,13 +7,15 @@ add_executable(
         se_log_tests
         CborFormatterTest.cpp
         AtomicBufferTest.cpp
+        LogPrintf.cpp
 )
 
 target_link_libraries(
         se_log_tests
         PRIVATE
         se_oss::log
-        GTest::gtest_main
+        gtest
+        gtest_main
 )
 
 include(GoogleTest)

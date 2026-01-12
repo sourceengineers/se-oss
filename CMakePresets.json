@@ -69,6 +69,7 @@
             "binaryDir": "build/x86_64/test",
             "installDir": "release/test",
             "cacheVariables": {
+                "SE_OSS_LOG_RELEASE_MAX_LEVEL": "TRACE",
                 "CMAKE_BUILD_TYPE": "Release",
                 "SE_OSS_TESTS": "ON",
                 "TESTING": "ON",
