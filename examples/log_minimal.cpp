@@ -6,7 +6,6 @@
 
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
-#include "se-oss/log/format/CborFormatter.h"
 
 int main()
 {

@@ -16,7 +16,7 @@ class PrintfFormatter
 {
 public:
     template<typename... Values>
-    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, uint32_t formatStringId, const Values& ...values)
+    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, uint32_t formatStringId, const Values& ...)
     {
         (void) this;
         char* stringBuffer = static_cast<char*>(buffer);
