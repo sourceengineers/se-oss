@@ -8,6 +8,7 @@ add_executable(
         AtomicBufferTest.cpp
         BufferSinkTest.cpp
         CborFormatterTest.cpp
+        ConsoleSinkTest.cpp
         FilteredSinkTest.cpp
         LogPrintfTest.cpp
         NoBufferTest.cpp
