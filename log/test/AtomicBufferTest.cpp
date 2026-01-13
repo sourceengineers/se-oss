@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "se-oss/log/sink/ILogSink.h"
+
+
+#include <cstring>
 #include <gtest/gtest.h>
 #include <se-oss/log/buffer/AtomicBuffer.h>
 #include <vector>
-#include <cstring>
 
 using namespace se_oss;
 

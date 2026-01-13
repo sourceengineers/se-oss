@@ -27,7 +27,7 @@ public:
     FilteredSink& operator=(const FilteredSink&) = delete;
     FilteredSink& operator=(FilteredSink&&) = delete;
 
-    void write(LogMetadata metadata, const void* data, std::size_t length) override
+    void write(const LogMetadata& metadata, const void* data, std::size_t length) override
     {
         if (_filter == nullptr || !_filter(metadata)) {
             return;
@@ -45,14 +45,16 @@ public:
         _filter = [level](LogMetadata metadata) { return metadata.level >= level; };
     }
 
-    void setFilter(std::function<bool(LogMetadata)> filter) override
+    void setFilter(std::function<bool(const LogMetadata&)> filter) override
     {
         _filter = filter;
     }
 
+    T& inner() { return _sink; }
+
 private:
     T _sink;
-    std::function<bool(LogMetadata)> _filter {[](LogMetadata) -> bool { return true; }};
+    std::function<bool(const LogMetadata&)> _filter {[](const LogMetadata&) -> bool { return true; }};
 };
 
 } // namespace se_oss

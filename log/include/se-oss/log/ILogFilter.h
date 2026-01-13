@@ -23,6 +23,6 @@ public:
     ILogFilter& operator=(ILogFilter&&) = delete;
 
     virtual void setLogLevel(LogLevel level) = 0;
-    virtual void setFilter(std::function<bool(LogMetadata)> filter) = 0;
+    virtual void setFilter(std::function<bool(const LogMetadata&)> filter) = 0;
 };
 } // namespace se

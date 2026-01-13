@@ -24,7 +24,7 @@ public:
     AggregatedSink& operator=(const AggregatedSink&) = delete;
     AggregatedSink& operator=(AggregatedSink&&) = delete;
 
-    void write(LogMetadata metadata, const void* data, size_t length) override
+    void write(const LogMetadata& metadata, const void* data, size_t length) override
     {
         for (const auto& sink : _sinks) {
             sink.second->write(metadata, data, length);
@@ -46,11 +46,11 @@ public:
         _filter = nullptr;
     }
 
-    void setFilter(std::function<bool(LogMetadata)> filter) override
+    void setFilter(std::function<bool(const LogMetadata&)> filter) override
     {
         _filter = filter;
         for (const auto& sink : _sinks) {
-            sink.second->setFilter([this](LogMetadata metadata) -> bool {
+            sink.second->setFilter([this](const LogMetadata& metadata) -> bool {
                 if (_filter == nullptr) {
                     return false;
                 }
@@ -70,7 +70,7 @@ public:
 
 private:
     std::unordered_map<TSink, std::unique_ptr<ILogSink>> _sinks {};
-    std::function<bool(LogMetadata)> _filter {};
+    std::function<bool(const LogMetadata&)> _filter {};
 };
 
 } // namespace se

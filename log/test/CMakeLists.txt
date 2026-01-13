@@ -5,8 +5,10 @@ enable_testing()
 
 add_executable(
         se_log_tests
-        CborFormatterTest.cpp
         AtomicBufferTest.cpp
+        BufferSinkTest.cpp
+        CborFormatterTest.cpp
+        FilteredSinkTest.cpp
         LogPrintfTest.cpp
 )
 
@@ -14,8 +16,8 @@ target_link_libraries(
         se_log_tests
         PRIVATE
         se_oss::log
-        gtest
-        gtest_main
+        GTest::gmock
+        GTest::gtest_main
 )
 
 include(GoogleTest)
