@@ -21,4 +21,4 @@ target_link_libraries(
 include(GoogleTest)
 gtest_discover_tests(se_log_tests)
 
-install(TARGETS se_log_tests DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT tests)
+install(TARGETS se_log_tests DESTINATION test COMPONENT tests)

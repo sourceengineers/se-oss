@@ -11,6 +11,7 @@
             "name": "base",
             "hidden": true,
             "generator": "Ninja",
+            "installDir": "release",
             "cacheVariables": {
                 "CMAKE_C_STANDARD": "11",
                 "CMAKE_C_STANDARD_REQUIRED": "ON",
@@ -45,7 +46,6 @@
             "displayName": "Host toolchain for host binaries",
             "inherits": "gcc-x86_64",
             "binaryDir": "build/x86_64/release",
-            "installDir": "release/host",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "SE_OSS_EXAMPLES": "ON",
@@ -67,7 +67,6 @@
             "displayName": "Host toolchain for testing and coverage",
             "inherits": "gcc-x86_64",
             "binaryDir": "build/x86_64/test",
-            "installDir": "release/test",
             "cacheVariables": {
                 "SE_OSS_LOG_RELEASE_MAX_LEVEL": "TRACE",
                 "CMAKE_BUILD_TYPE": "Release",

@@ -15,7 +15,7 @@ function(se_coverage)
 
     install(
             DIRECTORY ${CMAKE_BINARY_DIR}/report
-            DESTINATION ..
+            DESTINATION .
             COMPONENT tests
     )
 endfunction()

@@ -42,5 +42,5 @@ function(se_create_resource_database)
             ${GENERATED_SOURCE_FILE}.o
     )
     
-    install(FILES ${GENERATED_DATABASE_FILE} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT firmware)
+    install(FILES ${GENERATED_DATABASE_FILE} DESTINATION firmware COMPONENT firmware)
 endfunction()
