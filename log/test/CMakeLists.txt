@@ -7,7 +7,7 @@ add_executable(
         se_log_tests
         CborFormatterTest.cpp
         AtomicBufferTest.cpp
-        LogPrintf.cpp
+        LogPrintfTest.cpp
 )
 
 target_link_libraries(
