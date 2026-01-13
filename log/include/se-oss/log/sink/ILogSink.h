@@ -35,7 +35,7 @@ public:
 
 struct LogHeader
 {
-    static constexpr size_t PACKED_SIZE {6U};
+    static constexpr size_t PACKED_SIZE {4U};
     LogMetadata metadata {};
     uint16_t messageLength {0U};
 };
@@ -51,8 +51,6 @@ constexpr void* serialize(const LogHeader& header, void* buffer, std::size_t buf
     byteBuffer += sizeof(header.metadata.level);
     std::memcpy(byteBuffer, &header.metadata.sourceId, sizeof(header.metadata.sourceId));
     byteBuffer += sizeof(header.metadata.sourceId);
-    std::memcpy(byteBuffer, &header.metadata.tag, sizeof(header.metadata.tag));
-    byteBuffer += sizeof(header.metadata.tag);
     std::memcpy(byteBuffer, &header.messageLength, sizeof(header.messageLength));
     byteBuffer += sizeof(header.messageLength);
     return byteBuffer;
@@ -68,8 +66,6 @@ constexpr const void* deserialize(LogHeader& header, const void* buffer, std::si
     byteBuffer += sizeof(header.metadata.level);
     std::memcpy(&header.metadata.sourceId, byteBuffer, sizeof(header.metadata.sourceId));
     byteBuffer += sizeof(header.metadata.sourceId);
-    std::memcpy(&header.metadata.tag, byteBuffer, sizeof(header.metadata.tag));
-    byteBuffer += sizeof(header.metadata.tag);
     std::memcpy(&header.messageLength, byteBuffer, sizeof(header.messageLength));
     byteBuffer += sizeof(header.messageLength);
     return byteBuffer;

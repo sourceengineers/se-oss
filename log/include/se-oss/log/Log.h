@@ -141,7 +141,6 @@ inline LogRecord Logger::createRecord(LogLevel level) const
     LogRecord record {};
     record.metadata.level = level;
     record.metadata.sourceId = _id;
-    // todo: tag
     record.sourceName = _name;
     if (_timeProvider) {
         record.timestamp = _timeProvider();

@@ -13,7 +13,7 @@ set(SE_OSS_LOG_RELEASE_MAX_LEVEL "INFO" CACHE STRING "Log levels above here will
 add_library(
         se_oss_log
         STATIC
-        src/sink/ConsoleSink.cpp
+        src/ConsoleSink.cpp
 )
 
 target_sources(

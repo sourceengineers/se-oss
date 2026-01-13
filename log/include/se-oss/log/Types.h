@@ -58,7 +58,6 @@ struct LogMetadata
 {
     LogLevel level {LogLevel::TRACE};
     uint8_t sourceId {UINT8_MAX};
-    uint16_t tag {UINT16_MAX};
 };
 
 struct LogRecord
