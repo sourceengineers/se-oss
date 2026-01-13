@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 find_program(CLANG_TIDY clang-tidy)
+find_program(CLANG_FORMAT clang-format)
 find_program(CPP_CHECK cppcheck)
+
+message(STATUS ${CLANG_FORMAT})
 
 function(se_static_analysis)
     # parse input arguments
@@ -54,7 +57,7 @@ function(se_static_analysis)
     if (EXISTS ${CLANG_TIDY})
         if ("${CHECK_HEADERS}" STREQUAL "")
             add_custom_target(
-                    ${CHECK_TARGET}_clang_tidy
+                    ${CHECK_TARGET}-clang-tidy
                     # run check on sources
                     COMMAND ${CLANG_TIDY} ${CHECK_SOURCES} -config-file=${CMAKE_SOURCE_DIR}/.clang-tidy -- -std=c++${TARGET_CPP_STANDARD} ${TARGET_INC_DIRS} ${TARGET_DEFINITIONS}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -62,7 +65,7 @@ function(se_static_analysis)
             )
         else ()
             add_custom_target(
-                    ${CHECK_TARGET}_clang_tidy
+                    ${CHECK_TARGET}-clang-tidy
                     # run check on sources
                     COMMAND ${CLANG_TIDY} ${CHECK_SOURCES} -config-file=${CMAKE_SOURCE_DIR}/.clang-tidy -- -std=c++${TARGET_CPP_STANDARD} ${TARGET_INC_DIRS} ${TARGET_DEFINITIONS}
                     # run check on headers
@@ -76,7 +79,7 @@ function(se_static_analysis)
     # cppcheck target
     if (EXISTS ${CPP_CHECK})
         add_custom_target(
-                ${CHECK_TARGET}_cppcheck
+                ${CHECK_TARGET}-cppcheck
                 COMMAND ${CPP_CHECK}
                 --enable=all
                 --suppress=missingIncludeSystem
@@ -95,6 +98,32 @@ function(se_static_analysis)
                 --template="{file}:{line}:{id}:{severity}: {message}"
                 ${TARGET_INC_DIRS}
                 ${TARGET_DEFINITIONS}
+                ${CHECK_SOURCES}
+                ${CHECK_HEADERS}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        )
+    endif ()
+
+    # clang-format
+    if (EXISTS ${CLANG_FORMAT})
+        add_custom_target(
+                ${CHECK_TARGET}-clang-format
+                # run check on sources
+                COMMAND ${CLANG_FORMAT}
+                -style=file
+                --dry-run
+                --Werror
+                ${CHECK_SOURCES}
+                ${CHECK_HEADERS}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        )
+
+        add_custom_target(
+                ${CHECK_TARGET}-clang-format-apply-fixes
+                # run check on sources
+                COMMAND ${CLANG_FORMAT}
+                -style=file
+                -i
                 ${CHECK_SOURCES}
                 ${CHECK_HEADERS}
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

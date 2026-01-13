@@ -98,12 +98,12 @@
         {
             "name": "ci-coverage-report",
             "configurePreset": "ci-test",
-            "targets": [ "se_oss_coverage" ]
+            "targets": [ "se_oss-coverage" ]
         },
         {
             "name": "ci-static-analysis",
             "configurePreset": "ci-test",
-            "targets": [ "se_oss_log_clang_tidy", "se_oss_log_cppcheck" ]
+            "targets": [ "se_oss_log-clang-tidy", "se_oss-log-cppcheck" ]
         },
         {
             "name": "ci-benchmark",
