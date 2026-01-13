@@ -117,7 +117,7 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
     if (log_detail::isImmediate()) {
         // immediate logging
         writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
-            uint8_t* byteBuffer = static_cast<uint8_t*>(buffer);
+            auto* byteBuffer = static_cast<uint8_t*>(buffer);
             return log_detail::format(byteBuffer, size, record, format, std::forward<const Values>(values)...);
         });
 
