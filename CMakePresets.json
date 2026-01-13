@@ -103,7 +103,7 @@
         {
             "name": "ci-static-analysis",
             "configurePreset": "ci-test",
-            "targets": [ "se_oss_log-clang-tidy", "se_oss-log-cppcheck" ]
+            "targets": [ "se_oss_log-clang-tidy", "se_oss_log-cppcheck" ]
         },
         {
             "name": "ci-benchmark",
