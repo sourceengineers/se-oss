@@ -91,7 +91,7 @@ private:
     }
 
     template <typename T = TSink>
-    std::enable_if_t<!std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler()
+    std::enable_if_t<!std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler() const
     {
         return !_sinkHandler.empty();
     }

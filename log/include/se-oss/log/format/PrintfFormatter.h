@@ -19,7 +19,7 @@ class PrintfFormatter
 {
 public:
     template<typename... Values>
-    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, uint32_t formatStringId, const Values& ...)
+    size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, uint32_t formatStringId, const Values& ...) const
     {
         (void) this;
         char* stringBuffer = static_cast<char*>(buffer);
@@ -40,7 +40,7 @@ public:
     }
 
     template<typename... Values>
-    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, const char *const formatString, const Values& ...values)
+    size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, const char *const formatString, const Values& ...values) const
     {
         (void) this;
         char* stringBuffer = static_cast<char*>(buffer);
@@ -63,7 +63,7 @@ public:
         return overallLength;
     }
 
-    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, const char *const formatString)
+    size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, const char *const formatString) const
     {
         (void) this;
         char* stringBuffer = static_cast<char*>(buffer);

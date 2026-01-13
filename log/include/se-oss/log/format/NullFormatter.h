@@ -18,17 +18,19 @@ class NullFormatter
 {
 public:
     template<typename... Values>
-    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, const char *const formatString, const Values& ...values)
+    size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, const char *const formatString, const Values& ...values) const
     {
         (void) this;
+        // cppcheck-suppress unusedScopedObject
         VoidSink {buffer, bufferSize, record, formatString, values...};
         return 0U;
     }
 
     template<typename... Values>
-    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, uint32_t formatStringId, const Values& ...values)
+    size_t format(void* buffer, std::size_t bufferSize, LogRecord record, uint32_t formatStringId, const Values& ...values) const
     {
         (void) this;
+        // cppcheck-suppress unusedScopedObject
         VoidSink {buffer, bufferSize, record, formatStringId, values...};
         return 0U;
     }
