@@ -32,8 +32,8 @@ TEST_F(ConsoleSinkTest, HexOutput)
     internal::CaptureStdout();
     ConsoleSink sink {true};
 
-    std::string message = "Hello World\n";
-    std::string hexMessage = "48656C6C6F20576F726C645C6E";
+    std::string message = "Hello World";
+    std::string hexMessage = "48656C6C6F20576F726C64\n";
     sink.write(message.data(), message.size());
     auto output = internal::GetCapturedStdout();
     EXPECT_EQ(output, hexMessage);

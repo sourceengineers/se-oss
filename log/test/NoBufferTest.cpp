@@ -26,7 +26,7 @@ TEST_F(NoBufferTest, ReadWrite) {
     NoBuffer<128> buffer;
 
     for (size_t i = 0U; i < 10U; ++i) {
-        std::array<uint8_t, 42U> data;
+        std::array<uint8_t, 42U> data {};
         std::fill(data.begin(), data.end(), std::rand());
         bool writeSuccessful = buffer.write(data.size(), [&](void* ptr, size_t size) {
             std::memcpy(ptr, data.data(), data.size());
@@ -36,7 +36,7 @@ TEST_F(NoBufferTest, ReadWrite) {
 
         std::array<uint8_t, 42U> readData;
         bool readSuccessful = buffer.read([&](const void* ptr, size_t size) {
-            std::memcpy(readData.data(), ptr, size);
+            std::memcpy(readData.data(), ptr, readData.size());
             return size;
         });
         EXPECT_TRUE(readSuccessful);
