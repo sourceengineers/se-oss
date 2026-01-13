@@ -85,8 +85,8 @@ if (${SE_OSS_LOG_TESTS})
     enable_testing()
     add_subdirectory(test)
 
-    include(${CMAKE_SOURCE_DIR}/cmake/clang-tidy.cmake)
-    se_clang_tidy(TARGET se_oss_log)
+    include(${CMAKE_SOURCE_DIR}/cmake/static-analysis.cmake)
+    se_static_analysis(TARGET se_oss_log)
 endif ()
 
 if (${SE_OSS_LOG_BENCHMARKS})
