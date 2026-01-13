@@ -39,3 +39,9 @@ unit-tests:
     paths:
       - release
     expire_in: 1 day
+
+
+static-analysis:
+  stage: all
+  script:
+    - cmake --workflow --preset ci-static-analysis
