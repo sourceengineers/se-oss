@@ -10,6 +10,7 @@ add_executable(
         CborFormatterTest.cpp
         FilteredSinkTest.cpp
         LogPrintfTest.cpp
+        NoBufferTest.cpp
 )
 
 target_link_libraries(

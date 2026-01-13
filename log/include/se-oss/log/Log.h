@@ -7,7 +7,6 @@
 #pragma once
 
 #include "Conf.h"
-#include "ResourceDatabase.h"
 #include "buffer/AtomicBuffer.h"
 #include "sink/ILogSink.h"
 
@@ -54,18 +53,18 @@ public:
     Logger& operator=(const Logger&) = delete;
     Logger& operator=(Logger&&) = delete;
 
-
     template<typename TFormat, typename... Values>
-    void log(LogLevel level, TFormat format, const Values&... values);
+    void  log(LogLevel level, TFormat format, const Values&... values);
 
     void setLogLevel(LogLevel level) { _level = level; }
     LogStatistics statistics() const { return _statistics; }
+
     void distributeMessages(std::size_t maxNumberOfMessages = 20U) const;
 
 private:
     static constexpr LogLevel MAX_LEVEL {toLogLevel(SE_LOG_MAX_LOG_LEVEL)};
     LogLevel _level {LogLevel::INFO};
-    std::unique_ptr<IBuffer> _buffer {logConfCreateBuffer()};
+    std::unique_ptr<IBuffer> _buffer {log_detail::createBuffer()};
     LogStatistics _statistics {};
     ILogSink& _sink;
 
@@ -87,18 +86,18 @@ inline Logger::Logger(uint8_t id, const char* name, ILogSink& sink, const std::f
 
 inline void Logger::distributeMessages(std::size_t maxNumberOfMessages) const
 {
-    for (size_t i = 0; i < maxNumberOfMessages; ++i) {
-        bool readSuccessful = _buffer->read([&](const void* buffer, std::size_t size) {
+    if (log_detail::isImmediate()) {
+        return;
+    }
+
+    bool readSuccessful {true};
+    for (size_t i = 0; i < maxNumberOfMessages && readSuccessful; ++i) {
+        readSuccessful = _buffer->read([&](const void* buffer, std::size_t size) {
             LogHeader header {};
             auto* bufferPosition = deserialize(header, buffer, size);
             _sink.write(header.metadata, bufferPosition, header.messageLength);
-            // todo: checks i guess
             return LogHeader::PACKED_SIZE + header.messageLength;
         });
-
-        if (!readSuccessful) {
-            break;
-        }
     }
 }
 
@@ -112,27 +111,43 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
     }
 
     LogRecord record = createRecord(level);
-    std::size_t maxMessageLength = logConfMaxMessageLength();
+    std::size_t maxMessageLength = log_detail::maxMessageLength();
 
-    bool writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
-        uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
-        std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
-        std::size_t bytesWritten = logConfFormat(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
-        if (bytesWritten > 0U) {
-            LogHeader header {};
-            header.metadata = record.metadata;
-            header.messageLength = bytesWritten;
-            (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
-            bytesWritten += LogHeader::PACKED_SIZE;
+    bool writeSuccessful {false};
+    if (log_detail::isImmediate()) {
+        // immediate logging
+        writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
+            uint8_t* byteBuffer = static_cast<uint8_t*>(buffer);
+            return log_detail::format(byteBuffer, size, record, format, std::forward<const Values>(values)...);
+        });
+
+        if (writeSuccessful) {
+            _buffer->read([&](const void* buffer, std::size_t size) {
+                _sink.write(record.metadata, buffer, size);
+                return size;
+            });
+        } else {
+            _statistics.droppedMessages++;
         }
-        return bytesWritten;
-    });
+    } else {
+        // deferred logging
+        writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
+               uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
+               std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
+               std::size_t bytesWritten = log_detail::format(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
+               if (bytesWritten > 0U) {
+                   LogHeader header {};
+                   header.metadata = record.metadata;
+                   header.messageLength = bytesWritten;
+                   (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
+                   bytesWritten += LogHeader::PACKED_SIZE;
+               }
+               return bytesWritten;
+           });
+    }
 
     if (!writeSuccessful) {
         _statistics.droppedMessages++;
-
-    } else if (_buffer->capacity() == 0U) {
-        distributeMessages(1U);
     }
 }
 
