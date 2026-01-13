@@ -6,8 +6,11 @@
 
 #pragma once
 
+#include "se-oss/log/Types.h"
+
 #include <cinttypes>
 #include <cstdio>
+#include <cstring>
 
 namespace se_oss {
 

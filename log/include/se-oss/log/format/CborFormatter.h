@@ -10,7 +10,9 @@
 
 #include <cbor.h>
 
+#include <array>
 #include <cstddef>
+#include <type_traits>
 
 namespace se_oss {
 
@@ -49,8 +51,8 @@ public:
         if (nValues > 0U) {
             cbor_encode_uint(&mapEncoder, toUint(CborLogKeys::VALUES));
             cbor_encoder_create_array(&mapEncoder, &arrayEncoder, nValues);
-            // todo: c++14 workaround
-            (encodeValue(&arrayEncoder, values), ...);
+            // Workaround for missing fold expression in C++14
+            std::array<CborError,sizeof...(Values)> errors[] {(encodeValue(&arrayEncoder, values))...};
             cbor_encoder_close_container(&mapEncoder, &arrayEncoder);
         }
 
@@ -123,4 +125,5 @@ private:
         cbor_encode_uint(encoder, record.metadata.sourceId);
     }
 };
+
 } // namespace se

@@ -31,9 +31,9 @@ public:
     AtomicBuffer& operator=(const AtomicBuffer&) = delete;
     AtomicBuffer& operator=(AtomicBuffer&&) = delete;
 
-    std::size_t capacity() const override { return _buffer.size() - MIN_READER_WRITER_DISTANCE; }
+    [[nodiscard]] std::size_t capacity() const override { return _buffer.size() - MIN_READER_WRITER_DISTANCE; }
 
-    std::size_t size() const override
+    [[nodiscard]] std::size_t size() const override
     {
         auto writer = _writer.load();
         auto reader = _reader.load();
@@ -46,7 +46,7 @@ public:
         }
     }
 
-    std::size_t free() const
+    [[nodiscard]] std::size_t free() const override
     {
         auto writer = _writer.load();
         auto reader = _reader.load();
@@ -100,7 +100,7 @@ public:
         auto reader = _reader.load();
         auto watermark = _watermark.load();
         bool updateWatermark {false};
-        size_t bytesAvailable {0U};
+        std::size_t bytesAvailable {0U};
 
         if (reader >= watermark) {
             reader = 0U;

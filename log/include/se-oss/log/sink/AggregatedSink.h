@@ -8,6 +8,7 @@
 
 #include "ILogSink.h"
 
+#include <memory>
 #include <unordered_map>
 
 namespace se_oss {
@@ -65,7 +66,7 @@ public:
 
     ILogSink& getSink(TSink sink) { return *_sinks.at(sink); }
 
-    bool empty() const { return _sinks.empty(); }
+    [[nodiscard]] bool empty() const { return _sinks.empty(); }
 
 private:
     std::unordered_map<TSink, std::unique_ptr<ILogSink>> _sinks {};
