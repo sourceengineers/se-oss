@@ -16,6 +16,32 @@ add_library(
         src/sink/ConsoleSink.cpp
 )
 
+target_sources(
+        se_oss_log
+        PUBLIC
+        FILE_SET HEADERS
+        TYPE HEADERS
+        FILES
+        include/se-oss/log/Conf.h
+        include/se-oss/log/ILogFilter.h
+        include/se-oss/log/IWriter.h
+        include/se-oss/log/Log.h
+        include/se-oss/log/LogRegistry.h
+        include/se-oss/log/ResourceDatabase.h
+        include/se-oss/log/Types.h
+        include/se-oss/log/buffer/AtomicBuffer.h
+        include/se-oss/log/buffer/IBuffer.h
+        include/se-oss/log/buffer/NoBuffer.h
+        $<$<BOOL:${SE_OSS_SUPPORT_CBOR}>:include/se-oss/log/format/CborFormatter.h>
+        include/se-oss/log/format/NullFormatter.h
+        include/se-oss/log/format/PrintfFormatter.h
+        include/se-oss/log/sink/AggregatedSink.h
+        include/se-oss/log/sink/BufferSink.h
+        include/se-oss/log/sink/FilteredSink.h
+        include/se-oss/log/sink/ILogSink.h
+        include/se-oss/log/sink/NullSink.h
+)
+
 target_include_directories(
         se_oss_log
         PUBLIC
@@ -58,6 +84,9 @@ if (${SE_OSS_LOG_TESTS})
     message(STATUS "[se-log] Tests enabled")
     enable_testing()
     add_subdirectory(test)
+
+    include(${CMAKE_SOURCE_DIR}/cmake/clang-tidy.cmake)
+    se_clang_tidy(TARGET se_oss_log)
 endif ()
 
 if (${SE_OSS_LOG_BENCHMARKS})
