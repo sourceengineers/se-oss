@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "se-oss/log/IWriter.h"
+#include "se-oss/log/sink/IWriter.h"
 
 #include <gmock/gmock.h>
 

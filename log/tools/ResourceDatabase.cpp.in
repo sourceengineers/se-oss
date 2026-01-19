@@ -15,6 +15,6 @@ namespace se_oss {
 
 {{lookup_functions}}
 
-} // namespace se_oss
+} // namespace se_oss_oss
 
 #endif // SE_GENERATED_RESOURCEDATABASE_H

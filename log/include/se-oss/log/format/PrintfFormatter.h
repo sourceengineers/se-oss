@@ -15,9 +15,24 @@
 namespace se_oss {
 
 // todo: template for time and other format stuff
+/**
+ * Formatter that formats log records into human-readable strings using printf-style formatting.
+ */
 class PrintfFormatter
 {
 public:
+    /**
+     * Formats a log record using a resource ID.
+     *
+     * Note: Arguments are not supported for this overload in the current implementation.
+     *
+     * @tparam Values types of the values.
+     * @param buffer The buffer to write into.
+     * @param bufferSize The available size.
+     * @param record The log record.
+     * @param formatStringId The ID (resource ID) of the format string.
+     * @return The number of bytes written, or 0 on failure.
+     */
     template<typename... Values>
     size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, uint32_t formatStringId, const Values& ...) const
     {
@@ -39,6 +54,17 @@ public:
         return overallLength;
     }
 
+    /**
+     * Formats a log record using a format string.
+     *
+     * @tparam Values Type of arguments.
+     * @param buffer The buffer to write into.
+     * @param bufferSize The available size.
+     * @param record The log record.
+     * @param formatString The printf-style format string.
+     * @param values The arguments to format.
+     * @return The number of bytes written, or 0 on failure.
+     */
     template<typename... Values>
     size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, const char *const formatString, const Values& ...values) const
     {
@@ -63,6 +89,15 @@ public:
         return overallLength;
     }
 
+    /**
+     * Formats a log record using a plain string (no arguments).
+     *
+     * @param buffer The buffer to write into.
+     * @param bufferSize The available size.
+     * @param record The log record.
+     * @param formatString The message string.
+     * @return The number of bytes written, or 0 on failure.
+     */
     size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, const char *const formatString) const
     {
         (void) this;
@@ -84,4 +119,4 @@ public:
     }
 };
 ;
-} // namespace se_oss
+} // namespace se_oss_oss

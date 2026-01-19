@@ -10,15 +10,18 @@
 
 namespace se_oss {
 
+/**
+ * Enum representing the severity level of a log message.
+ */
 enum class LogLevel : uint8_t
 {
-    TRACE = 0,
-    DEBUG = 1,
-    INFO = 2,
-    WARN = 3,
-    ERROR = 4,
-    FATAL = 5,
-    OFF = UINT8_MAX
+    TRACE = 0,  /**< Detailed trace information. */
+    DEBUG = 1,  /**< Debugging information. */
+    INFO = 2,   /**< General information. */
+    WARN = 3,   /**< Warning conditions. */
+    ERROR = 4,  /**< Error conditions. */
+    FATAL = 5,  /**< Fatal errors causing termination. */
+    OFF = UINT8_MAX /**< Logging disabled. */
 };
 
 constexpr const char* toString(LogLevel level)
@@ -54,17 +57,23 @@ constexpr LogLevel toLogLevel(uint8_t level)
     }
 }
 
+/**
+ * Metadata associated with a log message.
+ */
 struct LogMetadata
 {
-    LogLevel level {LogLevel::TRACE};
-    uint8_t sourceId {UINT8_MAX};
+    LogLevel level {LogLevel::TRACE}; /**< The log level. */
+    uint8_t sourceId {UINT8_MAX};     /**< The ID of the logger source. */
 };
 
+/**
+ * A complete log record, including metadata and payload details.
+ */
 struct LogRecord
 {
-    LogMetadata metadata {};
-    const char* sourceName {nullptr};
-    uint64_t timestamp {UINT64_MAX};
+    LogMetadata metadata {};          /**< The log metadata. */
+    const char* sourceName {nullptr}; /**< The name of the logger source. */
+    uint64_t timestamp {UINT64_MAX};  /**< The timestamp of the log message. */
 };
 
-} // namespace se
+} // namespace se_oss

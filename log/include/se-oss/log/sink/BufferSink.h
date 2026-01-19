@@ -6,15 +6,24 @@
 
 #pragma once
 
-#include "se-oss/log/IWriter.h"
+#include "IWriter.h"
 #include <vector>
 #include <cstdint>
 
 namespace se_oss {
 
+/**
+ * Sink that writes log messages to an in-memory buffer.
+ *
+ * Useful for testing or capturing logs programmatically.
+ */
 class BufferSink final : public IWriter
 {
 public:
+    /**
+     * Constructs a BufferSink that writes to the provided buffer.
+     * @param buffer Reference to the vector that will store the log data.
+     */
     explicit BufferSink(std::vector<uint8_t>& buffer)
         : _buffer(buffer)
     {
@@ -40,4 +49,4 @@ private:
     std::vector<uint8_t>& _buffer;
 };
 
-} // namespace se_oss
+} // namespace se_oss_oss

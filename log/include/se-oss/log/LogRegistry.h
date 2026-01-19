@@ -17,9 +17,12 @@
 
 namespace se_oss {
 
+/**
+ * Default components for logging.
+ */
 enum class DefaultLogComponents : uint8_t
 {
-    DEFAULT = 0
+    DEFAULT = 0 /**< The default component. */
 };
 
 constexpr const char* toString(DefaultLogComponents component)
@@ -28,11 +31,24 @@ constexpr const char* toString(DefaultLogComponents component)
     return "default";
 }
 
+/**
+ * Default sinks for logging.
+ */
 enum class DefaultLogSinks : uint8_t
 {
-    CONSOLE = 0
+    CONSOLE = 0 /**< The default console sink. */
 };
 
+/**
+ * Registry for managing loggers and sinks.
+ *
+ * This class acts as a central hub for managing different log components (sources)
+ * and sinks (destinations). It handles the creation and retrieval of loggers and
+ * the attachment of sinks.
+ *
+ * @tparam TComponent Enum type representing the log components.
+ * @tparam TSink Enum type representing the log sinks.
+ */
 template<typename TComponent = DefaultLogComponents, typename TSink = DefaultLogSinks>
 class LogRegistry
 {
@@ -45,6 +61,17 @@ public:
     LogRegistry& operator=(LogRegistry&&) = delete;
 
 
+    /**
+     * Creates or retrieves a logger for a specific component.
+     *
+     * If the logger for the given component does not exist, it is created.
+     *
+     * @note this function will allocate memory when a logger was not yet
+     *       created, i.e., on the first call only.
+     *
+     * @param component The component identifier.
+     * @return Reference to the Logger instance.
+     */
     Logger& createOrGetLogger(TComponent component)
     {
         assert(checkSinkHandler<TSink>());
@@ -59,16 +86,35 @@ public:
         return _logger.at(component);
     }
 
+    /**
+     * Sets the time provider function.
+     * @param provider A function returning the current time in microseconds.
+     */
     void setTimeProvider(const std::function<uint64_t()>& provider) { _timeProvider = provider; }
 
+    /**
+     * Attaches a sink to a specific sink ID.
+     * @param id The sink identifier.
+     * @param sink Unique pointer to the sink instance.
+     */
     void attachSink(TSink id, std::unique_ptr<ILogSink> sink)
     {
         assert(sink != nullptr);
         _sinkHandler.attachSink(id, std::move(sink));
     }
 
+    /**
+     * Retrieves a sink by its ID.
+     * @param sink The sink identifier.
+     * @return Reference to the ILogSink instance.
+     */
     ILogSink& getSink(TSink sink) { return _sinkHandler.getSink(sink); }
 
+    /**
+     * Distributes messages for all registered loggers.
+     *
+     * This iterates over all loggers and calls their distributeMessages method.
+     */
     void distributeMessages()
     {
         for (auto& logger : _logger) {
@@ -107,4 +153,4 @@ private:
     }
 };
 
-} // namespace se
+} // namespace se_oss

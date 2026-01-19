@@ -14,11 +14,14 @@
 
 namespace se_oss {
 /**
- * Atomic circular SPSC buffer
+ * Thread-safe Single Producer Single Consumer (SPSC) circular buffer.
  *
- * @tparam SIZE
+ * This buffer is designed for lock-free communication between a producer and a background thread (consumer).
+ *
  *
  * Based on the lock-free ring-buffer by ferrous systems: https://ferrous-systems.com/blog/lock-free-ring-buffer/
+ *
+ * @tparam SIZE The size of the buffer in bytes.
  */
 template<std::size_t SIZE = 1024>
 class AtomicBuffer final : public IBuffer
@@ -140,4 +143,4 @@ private:
     std::atomic<std::size_t> _watermark {_buffer.size()};
 
 };
-} // namespace se
+} // namespace se_oss

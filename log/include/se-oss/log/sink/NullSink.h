@@ -10,6 +10,11 @@
 
 namespace se_oss {
 
+/**
+ * Sink that discards all log messages.
+ *
+ * Useful for disabling logging or performance testing.
+ */
 class NullSink final : public IWriter
 {
 public:
@@ -24,4 +29,4 @@ public:
     void flush() override {}
 };
 
-} // namespace se
+} // namespace se_oss

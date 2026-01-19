@@ -11,6 +11,14 @@
 
 namespace se_oss {
 
+/**
+ * Sink wrapper that adds filtering capabilities to any IWriter implementation.
+ *
+ * This allows you to apply log level filtering or custom filter functions
+ * to sinks that only implement IWriter (like ConsoleSink or BufferSink).
+ *
+ * @tparam T The underlying writer type (must implement IWriter).
+ */
 template<class T>
 class FilteredSink final :
     public ILogSink
@@ -18,6 +26,11 @@ class FilteredSink final :
 public:
     static_assert(std::is_base_of<IWriter, T>::value, "Sink must implement IWriter");
 
+    /**
+     * Constructs a FilteredSink, forwarding arguments to the underlying sink.
+     * @tparam Args Argument types for the underlying sink constructor.
+     * @param args Arguments to forward to the underlying sink.
+     */
     template<typename... Args>
     explicit FilteredSink(Args&&... args) : _sink{std::forward<Args>(args)...} {}
 
@@ -50,6 +63,10 @@ public:
         _filter = filter;
     }
 
+    /**
+     * Provides access to the underlying writer.
+     * @return Reference to the inner writer.
+     */
     T& inner() { return _sink; }
 
 private:
@@ -57,4 +74,4 @@ private:
     std::function<bool(const LogMetadata&)> _filter {[](const LogMetadata&) -> bool { return true; }};
 };
 
-} // namespace se_oss
+} // namespace se_oss_oss

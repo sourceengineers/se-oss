@@ -13,6 +13,14 @@
 
 namespace se_oss {
 
+/**
+ * Sink that aggregates multiple sinks and writes to all of them.
+ *
+ * This allows logging to multiple destinations simultaneously (e.g., console and file).
+ * Each sink is identified by a unique ID of type TSink.
+ *
+ * @tparam TSink Enum type for sink identifiers.
+ */
 template<typename TSink>
 class AggregatedSink final : public ILogSink
 {
@@ -59,13 +67,27 @@ public:
         }
     }
 
+    /**
+     * Attaches a sink to this aggregator.
+     * @param id The unique identifier for this sink.
+     * @param sink The sink to attach.
+     */
     void attachSink(TSink id, std::unique_ptr<ILogSink> sink)
     {
         _sinks.emplace(id, std::move(sink));
     }
 
+    /**
+     * Retrieves a sink by its ID.
+     * @param sink The sink identifier.
+     * @return Reference to the sink.
+     */
     ILogSink& getSink(TSink sink) { return *_sinks.at(sink); }
 
+    /**
+     * Checks if the aggregator has no sinks attached.
+     * @return True if empty, false otherwise.
+     */
     [[nodiscard]] bool empty() const { return _sinks.empty(); }
 
 private:
@@ -73,4 +95,5 @@ private:
     std::function<bool(const LogMetadata&)> _filter {};
 };
 
-} // namespace se
+} // namespace se_oss
+

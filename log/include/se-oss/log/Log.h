@@ -15,11 +15,64 @@
 
 #ifndef SE_LOG_REPLACE_STRINGS
 
+/**
+ * @def LOG_TRACE(logger, format, ...)
+ *
+ * Logs a message with TRACE level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_TRACE(logger, format, ...) do { logger.log(se_oss::LogLevel::TRACE, format, ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_DEBUG(logger, format, ...)
+ *
+ * Logs a message with DEBUG level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_DEBUG(logger, format, ...) do { logger.log(se_oss::LogLevel::DEBUG, format, ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_INFO(logger, format, ...)
+ *
+ * Logs a message with INFO level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_INFO(logger, format, ...) do { logger.log(se_oss::LogLevel::INFO, format, ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_WARN(logger, format, ...)
+ *
+ * Logs a message with WARN level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_WARN(logger, format, ...) do { logger.log(se_oss::LogLevel::WARN, format, ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_ERROR(logger, format, ...)
+ *
+ * Logs a message with ERROR level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_ERROR(logger, format, ...) do { logger.log(se_oss::LogLevel::ERROR, format, ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_FATAL(logger, format, ...)
+ *
+ * Logs a message with FATAL level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_FATAL(logger, format, ...) do { logger.log(se_oss::LogLevel::FATAL, format, ##__VA_ARGS__); } while (false)
 
 #else
@@ -27,25 +80,95 @@
 #define LOG_INTERNAL_STRING_TYPE(format) struct FormatString { const char* characters = format; }
 #define LOG_INTERNAL_RESOURCE_ID(format) se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>()
 
+/**
+ * @def LOG_TRACE(logger, format, ...)
+ *
+ * Logs a message with TRACE level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_TRACE(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::TRACE, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_DEBUG(logger, format, ...)
+ *
+ * Logs a message with DEBUG level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_DEBUG(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::DEBUG, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_INFO(logger, format, ...)
+ *
+ * Logs a message with INFO level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_INFO(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::INFO, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_WARN(logger, format, ...)
+ *
+ * Logs a message with WARN level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_WARN(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::WARN, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_ERROR(logger, format, ...)
+ *
+ * Logs a message with ERROR level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_ERROR(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::ERROR, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+
+/**
+ * @def LOG_FATAL(logger, format, ...)
+ *
+ * Logs a message with FATAL level.
+ * @param logger The Logger instance.
+ * @param format The format string.
+ * @param ... Additional arguments.
+ */
 #define LOG_FATAL(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::FATAL, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
 
 #endif
 
 namespace se_oss {
 
+/**
+ * Structure holding statistics about the logger's operation.
+ */
 struct LogStatistics
 {
-    uint32_t droppedMessages {0};
+    uint32_t droppedMessages {0}; /**< Number of messages dropped due to buffer overflow or other issues. */
 };
 
+/**
+ * The main Logger class.
+ *
+ * This class is responsible for logging messages to a configured sink via a buffer.
+ * It manages the log level, statistics, and message distribution.
+ */
 class Logger final
 {
 public:
+    /**
+     * Constructs a new Logger.
+     *
+     * @param id A unique identifier for this logger source (0-255).
+     * @param name A human-readable name for this logger.
+     * @param sink The sink to write log messages to.
+     * @param timeProvider Optional function to provide a timestamp (microseconds).
+     */
     Logger(uint8_t id, const char* name, ILogSink& sink, const std::function<uint64_t()>& timeProvider = nullptr);
     ~Logger() = default;
     Logger(const Logger&) = delete;
@@ -53,17 +176,44 @@ public:
     Logger& operator=(const Logger&) = delete;
     Logger& operator=(Logger&&) = delete;
 
+    /**
+     * Logs a message with the specified level and format.
+     *
+     * @tparam TFormat The type of the format string (const char* or resource ID).
+     * @tparam Values The types of the arguments.
+     * @param level The log level of the message.
+     * @param format The format string.
+     * @param values The arguments to format.
+     */
     template<typename TFormat, typename... Values>
     void  log(LogLevel level, TFormat format, const Values&... values);
 
+    /**
+     * Sets the minimum log level.
+     * Messages with a level lower than this will be ignored.
+     * @param level The new minimum log level.
+     */
     void setLogLevel(LogLevel level) { _level = level; }
+
+    /**
+     * Retrieves current logger statistics.
+     * @return A copy of the LogStatistics structure.
+     */
     LogStatistics statistics() const { return _statistics; }
 
+    /**
+     * Distributes messages from the buffer to the sink.
+     *
+     * This is only relevant for deferred logging (using AtomicBuffer).
+     * For immediate logging (NoBuffer), this method does nothing.
+     *
+     * @param maxNumberOfMessages Maximum number of messages to process in this call.
+     */
     void distributeMessages(std::size_t maxNumberOfMessages = 20U) const;
 
 private:
     static constexpr LogLevel MAX_LEVEL {toLogLevel(SE_LOG_MAX_LOG_LEVEL)};
-    LogLevel _level {LogLevel::INFO};
+    std::atomic<LogLevel> _level {LogLevel::INFO};
     std::unique_ptr<IBuffer> _buffer {log_detail::createBuffer()};
     LogStatistics _statistics {};
     ILogSink& _sink;
@@ -163,4 +313,4 @@ inline LogRecord Logger::createRecord(LogLevel level) const
     return record;
 }
 
-} // namespace se
+} // namespace se_oss

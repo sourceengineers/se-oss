@@ -16,21 +16,41 @@
 
 namespace se_oss {
 
+/**
+ * Keys used/encoded in the CBOR map.
+ */
 enum class CborLogKeys : uint8_t
 {
-    TIMESTAMP = 1U,
-    LOG_LEVEL = 2U,
-    SOURCE_ID = 3U,
-    MESSAGE_STRING = 4U,
-    MESSAGE_ID = 5U,
-    VALUES = 6U
+    TIMESTAMP = 1U,      /**< Timestamp of the log record. */
+    LOG_LEVEL = 2U,      /**< Log level. */
+    SOURCE_ID = 3U,      /**< Source ID. */
+    MESSAGE_STRING = 4U, /**< The format string as ASCII string. */
+    MESSAGE_ID = 5U,     /**< ID of the format string (for usage with string replacement). */
+    VALUES = 6U          /**< Array of argument values. */
 };
 
 constexpr uint8_t toUint(CborLogKeys key) { return static_cast<uint8_t>(key); }
 
+/**
+ * Formatter that serializes log records to Concise Binary Object Representation (CBOR).
+ *
+ * This formatter produces compact binary logs suitable for transmission or storage.
+ */
 class CborFormatter
 {
 public:
+    /**
+     * Formats a log record into CBOR.
+     *
+     * @tparam TFormat The type of the format string/ID.
+     * @tparam Values The types of the arguments.
+     * @param buffer The buffer to write into.
+     * @param bufferSize The available size in the buffer.
+     * @param record The log record to format.
+     * @param formatString The format string or ID.
+     * @param values The arguments to serialize.
+     * @return The number of bytes written, or 0 on failure.
+     */
     template<typename TFormat, typename... Values>
     size_t format(void* buffer, std::size_t bufferSize, LogRecord record, TFormat formatString, const Values& ...values)
     {
@@ -126,4 +146,4 @@ private:
     }
 };
 
-} // namespace se
+} // namespace se_oss

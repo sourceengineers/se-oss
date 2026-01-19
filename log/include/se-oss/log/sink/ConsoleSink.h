@@ -11,9 +11,18 @@
 
 namespace se_oss {
 
+/**
+ * Sink that writes log messages to the console (stdout).
+ *
+ * Can optionally output in hexadecimal format for binary log data.
+ */
 class ConsoleSink final : public IWriter
 {
 public:
+    /**
+     * Constructs a ConsoleSink.
+     * @param hexOutput If true, outputs data in hexadecimal string format.
+     */
     explicit ConsoleSink(bool hexOutput = false);
     ~ConsoleSink() override = default;
     ConsoleSink(const ConsoleSink&) = delete;
@@ -26,7 +35,6 @@ public:
 
 private:
     bool _hexOutput;
-    LogLevel _level {LogLevel::TRACE};
 };
 
-} // namespace se
+} // namespace se_oss

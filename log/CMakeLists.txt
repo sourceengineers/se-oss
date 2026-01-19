@@ -24,7 +24,6 @@ target_sources(
         FILES
         include/se-oss/log/Conf.h
         include/se-oss/log/ILogFilter.h
-        include/se-oss/log/IWriter.h
         include/se-oss/log/Log.h
         include/se-oss/log/LogRegistry.h
         include/se-oss/log/ResourceDatabase.h
@@ -33,12 +32,12 @@ target_sources(
         include/se-oss/log/buffer/IBuffer.h
         include/se-oss/log/buffer/NoBuffer.h
         $<$<BOOL:${SE_OSS_SUPPORT_CBOR}>:include/se-oss/log/format/CborFormatter.h>
-        include/se-oss/log/format/NullFormatter.h
         include/se-oss/log/format/PrintfFormatter.h
         include/se-oss/log/sink/AggregatedSink.h
         include/se-oss/log/sink/BufferSink.h
         include/se-oss/log/sink/FilteredSink.h
         include/se-oss/log/sink/ILogSink.h
+        include/se-oss/log/sink/IWriter.h
         include/se-oss/log/sink/NullSink.h
 )
 

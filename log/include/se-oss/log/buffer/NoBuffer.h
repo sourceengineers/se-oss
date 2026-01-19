@@ -11,6 +11,15 @@
 
 namespace se_oss {
 
+/**
+ * Specific implementation of IBuffer for immediate logging.
+ *
+ * This implementation does not buffer multiple messages between threads.
+ * Instead, there is space one single message which is used to format a message
+ * before immediately triggering the consumer.
+ *
+ * @tparam MAX_MESSAGE_LENGTH The maximum size of the intermediate formatting buffer.
+ */
 template<std::size_t MAX_MESSAGE_LENGTH>
 class NoBuffer final : public IBuffer
 {
@@ -43,4 +52,4 @@ private:
     std::array<uint8_t, MAX_MESSAGE_LENGTH> _formatBuffer {};
 };
 
-} // namespace se
+} // namespace se_oss
