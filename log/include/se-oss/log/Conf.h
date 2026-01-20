@@ -66,7 +66,7 @@ constexpr std::size_t DEFAULT_MAX_MESSAGE_LENGTH {128};
  * - Output to console
  * - Max message length of 128 characters
  */
-using DefaultLogConf = LogConf<PrintfFormatter<TimeString::ISO8601>, NoBuffer<DEFAULT_MAX_MESSAGE_LENGTH>, DEFAULT_MAX_MESSAGE_LENGTH>;
+using DefaultLogConf = LogConf<PrintfFormatter<TimeFormat::ISO8601>, NoBuffer<DEFAULT_MAX_MESSAGE_LENGTH>, DEFAULT_MAX_MESSAGE_LENGTH>;
 
 /**
  * Customization point for logger configuration.

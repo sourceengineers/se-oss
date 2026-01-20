@@ -18,7 +18,7 @@ ConsoleSink::ConsoleSink(bool hexOutput) : _hexOutput {hexOutput}
 void ConsoleSink::write(const void* data, size_t length)
 {
     if (!_hexOutput) {
-        std::puts(static_cast<const char*>(data));
+        std::fwrite(data, sizeof(char), length, stdout);
     } else {
         auto byteData = static_cast<const uint8_t*>(data);
         for (size_t i = 0; i < length; ++i) {
