@@ -23,7 +23,7 @@ install(
         COMPONENT examples
 )
 
-if (${SE_LOG_REPLACE_STRINGS})
+if (${SE_OSS_LOG_REPLACE_STRINGS})
     add_executable(example_log_cbor_string_replacement log_cbor_string_replacement.cpp)
     target_link_libraries(example_log_cbor_string_replacement PRIVATE se_oss::log)
     include(../cmake/resource_database.cmake)

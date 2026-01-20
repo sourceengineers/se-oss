@@ -15,7 +15,7 @@ target_compile_definitions(benchmark_log_printf PRIVATE BENCH_PRINTF)
 target_link_libraries(
         benchmark_log_printf
         PRIVATE
-        se::log
+        se_oss::log
         benchmark
 )
 
@@ -24,7 +24,7 @@ target_compile_definitions(benchmark_log_cbor PRIVATE BENCH_PRINTF)
 target_link_libraries(
         benchmark_log_cbor
         PRIVATE
-        se::log
+        se_oss::log
         benchmark
 )
 
@@ -33,8 +33,8 @@ target_compile_definitions(benchmark_log_lookup PRIVATE BENCH_CBOR)
 target_link_libraries(
         benchmark_log_lookup
         PRIVATE
-        se::log
+        se_oss::log
         benchmark
 )
-include(${CMAKE_SOURCE_DIR}/cmake/resource_database.cmake)
+include(${CMAKE_SOURCE_DIR}/log/cmake/resource_database.cmake)
 se_create_resource_database(TARGET benchmark_log_lookup)

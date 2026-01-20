@@ -10,10 +10,14 @@
 #include "buffer/AtomicBuffer.h"
 #include "sink/ILogSink.h"
 
+#ifdef SE_OSS_LOG_REPLACE_STRINGS
+#include "ResourceDatabase.h"
+#endif
+
 #include <memory>
 
 
-#ifndef SE_LOG_REPLACE_STRINGS
+#ifndef SE_OSS_LOG_REPLACE_STRINGS
 
 /**
  * @def LOG_TRACE(logger, format, ...)

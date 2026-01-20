@@ -59,7 +59,7 @@
             "inherits": "ci-host",
             "binaryDir": "build/x86_64/string_replacment",
             "cacheVariables": {
-                "SE_LOG_REPLACE_STRINGS": "ON"
+                "SE_OSS_LOG_REPLACE_STRINGS": "ON"
             }
         },
         {

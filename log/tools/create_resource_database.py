@@ -6,18 +6,17 @@ import re
 import subprocess
 import sys
 
-
-# id_counter = 0
-# def get_id(string):
-#     global id_counter
-#     id_counter += 1
-#     return id_counter
-
 def git_revision_hash() -> str:
-    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+    try:
+        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+    except subprocess.CalledProcessError:
+        return "unknown"
 
 def git_repo_is_dirty() -> bool:
-    return subprocess.check_output(['git', 'status', '--porcelain']).decode('ascii').strip() != ""
+    try:
+        return subprocess.check_output(['git', 'status', '--porcelain']).decode('ascii').strip() != ""
+    except subprocess.CalledProcessError:
+        return True
 
 def get_id(string: str):
     hash_valued = hashlib.sha256(string.encode('utf-8')).digest()
