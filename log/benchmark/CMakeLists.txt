@@ -36,5 +36,5 @@ target_link_libraries(
         se_oss::log
         benchmark
 )
-include(${CMAKE_SOURCE_DIR}/log/cmake/resource_database.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/resource_database.cmake)
 se_create_resource_database(TARGET benchmark_log_lookup)
