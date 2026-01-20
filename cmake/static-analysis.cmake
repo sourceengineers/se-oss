@@ -5,8 +5,6 @@ find_program(CLANG_TIDY clang-tidy)
 find_program(CLANG_FORMAT clang-format)
 find_program(CPP_CHECK cppcheck)
 
-message(STATUS ${CLANG_FORMAT})
-
 function(se_static_analysis)
     # parse input arguments
     set(prefix CHECK)

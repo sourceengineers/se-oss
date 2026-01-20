@@ -47,7 +47,7 @@ target_include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-if (${SE_OSS_SUPPORT_CBOR})
+if (SE_OSS_SUPPORT_CBOR)
     target_link_libraries(
             se_oss_log
             PUBLIC
@@ -55,7 +55,7 @@ if (${SE_OSS_SUPPORT_CBOR})
     )
 endif ()
 
-if (${SE_OSS_LOG_REPLACE_STRINGS})
+if (SE_OSS_LOG_REPLACE_STRINGS)
     message(STATUS "[se-log] Replacing format strings enabled")
     target_compile_definitions(
             se_oss_log
@@ -74,12 +74,12 @@ se_set_max_log_level(
 add_library(se_oss::log ALIAS se_oss_log)
 
 # examples and tests
-if (${SE_OSS_LOG_EXAMPLES})
+if (SE_OSS_LOG_EXAMPLES)
     message(STATUS "[se-log] Examples enabled")
     add_subdirectory(examples)
 endif ()
 
-if (${SE_OSS_LOG_TESTS})
+if (SE_OSS_LOG_TESTS)
     message(STATUS "[se-log] Tests enabled")
     enable_testing()
     add_subdirectory(test)
@@ -88,7 +88,7 @@ if (${SE_OSS_LOG_TESTS})
     se_static_analysis(TARGET se_oss_log)
 endif ()
 
-if (${SE_OSS_LOG_BENCHMARKS})
+if (SE_OSS_LOG_BENCHMARKS)
     message(STATUS "[se-log] Benchmarks enabled")
     add_subdirectory(benchmark)
 endif ()
