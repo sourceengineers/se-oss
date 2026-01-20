@@ -93,8 +93,9 @@ struct LogRecord
 /**
  * Time formatting options
  */
-enum class TimeString : uint8_t
+enum class TimeFormat : uint8_t
 {
+    NONE,        /**< Omit timestamp. */
     DECIMAL,     /**< Timestamp in decimal format, e.g., 1768902731209138. */
     DECIMAL_8,   /**< Trailing 8 timestamp digits in decimal format, e.g., 31209138. Note: This will fit into a u32 for devices with limited formatting support. */
     DECIMAL_10,  /**< Trailing 10 timestamp digits in decimal format, e.g., 2731209138. */

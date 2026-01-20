@@ -15,6 +15,11 @@
 #include <memory>
 #include <unordered_map>
 
+#if defined(__has_include) && __has_include(<chrono>)
+#include <chrono>
+#define SE_OSS_HAS_CHRONO
+#endif
+
 namespace se_oss {
 
 /**
@@ -87,7 +92,7 @@ public:
     }
 
     /**
-     * Sets the time provider function.
+     * Sets the time provider.
      * @param provider A function returning the current time in microseconds.
      */
     void setTimeProvider(const std::function<uint64_t()>& provider) { _timeProvider = provider; }
@@ -125,14 +130,20 @@ public:
 private:
     AggregatedSink<TSink> _sinkHandler {};
     std::unordered_map<TComponent, Logger> _logger {};
-    std::function<uint64_t()> _timeProvider;
+    std::function<uint64_t()> _timeProvider =
+#ifdef SE_OSS_HAS_CHRONO
+        {[](){return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }};
+    // If chrono is available on the platform, add it as the default time provider
+#else
+        {};
+#endif
 
     uint64_t getTime()
     {
         if (_timeProvider) {
             return _timeProvider();
         } else {
-            return UINT64_MAX;
+            return 0U;
         }
     }
 
