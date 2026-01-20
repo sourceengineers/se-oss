@@ -24,60 +24,54 @@
  *
  * Logs a message with TRACE level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments.
  */
-#define LOG_TRACE(logger, format, ...) do { logger.log(se_oss::LogLevel::TRACE, format, ##__VA_ARGS__); } while (false)
+#define LOG_TRACE(logger, ...) do { logger.log(se_oss::LogLevel::TRACE, ##__VA_ARGS__); } while (false)
 
 /**
  * @def LOG_DEBUG(logger, format, ...)
  *
  * Logs a message with DEBUG level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments
  */
-#define LOG_DEBUG(logger, format, ...) do { logger.log(se_oss::LogLevel::DEBUG, format, ##__VA_ARGS__); } while (false)
+#define LOG_DEBUG(logger, ...) do { logger.log(se_oss::LogLevel::DEBUG, ##__VA_ARGS__); } while (false)
 
 /**
  * @def LOG_INFO(logger, format, ...)
  *
  * Logs a message with INFO level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments
  */
-#define LOG_INFO(logger, format, ...) do { logger.log(se_oss::LogLevel::INFO, format, ##__VA_ARGS__); } while (false)
+#define LOG_INFO(logger, ...) do { logger.log(se_oss::LogLevel::INFO, ##__VA_ARGS__); } while (false)
 
 /**
  * @def LOG_WARN(logger, format, ...)
  *
  * Logs a message with WARN level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments
  */
-#define LOG_WARN(logger, format, ...) do { logger.log(se_oss::LogLevel::WARN, format, ##__VA_ARGS__); } while (false)
+#define LOG_WARN(logger, ...) do { logger.log(se_oss::LogLevel::WARN, ##__VA_ARGS__); } while (false)
 
 /**
  * @def LOG_ERROR(logger, format, ...)
  *
  * Logs a message with ERROR level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments
  */
-#define LOG_ERROR(logger, format, ...) do { logger.log(se_oss::LogLevel::ERROR, format, ##__VA_ARGS__); } while (false)
+#define LOG_ERROR(logger, ...) do { logger.log(se_oss::LogLevel::ERROR, ##__VA_ARGS__); } while (false)
 
 /**
  * @def LOG_FATAL(logger, format, ...)
  *
  * Logs a message with FATAL level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments
  */
-#define LOG_FATAL(logger, format, ...) do { logger.log(se_oss::LogLevel::FATAL, format, ##__VA_ARGS__); } while (false)
+#define LOG_FATAL(logger, ...) do { logger.log(se_oss::LogLevel::FATAL, ##__VA_ARGS__); } while (false)
 
 #else
 
