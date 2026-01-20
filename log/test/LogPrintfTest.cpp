@@ -27,7 +27,7 @@ enum class LogComponents : uint8_t {
 };
 
 constexpr const char* toString(LogComponents) {
-    return "TEST_COMP";
+    return "test";
 }
 
 enum class LogSinks : uint8_t {
@@ -54,7 +54,7 @@ std::string bufferToString(const std::vector<uint8_t>& buffer) {
 template <>
 auto se_oss::logConf<>()
 {
-    return LogConf<PrintfFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH>{};
+    return LogConf<PrintfFormatter<TimeFormat::HEX_8>, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH>{};
 }
 
 class LogPrintfTest : public ::testing::Test {
@@ -110,12 +110,12 @@ TEST_F(LogPrintfTest, TestAllSeverities) {
 
     ASSERT_EQ(lines.size(), 6);
 
-    EXPECT_TRUE(lines[0] == "71FB0450 [TEST_COMP] TRACE Test Trace 1");
-    EXPECT_TRUE(lines[1] == "71FB0450 [TEST_COMP] DEBUG Test Debug debug");
-    EXPECT_TRUE(lines[2] == "71FB0450 [TEST_COMP] INFO  Test Info");
-    EXPECT_TRUE(lines[3] == "71FB0450 [TEST_COMP] WARN  Test Warn 100");
-    EXPECT_TRUE(lines[4] == "71FB0450 [TEST_COMP] ERROR Test Error 1.500000");
-    EXPECT_TRUE(lines[5] == "71FB0450 [TEST_COMP] FATAL Test Fatal");
+    EXPECT_TRUE(lines[0] == "71FB0450 T [test] -- Test Trace 1");
+    EXPECT_TRUE(lines[1] == "71FB0450 D [test] -- Test Debug debug");
+    EXPECT_TRUE(lines[2] == "71FB0450 I [test] -- Test Info");
+    EXPECT_TRUE(lines[3] == "71FB0450 W [test] -- Test Warn 100");
+    EXPECT_TRUE(lines[4] == "71FB0450 E [test] -- Test Error 1.500000");
+    EXPECT_TRUE(lines[5] == "71FB0450 F [test] -- Test Fatal");
 }
 
 TEST_F(LogPrintfTest, TestLogLevelFiltering) {
@@ -142,6 +142,6 @@ TEST_F(LogPrintfTest, TestLogLevelFiltering) {
 
     ASSERT_EQ(lines.size(), 2);
 
-    EXPECT_TRUE(lines[0] == "71FB0450 [TEST_COMP] INFO  Visible Info");
-    EXPECT_TRUE(lines[1] == "71FB0450 [TEST_COMP] WARN  Visible Warn");
+    EXPECT_TRUE(lines[0] == "71FB0450 I [test] -- Visible Info");
+    EXPECT_TRUE(lines[1] == "71FB0450 W [test] -- Visible Warn");
 }

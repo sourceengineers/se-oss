@@ -53,7 +53,7 @@ public:
     }
 
     template<TimeFormat TS>
-    std::enable_if_t<TS == TimeFormat::NONE> appendTime(uint64_t)
+    std::enable_if_t<TS == TimeFormat::NONE> appendTime(uint64_t) const
     {
         (void)this;
     }

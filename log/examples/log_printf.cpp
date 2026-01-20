@@ -27,7 +27,6 @@ int main()
     auto consoleSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>();
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<LogComponents, LogSinks>>();
-    logRegistry->setTimeProvider<std::chrono::system_clock>();
     logRegistry->attachSink(LogSinks::SHELL, std::move(consoleSink));
     logRegistry->getSink(LogSinks::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
 
