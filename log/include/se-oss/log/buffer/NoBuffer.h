@@ -37,7 +37,7 @@ public:
 
     bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) override
     {
-        return consumer(_formatBuffer.data(), _formatBuffer.size()) > 0;
+        return consumer(_formatBuffer.data(), _size) > 0U;
     }
 
     bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
@@ -45,11 +45,13 @@ public:
         if (reserveSize > _formatBuffer.size()) {
             return false;
         }
-        return producer(_formatBuffer.data(), _formatBuffer.size());
+        _size = producer(_formatBuffer.data(), _formatBuffer.size());
+        return _size > 0U;
     }
 
 private:
     std::array<uint8_t, MAX_MESSAGE_LENGTH> _formatBuffer {};
+    std::size_t _size {0U};
 };
 
 } // namespace se_oss
