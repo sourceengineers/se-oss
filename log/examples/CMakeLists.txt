@@ -14,6 +14,9 @@ target_link_libraries(example_log_printf PRIVATE se_oss::log)
 add_executable(example_log_cbor log_cbor.cpp)
 target_link_libraries(example_log_cbor PRIVATE se_oss::log)
 
+add_executable(example_log_custom log_custom_formatter.cpp)
+target_link_libraries(example_log_custom PRIVATE se_oss::log)
+
 install(
         TARGETS
         example_log_minimal
