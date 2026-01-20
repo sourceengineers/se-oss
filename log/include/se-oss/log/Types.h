@@ -90,12 +90,17 @@ struct LogRecord
     uint64_t timestamp {UINT64_MAX};  /**< The timestamp of the log message. */
 };
 
-
+/**
+ * Time formatting options
+ */
 enum class TimeString : uint8_t
 {
-    DECIMAL,
-    HEX,
-    ISO8601
+    DECIMAL,     /**< Timestamp in decimal format, e.g., 1768902731209138. */
+    DECIMAL_8,   /**< Trailing 8 timestamp digits in decimal format, e.g., 31209138. Note: This will fit into a u32 for devices with limited formatting support. */
+    DECIMAL_10,  /**< Trailing 10 timestamp digits in decimal format, e.g., 2731209138. */
+    HEX,         /**< Timestamp in hex format, e.g.,  648CEC2EF99B2.  */
+    HEX_8,       /**< Timestamp in hex format, e.g.,  C2EF99B2. Note: This will fit into a u32 for devices with limited formatting support. */
+    ISO8601      /**< Timestamp in human-readable date time format, e.g., 2026-01-20T09:52:11.209Z. Note: Assumes that the timestamp is in microseconds since epoch. */
 };
 
 } // namespace se_oss

@@ -57,7 +57,33 @@ public:
     }
 
     template<TimeString TS>
+    std::enable_if_t<TS == TimeString::DECIMAL_8> appendTime(uint64_t timestamp)
+    {
+        static constexpr std::uint64_t TIEMSTAMP_WRAP_VALUE {100000000ULL};
+        if (timestamp >= TIEMSTAMP_WRAP_VALUE) {
+            timestamp = timestamp % TIEMSTAMP_WRAP_VALUE;
+        }
+        append("%08" PRIu32 " ", static_cast<uint32_t>(timestamp));
+    }
+
+    template<TimeString TS>
+    std::enable_if_t<TS == TimeString::DECIMAL_10> appendTime(uint64_t timestamp)
+    {
+        static constexpr std::uint64_t TIEMSTAMP_WRAP_VALUE {10000000000ULL};
+        if (timestamp >= TIEMSTAMP_WRAP_VALUE) {
+            timestamp = timestamp % TIEMSTAMP_WRAP_VALUE;
+        }
+        append("%010" PRIu64 " ", timestamp);
+    }
+
+    template<TimeString TS>
     std::enable_if_t<TS == TimeString::HEX> appendTime(uint64_t timestamp)
+    {
+        append("%" PRIX64 " ", timestamp);
+    }
+
+    template<TimeString TS>
+    std::enable_if_t<TS == TimeString::HEX_8> appendTime(uint64_t timestamp)
     {
         append("%08" PRIX32 " ", static_cast<uint32_t>(timestamp));
     }
@@ -82,18 +108,19 @@ public:
     {
         static constexpr std::uint64_t MILLISECONDS_PER_SECOND {1000ULL};
         static constexpr std::uint64_t MICROSECONDS_PER_MILLISECOND {1000ULL};
-        if (!valid) {
+        static constexpr std::uint64_t INVALID_EPOCH_VALUE {0ULL};
+        if (!valid || timestampMilliseconds == INVALID_EPOCH_VALUE) {
             return;
         }
         auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MICROSECONDS_PER_MILLISECOND);
         const tm* time = std::gmtime(&epochSeconds);  // returns a pointer to a static object and thus does not allocate memory
-        int32_t length = std::strftime(_buffer + _length, _capacity - _length, format, time);
-        if (length < 0) {
+        std::size_t length = std::strftime(_buffer + _length, _capacity - _length, format, time);
+        if (length == 0) {
             valid = false;
         } else {
             _length += length;
         }
-        append(".%03Z" PRIu32 " ", timestampMilliseconds % MILLISECONDS_PER_SECOND);
+        append(".%03" PRIu32 "Z ", timestampMilliseconds % MILLISECONDS_PER_SECOND);
     }
 
     /**
