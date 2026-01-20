@@ -7,7 +7,7 @@
 #include "LogComponents.h"
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
-#include "se-oss/log/format/CborFormatter.h"
+
 #include "se-oss/log/sink/ConsoleSink.h"
 
 #include <chrono>
@@ -21,7 +21,7 @@ constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
 template <>
 auto se_oss::logConf<>()
 {
-    return LogConf<PrintfFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH>{};
+    return LogConf<PrintfFormatter<TimeString::ISO8601>, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH>{};
 }
 
 int main()

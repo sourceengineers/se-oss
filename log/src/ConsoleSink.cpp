@@ -18,13 +18,13 @@ ConsoleSink::ConsoleSink(bool hexOutput) : _hexOutput {hexOutput}
 void ConsoleSink::write(const void* data, size_t length)
 {
     if (!_hexOutput) {
-        fputs(static_cast<const char*>(data), stdout);
+        std::puts(static_cast<const char*>(data));
     } else {
         auto byteData = static_cast<const uint8_t*>(data);
         for (size_t i = 0; i < length; ++i) {
-            printf("%02X", byteData[i]);
+            std::printf("%02X", byteData[i]);
         }
-        putchar('\n');
+        std::putchar('\n');
     }
 }
 

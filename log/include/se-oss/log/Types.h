@@ -27,13 +27,27 @@ enum class LogLevel : uint8_t
 constexpr const char* toString(LogLevel level)
 {
     switch (level) {
-        case LogLevel::TRACE: return "TRACE";
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO: return "INFO ";
-        case LogLevel::WARN: return "WARN ";
-        case LogLevel::ERROR: return "ERROR";
-        case LogLevel::FATAL: return "FATAL";
-        case LogLevel::OFF: return "OFF  ";
+        case LogLevel::TRACE: return "trace";
+        case LogLevel::DEBUG: return "debug";
+        case LogLevel::INFO: return "info";
+        case LogLevel::WARN: return "warn";
+        case LogLevel::ERROR: return "error";
+        case LogLevel::FATAL: return "fatal";
+        case LogLevel::OFF: return "off";
+    }
+    return "";
+}
+
+constexpr const char* toShortString(LogLevel level)
+{
+    switch (level) {
+        case LogLevel::TRACE: return "T";
+        case LogLevel::DEBUG: return "D";
+        case LogLevel::INFO: return "I";
+        case LogLevel::WARN: return "W";
+        case LogLevel::ERROR: return "E";
+        case LogLevel::FATAL: return "F";
+        case LogLevel::OFF: return "O";
     }
     return "";
 }
@@ -74,6 +88,14 @@ struct LogRecord
     LogMetadata metadata {};          /**< The log metadata. */
     const char* sourceName {nullptr}; /**< The name of the logger source. */
     uint64_t timestamp {UINT64_MAX};  /**< The timestamp of the log message. */
+};
+
+
+enum class TimeString : uint8_t
+{
+    DECIMAL,
+    HEX,
+    ISO8601
 };
 
 } // namespace se_oss

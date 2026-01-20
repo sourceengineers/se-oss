@@ -66,7 +66,7 @@ constexpr std::size_t DEFAULT_MAX_MESSAGE_LENGTH {128};
  * - Output to console
  * - Max message length of 128 characters
  */
-using DefaultLogConf = LogConf<PrintfFormatter, NoBuffer<DEFAULT_MAX_MESSAGE_LENGTH>, DEFAULT_MAX_MESSAGE_LENGTH>;
+using DefaultLogConf = LogConf<PrintfFormatter<TimeString::ISO8601>, NoBuffer<DEFAULT_MAX_MESSAGE_LENGTH>, DEFAULT_MAX_MESSAGE_LENGTH>;
 
 /**
  * Customization point for logger configuration.
@@ -92,7 +92,7 @@ auto logConf() { return DefaultLogConf{}; }
 namespace log_detail {
 
 template<typename... DummyArgs>
-std::size_t isImmediate()
+bool isImmediate()
 {
     return logConf<DummyArgs...>().isImmediate();
 }
@@ -100,7 +100,7 @@ std::size_t isImmediate()
 template<typename... DummyArgs, typename... Arguments>
 std::size_t format(Arguments&&... arguments)
 {
-    return logConf<DummyArgs...>().formatter().format(arguments...);
+    return decltype(logConf<DummyArgs...>().formatter())::format(arguments...);
 }
 
 template<typename... DummyArgs>
