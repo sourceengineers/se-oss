@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    container:
+      image: sourceengineers/container-armgcc:edf61b27
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Configure and Build Examples
+        run: cmake --workflow --preset ci-example
+
+      - name: Configure and Build String Replacement Example
+        run: cmake --workflow --preset ci-example-string-replacement
+
+      - name: Install Examples
+        run: cmake --install build/x86_64/release --component examples
+
+      - name: Install String Replacement Example
+        run: cmake --install build/x86_64/string_replacment --component example-string-replacement
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: examples
+          path: release
+          retention-days: 1
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: sourceengineers/container-armgcc:edf61b27
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Configure, Build and Test
+        run: cmake --workflow --preset ci-test
+
+      - name: Install Tests
+        run: cmake --install build/x86_64/test --component tests
+
+      - name: Upload Test Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-tests
+          path: release
+          retention-days: 1
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    container:
+      image: sourceengineers/container-armgcc:edf61b27
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Run Static Analysis
+        run: cmake --workflow --preset ci-static-analysis
+      
