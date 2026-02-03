@@ -1,4 +1,4 @@
-image: $CI_REGISTRY/sourceengineers/se-framework/container-armgcc:97c82ac5
+image: $CI_REGISTRY/sourceengineers/se-framework/container-armgcc:edf61b27
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
