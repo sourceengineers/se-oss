@@ -7,8 +7,9 @@
 #pragma once
 
 #include "IWriter.h"
-#include <vector>
+
 #include <cstdint>
+#include <vector>
 
 namespace se_oss {
 
@@ -24,10 +25,7 @@ public:
      * Constructs a BufferSink that writes to the provided buffer.
      * @param buffer Reference to the vector that will store the log data.
      */
-    explicit BufferSink(std::vector<uint8_t>& buffer)
-        : _buffer(buffer)
-    {
-    }
+    explicit BufferSink(std::vector<uint8_t>& buffer) : _buffer(buffer) { }
 
     ~BufferSink() override = default;
     BufferSink(const BufferSink&) = delete;
@@ -43,10 +41,10 @@ public:
         }
     }
 
-    void flush() override {}
+    void flush() override { }
 
 private:
     std::vector<uint8_t>& _buffer;
 };
 
-} // namespace se_oss_oss
+}  // namespace se_oss

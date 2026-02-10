@@ -20,8 +20,7 @@ namespace se_oss {
  * @tparam T The underlying writer type (must implement IWriter).
  */
 template<class T>
-class FilteredSink final :
-    public ILogSink
+class FilteredSink final : public ILogSink
 {
 public:
     static_assert(std::is_base_of<IWriter, T>::value, "Sink must implement IWriter");
@@ -32,7 +31,9 @@ public:
      * @param args Arguments to forward to the underlying sink.
      */
     template<typename... Args>
-    explicit FilteredSink(Args&&... args) : _sink{std::forward<Args>(args)...} {}
+    explicit FilteredSink(Args&&... args) : _sink {std::forward<Args>(args)...}
+    {
+    }
 
     ~FilteredSink() override = default;
     FilteredSink(const FilteredSink&) = delete;
@@ -48,20 +49,14 @@ public:
         _sink.write(data, length);
     }
 
-    void flush() override
-    {
-        _sink.flush();
-    }
+    void flush() override { _sink.flush(); }
 
     void setLogLevel(LogLevel level) override
     {
         _filter = [level](LogMetadata metadata) { return metadata.level >= level; };
     }
 
-    void setFilter(std::function<bool(const LogMetadata&)> filter) override
-    {
-        _filter = filter;
-    }
+    void setFilter(std::function<bool(const LogMetadata&)> filter) override { _filter = filter; }
 
     /**
      * Provides access to the underlying writer.
@@ -74,4 +69,4 @@ private:
     std::function<bool(const LogMetadata&)> _filter {[](const LogMetadata&) -> bool { return true; }};
 };
 
-} // namespace se_oss_oss
+}  // namespace se_oss

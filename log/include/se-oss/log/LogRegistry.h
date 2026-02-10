@@ -32,7 +32,7 @@ enum class DefaultLogComponents : uint8_t
 
 constexpr const char* toString(DefaultLogComponents component)
 {
-    (void) component;
+    (void)component;
     return "default";
 }
 
@@ -65,7 +65,6 @@ public:
     LogRegistry& operator=(const LogRegistry&) = delete;
     LogRegistry& operator=(LogRegistry&&) = delete;
 
-
     /**
      * Creates or retrieves a logger for a specific component.
      *
@@ -85,7 +84,9 @@ public:
             _logger.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(component),
-                std::forward_as_tuple(static_cast<uint8_t>(component), toString(component), _sinkHandler, [this](){return getTime();})
+                std::forward_as_tuple(static_cast<uint8_t>(component), toString(component), _sinkHandler, [this]() {
+                    return getTime();
+                })
             );
         }
         return _logger.at(component);
@@ -132,7 +133,12 @@ private:
     std::unordered_map<TComponent, Logger> _logger {};
     std::function<uint64_t()> _timeProvider =
 #ifdef SE_OSS_HAS_CHRONO
-        {[](){return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }};
+        {[]() {
+            return std::chrono::duration_cast<std::chrono::microseconds>(
+                       std::chrono::system_clock::now().time_since_epoch()
+            )
+                .count();
+        }};
     // If chrono is available on the platform, add it as the default time provider
 #else
         {};
@@ -147,13 +153,13 @@ private:
         }
     }
 
-    template <typename T = TSink>
+    template<typename T = TSink>
     std::enable_if_t<!std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler() const
     {
         return !_sinkHandler.empty();
     }
 
-    template<typename  T = DefaultLogSinks>
+    template<typename T = DefaultLogSinks>
     std::enable_if_t<std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler()
     {
         // In case of the default logger create the console sink ad hoc
@@ -164,4 +170,4 @@ private:
     }
 };
 
-} // namespace se_oss
+}  // namespace se_oss

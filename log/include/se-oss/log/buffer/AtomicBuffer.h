@@ -62,7 +62,6 @@ public:
         }
     }
 
-
     bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
     {
         auto writer = _writer.load();
@@ -121,7 +120,6 @@ public:
             return false;
         }
 
-
         auto bytesRead = consumer(_buffer.data() + reader, bytesAvailable);
         _reader.store(reader + std::min(bytesRead, bytesAvailable));
         if (updateWatermark) {
@@ -141,6 +139,5 @@ private:
     std::atomic<std::size_t> _reader {0U};
     std::atomic<std::size_t> _writer {0U};
     std::atomic<std::size_t> _watermark {_buffer.size()};
-
 };
-} // namespace se_oss
+}  // namespace se_oss

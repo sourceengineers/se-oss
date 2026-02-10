@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2025 Source Engineers GmbH
+ * Copyright (c) 2025 Source Engineers GmbH
  *
  * SPDX-License-Identifier: MIT
  */
@@ -16,10 +16,10 @@
 constexpr std::size_t LOG_BUFFER_SIZE {2048U};
 constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
 
-template <>
+template<>
 auto se_oss::logConf<>()
 {
-    return LogConf<PrintfFormatter<TimeFormat::ISO8601>, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH>{};
+    return LogConf<PrintfFormatter<TimeFormat::ISO8601>, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
 }
 
 int main()

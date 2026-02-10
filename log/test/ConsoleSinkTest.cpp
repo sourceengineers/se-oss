@@ -4,17 +4,17 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 #include "SinkMock.h"
 #include "se-oss/log/sink/ConsoleSink.h"
 
 #include <gtest/gtest.h>
 
-
 using namespace se_oss;
 using namespace testing;
 
-class ConsoleSinkTest : public Test { };
+class ConsoleSinkTest : public Test
+{
+};
 
 TEST_F(ConsoleSinkTest, ForwardToConsole)
 {

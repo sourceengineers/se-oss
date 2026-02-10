@@ -25,8 +25,8 @@ public:
     NullSink& operator=(const NullSink&) = delete;
     NullSink& operator=(NullSink&&) = delete;
 
-    void write(const void*, size_t) override {}
-    void flush() override {}
+    void write(const void*, size_t) override { }
+    void flush() override { }
 };
 
-} // namespace se_oss
+}  // namespace se_oss

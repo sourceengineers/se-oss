@@ -10,10 +10,7 @@
 
 namespace se_oss {
 
-ConsoleSink::ConsoleSink(bool hexOutput) : _hexOutput {hexOutput}
-{
-
-}
+ConsoleSink::ConsoleSink(bool hexOutput) : _hexOutput {hexOutput} { }
 
 void ConsoleSink::write(const void* data, size_t length)
 {
@@ -28,4 +25,4 @@ void ConsoleSink::write(const void* data, size_t length)
     }
 }
 
-} // namespace ${SE_NAMESPACE}
+}  // namespace se_oss

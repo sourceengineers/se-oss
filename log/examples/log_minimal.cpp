@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2025 Source Engineers GmbH
+ * Copyright (c) 2025 Source Engineers GmbH
  *
  * SPDX-License-Identifier: MIT
  */

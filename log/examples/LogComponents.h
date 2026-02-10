@@ -27,7 +27,6 @@ constexpr const char* toString(LogComponents component)
     return "";
 }
 
-
 enum class LogSinks : uint8_t
 {
     SHELL = 0,
@@ -44,4 +43,4 @@ constexpr const char* toString(LogSinks sink)
     return "";
 }
 
-#endif // SE_LOGCOMPONENTS_H
+#endif  // SE_LOGCOMPONENTS_H

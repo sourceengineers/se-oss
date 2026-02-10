@@ -8,9 +8,10 @@
 
 #include "se-oss/log/Types.h"
 
+#include <array>
+
 #include <cbor.h>
 
-#include <array>
 #include <cstddef>
 #include <type_traits>
 
@@ -20,12 +21,12 @@ namespace se_oss {
  */
 enum class CborLogKeys : uint8_t
 {
-    TIMESTAMP      = 1U,      /**< Timestamp of the log record. */
-    LOG_LEVEL      = 2U,      /**< Log level. */
-    SOURCE_ID      = 3U,      /**< Source ID. */
+    TIMESTAMP = 1U, /**< Timestamp of the log record. */
+    LOG_LEVEL = 2U, /**< Log level. */
+    SOURCE_ID = 3U, /**< Source ID. */
     MESSAGE_STRING = 4U, /**< The format string as ASCII string. */
-    MESSAGE_ID     = 5U,     /**< ID of the format string (for usage with string replacement). */
-    VALUES         = 6U          /**< Array of argument values. */
+    MESSAGE_ID = 5U, /**< ID of the format string (for usage with string replacement). */
+    VALUES = 6U /**< Array of argument values. */
 };
 
 constexpr uint8_t toUint(CborLogKeys key) { return static_cast<uint8_t>(key); }
@@ -51,7 +52,8 @@ public:
      * @return The number of bytes written, or 0 on failure.
      */
     template<typename TFormat, typename... Values>
-    static size_t format(void* buffer, std::size_t bufferSize, LogRecord record, TFormat formatString, const Values&... values)
+    static size_t
+    format(void* buffer, std::size_t bufferSize, LogRecord record, TFormat formatString, const Values&... values)
     {
         auto* byteBuffer = static_cast<uint8_t*>(buffer);
         CborEncoder encoder;
@@ -97,13 +99,15 @@ private:
     }
 
     template<typename T>
-    static std::enable_if_t<std::is_unsigned<T>::value && !std::is_same<T, bool>::value, CborError> encodeValue(CborEncoder* encoder, T value)
+    static std::enable_if_t<std::is_unsigned<T>::value && !std::is_same<T, bool>::value, CborError>
+    encodeValue(CborEncoder* encoder, T value)
     {
         return cbor_encode_uint(encoder, value);
     }
 
     template<typename T>
-    static std::enable_if_t<std::is_signed<T>::value && !std::is_floating_point<T>::value, CborError> encodeValue(CborEncoder* encoder, T value)
+    static std::enable_if_t<std::is_signed<T>::value && !std::is_floating_point<T>::value, CborError>
+    encodeValue(CborEncoder* encoder, T value)
     {
         return cbor_encode_int(encoder, value);
     }
@@ -127,7 +131,8 @@ private:
     }
 
     template<typename T>
-    static std::enable_if_t<std::is_same<T, const char*>::value || std::is_same<T, char*>::value, CborError> encodeValue(CborEncoder* encoder, T value)
+    static std::enable_if_t<std::is_same<T, const char*>::value || std::is_same<T, char*>::value, CborError>
+    encodeValue(CborEncoder* encoder, T value)
     {
         return cbor_encode_text_stringz(encoder, value);
     }
@@ -156,4 +161,4 @@ private:
         cbor_encode_uint(encoder, record.metadata.sourceId);
     }
 };
-} // namespace se_oss
+}  // namespace se_oss

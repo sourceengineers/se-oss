@@ -7,21 +7,26 @@
 #include "se-oss/log/buffer/NoBuffer.h"
 
 #include <cstring>
+
 #include <gtest/gtest.h>
 
 using namespace se_oss;
 using namespace testing;
 
-class NoBufferTest : public Test { };
+class NoBufferTest : public Test
+{
+};
 
-TEST_F(NoBufferTest, InitialState) {
+TEST_F(NoBufferTest, InitialState)
+{
     NoBuffer<128> buffer;
     EXPECT_EQ(buffer.capacity(), 128);
     EXPECT_EQ(buffer.size(), 0);
     EXPECT_EQ(buffer.free(), 128);
 }
 
-TEST_F(NoBufferTest, ReadWrite) {
+TEST_F(NoBufferTest, ReadWrite)
+{
     std::srand(std::time({}));
     NoBuffer<128> buffer;
 

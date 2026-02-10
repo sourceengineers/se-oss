@@ -20,15 +20,17 @@ namespace se_oss {
  * @tparam T The type to look up.
  * @return The resource ID.
  */
-template <typename T>
+template<typename T>
 extern uint32_t getResourceId();
 
 /**
  * Meta-function to represent a resource identifier.
  * @tparam chars The characters of the string resource.
  */
-template <char...>
-struct ResourceIdentifier {};
+template<char...>
+struct ResourceIdentifier
+{
+};
 
 /**
  * Builds a ResourceIdentifier type from a string literal type.
@@ -37,10 +39,10 @@ struct ResourceIdentifier {};
  * @tparam indices Index sequence for the characters.
  * @return Use decltype to get the ResourceIdentifier type.
  */
-template <typename String, std::size_t... indices>
-decltype(auto) buildResourceIdentifier(std::index_sequence<indices...>) {
+template<typename String, std::size_t... indices>
+decltype(auto) buildResourceIdentifier(std::index_sequence<indices...>)
+{
     return ResourceIdentifier<String().characters[indices]...>();
 }
 
-
-} // namespace se_oss
+}  // namespace se_oss

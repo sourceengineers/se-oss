@@ -13,6 +13,7 @@ class IWriter
 {
 protected:
     IWriter() = default;
+
 public:
     virtual ~IWriter() = default;
     IWriter(const IWriter&) = default;
@@ -32,4 +33,4 @@ public:
      */
     virtual void flush() = 0;
 };
-} // namespace se_oss
+}  // namespace se_oss

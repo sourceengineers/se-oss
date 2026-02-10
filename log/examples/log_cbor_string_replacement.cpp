@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2025 Source Engineers GmbH
+ * Copyright (c) 2025 Source Engineers GmbH
  *
  * SPDX-License-Identifier: MIT
  */
@@ -17,10 +17,10 @@
 constexpr std::size_t LOG_BUFFER_SIZE {2048U};
 constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
 
-template <>
+template<>
 auto se_oss::logConf<>()
 {
-    return LogConf<CborFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH>{};
+    return LogConf<CborFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
 }
 
 int main()
@@ -29,7 +29,10 @@ int main()
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<LogComponents, LogSinks>>();
     logRegistry->setTimeProvider([]() {
-        return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()
+        )
+            .count();
     });
     logRegistry->attachSink(LogSinks::SHELL, std::move(shellSink));
     logRegistry->getSink(LogSinks::SHELL).setLogLevel(se_oss::LogLevel::TRACE);

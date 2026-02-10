@@ -18,6 +18,7 @@ class IBuffer
 {
 protected:
     IBuffer() = default;
+
 public:
     virtual ~IBuffer() = default;
     IBuffer(const IBuffer&) = delete;
@@ -62,4 +63,4 @@ public:
      */
     virtual bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) = 0;
 };
-} // namespace se_oss
+}  // namespace se_oss

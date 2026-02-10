@@ -25,20 +25,24 @@ namespace se_oss {
  * @tparam MAX_MESSAGE_LENGTH The maximum size in bytes for a single log message.
  */
 template<class Formatter, class Buffer, std::size_t MAX_MESSAGE_LENGTH>
-class  LogConf
+class LogConf
 {
-    template <typename T>
-    struct is_immediate_buffer : std::false_type {};
+    template<typename T>
+    struct is_immediate_buffer : std::false_type
+    {
+    };
 
-    template <std::size_t N>
-    struct is_immediate_buffer<NoBuffer<N>> : std::true_type {};
+    template<std::size_t N>
+    struct is_immediate_buffer<NoBuffer<N>> : std::true_type
+    {
+    };
 
 public:
     /**
      * Creates a new formatter instance.
      * @return A new instance of the configured Formatter.
      */
-    static constexpr Formatter formatter() { return Formatter{}; }
+    static constexpr Formatter formatter() { return Formatter {}; }
 
     /**
      * Gets the maximum message length.
@@ -66,7 +70,8 @@ constexpr std::size_t DEFAULT_MAX_MESSAGE_LENGTH {128};
  * - Output to console
  * - Max message length of 128 characters
  */
-using DefaultLogConf = LogConf<PrintfFormatter<TimeFormat::ISO8601>, NoBuffer<DEFAULT_MAX_MESSAGE_LENGTH>, DEFAULT_MAX_MESSAGE_LENGTH>;
+using DefaultLogConf =
+    LogConf<PrintfFormatter<TimeFormat::ISO8601>, NoBuffer<DEFAULT_MAX_MESSAGE_LENGTH>, DEFAULT_MAX_MESSAGE_LENGTH>;
 
 /**
  * Customization point for logger configuration.
@@ -85,9 +90,11 @@ using DefaultLogConf = LogConf<PrintfFormatter<TimeFormat::ISO8601>, NoBuffer<DE
  *
  * @return The configuration object.
  */
-template <typename...>
-auto logConf() { return DefaultLogConf{}; }
-
+template<typename...>
+auto logConf()
+{
+    return DefaultLogConf {};
+}
 
 namespace log_detail {
 
@@ -115,6 +122,6 @@ std::size_t maxMessageLength()
     return logConf<DummyArgs...>().maxMessageLength();
 }
 
-}
+}  // namespace log_detail
 
-} // namespace se_oss_oss
+}  // namespace se_oss

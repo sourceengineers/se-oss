@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "se-oss/log/ILogFilter.h"
 #include "IWriter.h"
+#include "se-oss/log/ILogFilter.h"
 #include "se-oss/log/Types.h"
 
 #include <cstring>
@@ -24,6 +24,7 @@ class ILogSink : public ILogFilter
 {
 protected:
     ILogSink() = default;
+
 public:
     ~ILogSink() override = default;
     ILogSink(const ILogSink&) = delete;
@@ -56,8 +57,8 @@ public:
 struct LogHeader
 {
     static constexpr size_t PACKED_SIZE {4U}; /**< Size of the serialized header. */
-    LogMetadata metadata {};                   /**< Log metadata. */
-    uint16_t messageLength {0U};               /**< Length of the message payload. */
+    LogMetadata metadata {}; /**< Log metadata. */
+    uint16_t messageLength {0U}; /**< Length of the message payload. */
 };
 
 constexpr void* serialize(const LogHeader& header, void* buffer, std::size_t bufferSize)
@@ -91,5 +92,4 @@ constexpr const void* deserialize(LogHeader& header, const void* buffer, std::si
     return byteBuffer;
 }
 
-
-} // namespace se_oss
+}  // namespace se_oss

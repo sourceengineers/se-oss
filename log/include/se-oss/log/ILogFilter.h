@@ -15,6 +15,7 @@ class ILogFilter
 {
 protected:
     ILogFilter() = default;
+
 public:
     virtual ~ILogFilter() = default;
     ILogFilter(const ILogFilter&) = default;
@@ -34,4 +35,4 @@ public:
      */
     virtual void setFilter(std::function<bool(const LogMetadata&)> filter) = 0;
 };
-} // namespace se_oss
+}  // namespace se_oss

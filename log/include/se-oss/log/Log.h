@@ -16,7 +16,6 @@
 
 #include <memory>
 
-
 #ifndef SE_OSS_LOG_REPLACE_STRINGS
 
 /**
@@ -26,7 +25,10 @@
  * @param logger The Logger instance.
  * @param ... The format string and additional arguments.
  */
-#define LOG_TRACE(logger, ...) do { logger.log(se_oss::LogLevel::TRACE, ##__VA_ARGS__); } while (false)
+#define LOG_TRACE(logger, ...)                              \
+    do {                                                    \
+        logger.log(se_oss::LogLevel::TRACE, ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_DEBUG(logger, format, ...)
@@ -35,7 +37,10 @@
  * @param logger The Logger instance.
  * @param ... The format string and additional arguments
  */
-#define LOG_DEBUG(logger, ...) do { logger.log(se_oss::LogLevel::DEBUG, ##__VA_ARGS__); } while (false)
+#define LOG_DEBUG(logger, ...)                              \
+    do {                                                    \
+        logger.log(se_oss::LogLevel::DEBUG, ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_INFO(logger, format, ...)
@@ -44,7 +49,10 @@
  * @param logger The Logger instance.
  * @param ... The format string and additional arguments
  */
-#define LOG_INFO(logger, ...) do { logger.log(se_oss::LogLevel::INFO, ##__VA_ARGS__); } while (false)
+#define LOG_INFO(logger, ...)                              \
+    do {                                                   \
+        logger.log(se_oss::LogLevel::INFO, ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_WARN(logger, format, ...)
@@ -53,7 +61,10 @@
  * @param logger The Logger instance.
  * @param ... The format string and additional arguments
  */
-#define LOG_WARN(logger, ...) do { logger.log(se_oss::LogLevel::WARN, ##__VA_ARGS__); } while (false)
+#define LOG_WARN(logger, ...)                              \
+    do {                                                   \
+        logger.log(se_oss::LogLevel::WARN, ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_ERROR(logger, format, ...)
@@ -62,7 +73,10 @@
  * @param logger The Logger instance.
  * @param ... The format string and additional arguments
  */
-#define LOG_ERROR(logger, ...) do { logger.log(se_oss::LogLevel::ERROR, ##__VA_ARGS__); } while (false)
+#define LOG_ERROR(logger, ...)                              \
+    do {                                                    \
+        logger.log(se_oss::LogLevel::ERROR, ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_FATAL(logger, format, ...)
@@ -71,12 +85,21 @@
  * @param logger The Logger instance.
  * @param ... The format string and additional arguments
  */
-#define LOG_FATAL(logger, ...) do { logger.log(se_oss::LogLevel::FATAL, ##__VA_ARGS__); } while (false)
+#define LOG_FATAL(logger, ...)                              \
+    do {                                                    \
+        logger.log(se_oss::LogLevel::FATAL, ##__VA_ARGS__); \
+    } while (false)
 
 #else
 
-#define LOG_INTERNAL_STRING_TYPE(format) struct FormatString { const char* characters = format; }
-#define LOG_INTERNAL_RESOURCE_ID(format) se_oss::getResourceId<decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>()
+#define LOG_INTERNAL_STRING_TYPE(format) \
+    struct FormatString                  \
+    {                                    \
+        const char* characters = format; \
+    }
+#define LOG_INTERNAL_RESOURCE_ID(format)                                                                       \
+    se_oss::getResourceId<                                                                                     \
+        decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>()
 
 /**
  * @def LOG_TRACE(logger, format, ...)
@@ -86,7 +109,11 @@
  * @param format The format string.
  * @param ... Additional arguments.
  */
-#define LOG_TRACE(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::TRACE, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+#define LOG_TRACE(logger, format, ...)                                                        \
+    do {                                                                                      \
+        LOG_INTERNAL_STRING_TYPE(format);                                                     \
+        logger.log(se_oss::LogLevel::TRACE, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_DEBUG(logger, format, ...)
@@ -96,7 +123,11 @@
  * @param format The format string.
  * @param ... Additional arguments.
  */
-#define LOG_DEBUG(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::DEBUG, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+#define LOG_DEBUG(logger, format, ...)                                                        \
+    do {                                                                                      \
+        LOG_INTERNAL_STRING_TYPE(format);                                                     \
+        logger.log(se_oss::LogLevel::DEBUG, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_INFO(logger, format, ...)
@@ -106,7 +137,11 @@
  * @param format The format string.
  * @param ... Additional arguments.
  */
-#define LOG_INFO(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::INFO, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+#define LOG_INFO(logger, format, ...)                                                        \
+    do {                                                                                     \
+        LOG_INTERNAL_STRING_TYPE(format);                                                    \
+        logger.log(se_oss::LogLevel::INFO, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_WARN(logger, format, ...)
@@ -116,7 +151,11 @@
  * @param format The format string.
  * @param ... Additional arguments.
  */
-#define LOG_WARN(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::WARN, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+#define LOG_WARN(logger, format, ...)                                                        \
+    do {                                                                                     \
+        LOG_INTERNAL_STRING_TYPE(format);                                                    \
+        logger.log(se_oss::LogLevel::WARN, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_ERROR(logger, format, ...)
@@ -126,7 +165,11 @@
  * @param format The format string.
  * @param ... Additional arguments.
  */
-#define LOG_ERROR(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::ERROR, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+#define LOG_ERROR(logger, format, ...)                                                        \
+    do {                                                                                      \
+        LOG_INTERNAL_STRING_TYPE(format);                                                     \
+        logger.log(se_oss::LogLevel::ERROR, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
+    } while (false)
 
 /**
  * @def LOG_FATAL(logger, format, ...)
@@ -136,7 +179,11 @@
  * @param format The format string.
  * @param ... Additional arguments.
  */
-#define LOG_FATAL(logger, format, ...) do { LOG_INTERNAL_STRING_TYPE(format); logger.log(se_oss::LogLevel::FATAL, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); } while (false)
+#define LOG_FATAL(logger, format, ...)                                                        \
+    do {                                                                                      \
+        LOG_INTERNAL_STRING_TYPE(format);                                                     \
+        logger.log(se_oss::LogLevel::FATAL, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
+    } while (false)
 
 #endif
 
@@ -184,7 +231,7 @@ public:
      * @param values The arguments to format.
      */
     template<typename TFormat, typename... Values>
-    void  log(LogLevel level, TFormat format, const Values&... values);
+    void log(LogLevel level, TFormat format, const Values&... values);
 
     /**
      * Sets the minimum log level.
@@ -229,7 +276,6 @@ inline Logger::Logger(uint8_t id, const char* name, ILogSink& sink, const std::f
     _name {name},
     _timeProvider {timeProvider}
 {
-
 }
 
 inline void Logger::distributeMessages(std::size_t maxNumberOfMessages) const
@@ -252,7 +298,10 @@ inline void Logger::distributeMessages(std::size_t maxNumberOfMessages) const
 template<typename TFormat, typename... Values>
 void Logger::log(LogLevel level, TFormat format, const Values&... values)
 {
-    static_assert(std::is_same<TFormat, const char*>::value || std::is_same<TFormat, uint32_t>::value, "Format type must be either const char* or uint32_t");
+    static_assert(
+        std::is_same<TFormat, const char*>::value || std::is_same<TFormat, uint32_t>::value,
+        "Format type must be either const char* or uint32_t"
+    );
 
     if (level < MAX_LEVEL || level < _level) {
         return;
@@ -279,19 +328,26 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
         }
     } else {
         // deferred logging
-        writeSuccessful = _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
-               uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
-               std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
-               std::size_t bytesWritten = log_detail::format(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
-               if (bytesWritten > 0U) {
-                   LogHeader header {};
-                   header.metadata = record.metadata;
-                   header.messageLength = bytesWritten;
-                   (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
-                   bytesWritten += LogHeader::PACKED_SIZE;
-               }
-               return bytesWritten;
-           });
+        writeSuccessful =
+            _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
+                uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
+                std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
+                std::size_t bytesWritten = log_detail::format(
+                    byteBuffer,
+                    usableBufferSize,
+                    record,
+                    format,
+                    std::forward<const Values>(values)...
+                );
+                if (bytesWritten > 0U) {
+                    LogHeader header {};
+                    header.metadata = record.metadata;
+                    header.messageLength = bytesWritten;
+                    (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
+                    bytesWritten += LogHeader::PACKED_SIZE;
+                }
+                return bytesWritten;
+            });
     }
 
     if (!writeSuccessful) {
@@ -311,4 +367,4 @@ inline LogRecord Logger::createRecord(LogLevel level) const
     return record;
 }
 
-} // namespace se_oss
+}  // namespace se_oss

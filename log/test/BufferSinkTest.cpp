@@ -4,17 +4,17 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 #include "SinkMock.h"
 #include "se-oss/log/sink/BufferSink.h"
 
 #include <gtest/gtest.h>
 
-
 using namespace se_oss;
 using namespace testing;
 
-class BufferSinkTest : public Test { };
+class BufferSinkTest : public Test
+{
+};
 
 TEST_F(BufferSinkTest, ForwardToBuffer)
 {

@@ -31,10 +31,10 @@ public:
     ConsoleSink& operator=(ConsoleSink&&) = delete;
 
     void write(const void* data, size_t length) override;
-    void flush() override {}
+    void flush() override { }
 
 private:
     bool _hexOutput;
 };
 
-} // namespace se_oss
+}  // namespace se_oss

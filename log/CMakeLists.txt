@@ -13,7 +13,7 @@ set(SE_OSS_LOG_RELEASE_MAX_LEVEL "INFO" CACHE STRING "Log levels above here will
 add_library(
         se_oss_log
         STATIC
-        src/ConsoleSink.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/ConsoleSink.cpp
 )
 
 target_sources(
@@ -22,23 +22,23 @@ target_sources(
         FILE_SET HEADERS
         TYPE HEADERS
         FILES
-        include/se-oss/log/Conf.h
-        include/se-oss/log/ILogFilter.h
-        include/se-oss/log/Log.h
-        include/se-oss/log/LogRegistry.h
-        include/se-oss/log/ResourceDatabase.h
-        include/se-oss/log/Types.h
-        include/se-oss/log/buffer/AtomicBuffer.h
-        include/se-oss/log/buffer/IBuffer.h
-        include/se-oss/log/buffer/NoBuffer.h
-        $<$<BOOL:${SE_OSS_SUPPORT_CBOR}>:include/se-oss/log/format/CborFormatter.h>
-        include/se-oss/log/format/PrintfFormatter.h
-        include/se-oss/log/sink/AggregatedSink.h
-        include/se-oss/log/sink/BufferSink.h
-        include/se-oss/log/sink/FilteredSink.h
-        include/se-oss/log/sink/ILogSink.h
-        include/se-oss/log/sink/IWriter.h
-        include/se-oss/log/sink/NullSink.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/Conf.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/ILogFilter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/Log.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/LogRegistry.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/ResourceDatabase.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/Types.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/AtomicBuffer.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/IBuffer.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/NoBuffer.h
+        $<$<BOOL:${SE_OSS_SUPPORT_CBOR}>:${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/CborFormatter.h>
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/PrintfFormatter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/AggregatedSink.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/BufferSink.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/FilteredSink.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/ILogSink.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/IWriter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/NullSink.h
 )
 
 target_include_directories(

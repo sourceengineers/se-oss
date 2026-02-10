@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2025 Source Engineers GmbH
+ * Copyright (c) 2025 Source Engineers GmbH
  *
  * SPDX-License-Identifier: MIT
  */
@@ -20,7 +20,13 @@ class MyFormatter
 {
 public:
     template<typename... Values>
-    static size_t format(void* buffer, std::size_t bufferSize, const se_oss::LogRecord& record, const char *const formatString, const Values& ...values)
+    static size_t format(
+        void* buffer,
+        std::size_t bufferSize,
+        const se_oss::LogRecord& record,
+        const char* const formatString,
+        const Values&... values
+    )
     {
         se_oss::LogStringBuffer string {buffer, bufferSize};
         string.appendTime("%y%m%dT%H%M%S", record.timestamp);
@@ -31,10 +37,10 @@ public:
     }
 };
 
-template <>
+template<>
 auto se_oss::logConf<>()
 {
-    return LogConf<MyFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH>{};
+    return LogConf<MyFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
 }
 
 int main()
@@ -43,7 +49,10 @@ int main()
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<LogComponents, LogSinks>>();
     logRegistry->setTimeProvider([]() {
-        return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()
+        )
+            .count();
     });
     logRegistry->attachSink(LogSinks::SHELL, std::move(consoleSink));
     logRegistry->getSink(LogSinks::SHELL).setLogLevel(se_oss::LogLevel::TRACE);

@@ -15,6 +15,6 @@ class SinkMock : public se_oss::IWriter
 public:
     SinkMock() = default;
 
-    MOCK_METHOD(void, write, (const void*, std::size_t), (override));
-    MOCK_METHOD(void, flush, (), (override));
+    MOCK_METHOD(void, write, (const void*, std::size_t), override);
+    MOCK_METHOD(void, flush, (), override);
 };

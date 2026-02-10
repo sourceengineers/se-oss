@@ -54,4 +54,4 @@ private:
     std::size_t _size {0U};
 };
 
-} // namespace se_oss
+}  // namespace se_oss

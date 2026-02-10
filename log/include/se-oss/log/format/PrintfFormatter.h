@@ -18,8 +18,11 @@ namespace se_oss {
 class LogStringBuffer
 {
 public:
-    LogStringBuffer(void* buffer, std::size_t size) : _buffer {static_cast<char*>(buffer)},
-                                                      _capacity {size - END_LINE_LENGTH} {}
+    LogStringBuffer(void* buffer, std::size_t size) :
+        _buffer {static_cast<char*>(buffer)},
+        _capacity {size - END_LINE_LENGTH}
+    {
+    }
 
     ~LogStringBuffer() = default;
     LogStringBuffer(const LogStringBuffer&) = delete;
@@ -120,7 +123,8 @@ public:
             return;
         }
         auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MICROSECONDS_PER_MILLISECOND);
-        const tm* time = std::gmtime(&epochSeconds);  // returns a pointer to a static object and thus does not allocate memory
+        const tm* time =
+            std::gmtime(&epochSeconds);  // returns a pointer to a static object and thus does not allocate memory
         std::size_t length = std::strftime(_buffer + _length, _capacity - _length, format, time);
         if (length == 0) {
             valid = false;
@@ -139,10 +143,7 @@ public:
         _length++;
     }
 
-    std::size_t length() const
-    {
-        return valid ? _length : 0U;
-    }
+    std::size_t length() const { return valid ? _length : 0U; }
 
 private:
     static constexpr std::size_t END_LINE_LENGTH {1U};
@@ -173,7 +174,13 @@ public:
      * @return The number of bytes written, or 0 on failure.
      */
     template<typename... Values>
-    static size_t format(void* buffer, std::size_t bufferSize, const LogRecord& record, const char* const formatString, const Values&... values)
+    static size_t format(
+        void* buffer,
+        std::size_t bufferSize,
+        const LogRecord& record,
+        const char* const formatString,
+        const Values&... values
+    )
     {
         LogStringBuffer string {buffer, bufferSize};
         string.appendTime<TIME_STRING>(record.timestamp);
@@ -207,4 +214,4 @@ public:
 private:
     static constexpr char FEATURE_NOT_SUPPORTED_MESSAGE[] {"Printf formatting does not support string replacement\n"};
 };
-} // namespace se_oss_oss
+}  // namespace se_oss

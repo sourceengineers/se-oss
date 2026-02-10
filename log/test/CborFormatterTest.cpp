@@ -6,8 +6,4 @@
 
 #include <gtest/gtest.h>
 
-
-TEST(Example, sumTest)
-{
-    EXPECT_EQ(1, 1);
-}
+TEST(Example, sumTest) { EXPECT_EQ(1, 1); }

@@ -72,10 +72,7 @@ public:
      * @param id The unique identifier for this sink.
      * @param sink The sink to attach.
      */
-    void attachSink(TSink id, std::unique_ptr<ILogSink> sink)
-    {
-        _sinks.emplace(id, std::move(sink));
-    }
+    void attachSink(TSink id, std::unique_ptr<ILogSink> sink) { _sinks.emplace(id, std::move(sink)); }
 
     /**
      * Retrieves a sink by its ID.
@@ -95,5 +92,4 @@ private:
     std::function<bool(const LogMetadata&)> _filter {};
 };
 
-} // namespace se_oss
-
+}  // namespace se_oss

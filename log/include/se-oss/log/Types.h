@@ -15,13 +15,13 @@ namespace se_oss {
  */
 enum class LogLevel : uint8_t
 {
-    TRACE = 0,  /**< Detailed trace information. */
-    DEBUG = 1,  /**< Debugging information. */
-    INFO = 2,   /**< General information. */
-    WARN = 3,   /**< Warning conditions. */
-    ERROR = 4,  /**< Error conditions. */
-    FATAL = 5,  /**< Fatal errors causing termination. */
-    OFF = UINT8_MAX /**< Logging disabled. */
+    TRACE = 0,  //!< Detailed trace information.
+    DEBUG = 1,  //!< Debugging information.
+    INFO = 2,  //!< General information.
+    WARN = 3,  //!< Warning conditions.
+    ERROR = 4,  //!< Error conditions.
+    FATAL = 5,  //!< Fatal errors causing termination.
+    OFF = UINT8_MAX  //!< Logging disabled.
 };
 
 constexpr const char* toString(LogLevel level)
@@ -52,10 +52,7 @@ constexpr const char* toShortString(LogLevel level)
     return "";
 }
 
-constexpr uint8_t toUint(LogLevel level)
-{
-    return static_cast<uint8_t>(level);
-}
+constexpr uint8_t toUint(LogLevel level) { return static_cast<uint8_t>(level); }
 
 constexpr LogLevel toLogLevel(uint8_t level)
 {
@@ -77,7 +74,7 @@ constexpr LogLevel toLogLevel(uint8_t level)
 struct LogMetadata
 {
     LogLevel level {LogLevel::TRACE}; /**< The log level. */
-    uint8_t sourceId {UINT8_MAX};     /**< The ID of the logger source. */
+    uint8_t sourceId {UINT8_MAX}; /**< The ID of the logger source. */
 };
 
 /**
@@ -85,9 +82,9 @@ struct LogMetadata
  */
 struct LogRecord
 {
-    LogMetadata metadata {};          /**< The log metadata. */
+    LogMetadata metadata {}; /**< The log metadata. */
     const char* sourceName {nullptr}; /**< The name of the logger source. */
-    uint64_t timestamp {UINT64_MAX};  /**< The timestamp of the log message. */
+    uint64_t timestamp {UINT64_MAX}; /**< The timestamp of the log message. */
 };
 
 /**
@@ -95,13 +92,23 @@ struct LogRecord
  */
 enum class TimeFormat : uint8_t
 {
-    NONE,        /**< Omit timestamp. */
-    DECIMAL,     /**< Timestamp in decimal format, e.g., 1768902731209138. */
-    DECIMAL_8,   /**< Trailing 8 timestamp digits in decimal format, e.g., 31209138. Note: This will fit into a u32 for devices with limited formatting support. */
-    DECIMAL_10,  /**< Trailing 10 timestamp digits in decimal format, e.g., 2731209138. */
-    HEX,         /**< Timestamp in hex format, e.g.,  648CEC2EF99B2.  */
-    HEX_8,       /**< Timestamp in hex format, e.g.,  C2EF99B2. Note: This will fit into a u32 for devices with limited formatting support. */
-    ISO8601      /**< Timestamp in human-readable date time format, e.g., 2026-01-20T09:52:11.209Z. Note: Assumes that the timestamp is in microseconds since epoch. */
+    //! Omit timestamp.
+    NONE,
+    //! Timestamp in decimal format, e.g., 1768902731209138.
+    DECIMAL,
+    //! Trailing 8 timestamp digits in decimal format, e.g., 31209138. Note: This will fit into a u32 for devices with
+    //! limited formatting support.
+    DECIMAL_8,
+    //! Trailing 10 timestamp digits in decimal format, e.g., 2731209138.
+    DECIMAL_10,
+    //! Timestamp in hex format, e.g.,  648CEC2EF99B2.
+    HEX,
+    //! Timestamp in hex format, e.g.,  C2EF99B2. Note: This will fit into a u32 for devices with limited formatting
+    //! support.
+    HEX_8,
+    //! Timestamp in human-readable date time format, e.g., 2026-01-20T09:52:11.209Z. Note: Assumes that the timestamp
+    is in microseconds since epoch.ISO8601
+
 };
 
-} // namespace se_oss
+}  // namespace se_oss
