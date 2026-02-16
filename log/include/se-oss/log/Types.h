@@ -107,8 +107,8 @@ enum class TimeFormat : uint8_t
     //! support.
     HEX_8,
     //! Timestamp in human-readable date time format, e.g., 2026-01-20T09:52:11.209Z. Note: Assumes that the timestamp
-    is in microseconds since epoch.ISO8601
-
+    //! is in microseconds since epoch.
+    ISO8601
 };
 
 }  // namespace se_oss
