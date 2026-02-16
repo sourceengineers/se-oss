@@ -26,7 +26,7 @@ add_subdirectory(lib)
 if (${SE_OSS_TESTS})
     enable_testing()
     include(cmake/coverage.cmake)
-    se_coverage()
+    se_coverage(PROJECT_NAME se_oss)
 endif ()
 
 if (${SE_OSS_COMPONENT_LOG})
