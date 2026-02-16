@@ -53,7 +53,7 @@ public:
      */
     template<typename TFormat, typename... Values>
     static size_t
-    format(void* buffer, std::size_t bufferSize, LogRecord record, TFormat formatString, const Values&... values)
+    format(void* buffer, std::size_t bufferSize, const LogRecord& record, TFormat formatString, const Values&... values)
     {
         auto* byteBuffer = static_cast<uint8_t*>(buffer);
         CborEncoder encoder;
