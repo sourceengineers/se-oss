@@ -86,7 +86,7 @@ function(se_static_analysis)
                 --suppress=unmatchedSuppression
                 --suppress=unmatchedSuppression:{}
                 --suppress=unusedStructMember
-                -ibuild  # ignore sources in build directory (e.g. _deps)
+                --suppress=*:*/build/*  # ignore sources in build directory (e.g. _deps)
                 --inconclusive
                 --force
                 --inline-suppr
