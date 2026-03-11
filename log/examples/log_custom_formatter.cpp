@@ -33,6 +33,7 @@ public:
         string.append("| %s | ", toString(record.metadata.level));
         string.append("%s | ", record.sourceName);
         string.append(formatString, std::forward<const Values>(values)...);
+        string.endLine();
         return string.length();
     }
 };
