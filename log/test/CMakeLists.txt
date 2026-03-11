@@ -5,12 +5,14 @@ enable_testing()
 
 add_executable(
         se_log_tests
+        AggregatedSinkTest.cpp
         AtomicBufferTest.cpp
         BufferSinkTest.cpp
         CborFormatterTest.cpp
         ConsoleSinkTest.cpp
         FilteredSinkTest.cpp
         LogPrintfTest.cpp
+        PrintfFormatterTest.cpp
         NoBufferTest.cpp
 )
 
