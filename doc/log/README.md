@@ -142,7 +142,7 @@ leads to the output (here shown as hex string)
 A5011B000647B9899DD36F0202030004735374617465206368616E67656420746F2025750681182A
 ```
 
-or formatted as CBOR messge
+or formatted as CBOR message
 
 ```text
 A5                                      # map(5)
