@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Conf.h"
+#include "LogContext.h"
 #include "buffer/AtomicBuffer.h"
 #include "sink/ILogSink.h"
 
@@ -15,6 +16,7 @@
 #endif
 
 #include <memory>
+#include <utility>
 
 #ifndef SE_OSS_LOG_REPLACE_STRINGS
 
@@ -190,14 +192,6 @@
 namespace se_oss {
 
 /**
- * Structure holding statistics about the logger's operation.
- */
-struct LogStatistics
-{
-    uint32_t droppedMessages {0}; /**< Number of messages dropped due to buffer overflow or other issues. */
-};
-
-/**
  * The main Logger class.
  *
  * This class is responsible for logging messages to a configured sink via a buffer.
@@ -209,15 +203,15 @@ public:
     /**
      * Constructs a new Logger.
      *
-     * @param id A unique identifier for this logger source (0-255).
      * @param name A human-readable name for this logger.
-     * @param sink The sink to write log messages to.
-     * @param timeProvider Optional function to provide a timestamp (microseconds).
+     * @param context Thread context the log instance acts on
      */
-    Logger(uint8_t id, const char* name, ILogSink& sink, const std::function<uint64_t()>& timeProvider = nullptr);
+    explicit Logger(LogContext& context);
     ~Logger() = default;
-    Logger(const Logger&) = delete;
-    Logger(Logger&&) = delete;
+    // Note: The intention is that a logger can be copied and adjusted locally.
+    //       The log context is managed by an internal reference.
+    Logger(const Logger&) = default;
+    Logger(Logger&&) = default;
     Logger& operator=(const Logger&) = delete;
     Logger& operator=(Logger&&) = delete;
 
@@ -238,61 +232,28 @@ public:
      * Messages with a level lower than this will be ignored.
      * @param level The new minimum log level.
      */
-    void setLogLevel(LogLevel level) { _level = level; }
+    // void setLogLevel(LogLevel level) { _context._level = level; }
+    // todo
 
     /**
      * Retrieves current logger statistics.
      * @return A copy of the LogStatistics structure.
      */
-    LogStatistics statistics() const { return _statistics; }
-
-    /**
-     * Distributes messages from the buffer to the sink.
-     *
-     * This is only relevant for deferred logging (using AtomicBuffer).
-     * For immediate logging (NoBuffer), this method does nothing.
-     *
-     * @param maxNumberOfMessages Maximum number of messages to process in this call.
-     */
-    void distributeMessages(std::size_t maxNumberOfMessages = 20U) const;
+    LogStatistics statistics() const { return _context.statistics(); }
 
 private:
-    static constexpr LogLevel MAX_LEVEL {toLogLevel(SE_LOG_MAX_LOG_LEVEL)};
-    std::atomic<LogLevel> _level {LogLevel::INFO};
-    std::unique_ptr<IBuffer> _buffer {log_detail::createBuffer()};
-    LogStatistics _statistics {};
-    ILogSink& _sink;
+    LogContext& _context;
 
-    uint8_t _id;
+    uint8_t _logTag {0U};
     const char* _name {nullptr};
-    const std::function<uint64_t()> _timeProvider {};
 
     LogRecord createRecord(LogLevel level) const;
 };
 
-inline Logger::Logger(uint8_t id, const char* name, ILogSink& sink, const std::function<uint64_t()>& timeProvider) :
-    _sink {sink},
-    _id {id},
-    _name {name},
-    _timeProvider {timeProvider}
+inline Logger::Logger(LogContext& context) :
+    _name {context.name()},
+    _context {context}
 {
-}
-
-inline void Logger::distributeMessages(std::size_t maxNumberOfMessages) const
-{
-    if (log_detail::isImmediate()) {
-        return;
-    }
-
-    bool readSuccessful {true};
-    for (size_t i = 0; i < maxNumberOfMessages && readSuccessful; ++i) {
-        readSuccessful = _buffer->read([&](const void* buffer, std::size_t size) {
-            LogHeader header {};
-            auto* bufferPosition = deserialize(header, buffer, size);
-            _sink.write(header.metadata, bufferPosition, header.messageLength);
-            return LogHeader::PACKED_SIZE + header.messageLength;
-        });
-    }
 }
 
 template<typename TFormat, typename... Values>
@@ -303,55 +264,41 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
         "Format type must be either const char* or uint32_t"
     );
 
-    if (level < MAX_LEVEL || level < _level) {
-        return;
-    }
+    // todo: move filter log instance
+    // if (level < LogContext::MAX_LEVEL || level < _context._level) {
+    //     return;
+    // }
 
     LogRecord record = createRecord(level);
     std::size_t maxMessageLength = log_detail::maxMessageLength();
 
-    bool writeSuccessful {false};
     if (log_detail::isImmediate()) {
         // immediate logging
-        writeSuccessful = _buffer->write(maxMessageLength, [&](void* buffer, std::size_t size) {
+        _context.writeMessage(maxMessageLength, [&](void* buffer, std::size_t size) {
             auto* byteBuffer = static_cast<uint8_t*>(buffer);
             return log_detail::format(byteBuffer, size, record, format, std::forward<const Values>(values)...);
         });
-
-        if (writeSuccessful) {
-            _buffer->read([&](const void* buffer, std::size_t size) {
-                _sink.write(record.metadata, buffer, size);
-                return size;
-            });
-        } else {
-            _statistics.droppedMessages++;
-        }
     } else {
         // deferred logging
-        writeSuccessful =
-            _buffer->write(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
-                uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
-                std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
-                std::size_t bytesWritten = log_detail::format(
-                    byteBuffer,
-                    usableBufferSize,
-                    record,
-                    format,
-                    std::forward<const Values>(values)...
-                );
-                if (bytesWritten > 0U) {
-                    LogHeader header {};
-                    header.metadata = record.metadata;
-                    header.messageLength = bytesWritten;
-                    (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
-                    bytesWritten += LogHeader::PACKED_SIZE;
-                }
-                return bytesWritten;
-            });
-    }
-
-    if (!writeSuccessful) {
-        _statistics.droppedMessages++;
+        _context.writeMessage(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
+            uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
+            std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
+            std::size_t bytesWritten = log_detail::format(
+                byteBuffer,
+                usableBufferSize,
+                record,
+                format,
+                std::forward<const Values>(values)...
+            );
+            if (bytesWritten > 0U) {
+                LogHeader header {};
+                header.metadata = record.metadata;
+                header.messageLength = bytesWritten;
+                (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
+                bytesWritten += LogHeader::PACKED_SIZE;
+            }
+            return bytesWritten;
+        });
     }
 }
 
@@ -359,11 +306,9 @@ inline LogRecord Logger::createRecord(LogLevel level) const
 {
     LogRecord record {};
     record.metadata.level = level;
-    record.metadata.sourceId = _id;
-    record.sourceName = _name;
-    if (_timeProvider) {
-        record.timestamp = _timeProvider();
-    }
+    record.metadata.contextTag = _context.contextTag();
+    record.loggerName = _name;
+    record.timestamp = _context.time();
     return record;
 }
 

@@ -118,14 +118,14 @@ TEST_F(FilteredSinkTest, FilterOff)
 TEST_F(FilteredSinkTest, CustomFilter)
 {
     LogMetadata metadata {};
-    _filteredSink.setFilter([](const auto& metadata) -> bool { return metadata.sourceId == 42; });
+    _filteredSink.setFilter([](const auto& metadata) -> bool { return metadata.contextTag == 42; });
 
-    metadata.sourceId = 1;
+    metadata.contextTag = 1;
     EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(0);
     _filteredSink.write(metadata, nullptr, 0U);
     Mock::VerifyAndClearExpectations(&_filteredSink.inner());
 
-    metadata.sourceId = 42;
+    metadata.contextTag = 42;
     EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(1);
     _filteredSink.write(metadata, nullptr, 1U);
     Mock::VerifyAndClearExpectations(&_filteredSink.inner());

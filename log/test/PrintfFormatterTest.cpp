@@ -212,7 +212,7 @@ TEST(PrintfFormatter, FormatBasicMessage)
     char buf[256] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::INFO;
-    record.sourceName = "src";
+    record.loggerName = "src";
     record.timestamp = 0;
 
     std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "hello");
@@ -225,7 +225,7 @@ TEST(PrintfFormatter, FormatWithArgs)
     char buf[256] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::DEBUG;
-    record.sourceName = "app";
+    record.loggerName = "app";
     record.timestamp = 0;
 
     std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "%d %s", 42, "test");
@@ -238,7 +238,7 @@ TEST(PrintfFormatter, FormatWithHex8Time)
     char buf[256] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::INFO;
-    record.sourceName = "src";
+    record.loggerName = "src";
     record.timestamp = 0xDEADBEEFULL;
 
     std::size_t len = PrintfFormatter<TimeFormat::HEX_8>::format(buf, sizeof(buf), record, "msg");
@@ -251,7 +251,7 @@ TEST(PrintfFormatter, FormatWithDecimalTime)
     char buf[256] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::WARN;
-    record.sourceName = "src";
+    record.loggerName = "src";
     record.timestamp = 99999;
 
     std::size_t len = PrintfFormatter<TimeFormat::DECIMAL>::format(buf, sizeof(buf), record, "warn");
@@ -264,7 +264,7 @@ TEST(PrintfFormatter, FormatWithISO8601Time)
     char buf[256] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::ERROR;
-    record.sourceName = "src";
+    record.loggerName = "src";
     record.timestamp = 1737366731209138ULL;
 
     std::size_t len = PrintfFormatter<TimeFormat::ISO8601>::format(buf, sizeof(buf), record, "err");
@@ -278,7 +278,7 @@ TEST(PrintfFormatter, FormatTruncation)
     char buf[10] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::INFO;
-    record.sourceName = "src";
+    record.loggerName = "src";
     record.timestamp = 0;
 
     std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "hello world this is long");
@@ -299,7 +299,7 @@ TEST(PrintfFormatter, FormatAllLogLevels)
         char buf[256] = {};
         LogRecord record {};
         record.metadata.level = levels[i];
-        record.sourceName = "x";
+        record.loggerName = "x";
         record.timestamp = 0;
 
         std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "msg");

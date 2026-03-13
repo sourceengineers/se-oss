@@ -158,7 +158,7 @@ private:
         cbor_encode_uint(encoder, toUint(record.metadata.level));
 
         cbor_encode_uint(encoder, toUint(CborLogKeys::SOURCE_ID));
-        cbor_encode_uint(encoder, record.metadata.sourceId);
+        cbor_encode_uint(encoder, record.metadata.contextTag);
     }
 };
 }  // namespace se_oss

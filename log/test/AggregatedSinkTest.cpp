@@ -98,7 +98,7 @@ TEST_F(AggregatedSinkTest, SetFilterForwardsToAllSinks)
     EXPECT_CALL(*_sinkA, setFilter(_)).Times(1);
     EXPECT_CALL(*_sinkB, setFilter(_)).Times(1);
 
-    _aggregatedSink.setFilter([](const LogMetadata& metadata) -> bool { return metadata.sourceId == 1; });
+    _aggregatedSink.setFilter([](const LogMetadata& metadata) -> bool { return metadata.contextTag == 1; });
 }
 
 TEST_F(AggregatedSinkTest, GetSinkReturnsCorrectSink)

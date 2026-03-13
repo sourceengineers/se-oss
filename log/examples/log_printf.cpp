@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "LogComponents.h"
+#include "LogConf.h"
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
 #include "se-oss/log/sink/ConsoleSink.h"
@@ -26,13 +26,13 @@ int main()
 {
     auto consoleSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>();
 
-    auto logRegistry = std::make_unique<se_oss::LogRegistry<LogComponents, LogSinks>>();
-    logRegistry->attachSink(LogSinks::SHELL, std::move(consoleSink));
-    logRegistry->getSink(LogSinks::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
+    auto logRegistry = std::make_unique<se_oss::LogRegistry<LogContext, LogSink>>();
+    logRegistry->attachSink(LogSink::SHELL, std::move(consoleSink));
+    logRegistry->getSink(LogSink::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
 
-    se_oss::Logger& logger = logRegistry->createOrGetLogger(LogComponents::CELLULAR);
+    se_oss::Logger logger = logRegistry->createLogger(LogContext::CELLULAR);
 
-    logger.setLogLevel(se_oss::LogLevel::TRACE);
+    // logger.setLogLevel(se_oss::LogLevel::TRACE);
 
     LOG_TRACE(logger, "trace");
     LOG_DEBUG(logger, "debug");
