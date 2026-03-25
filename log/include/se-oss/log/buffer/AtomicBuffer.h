@@ -34,9 +34,9 @@ public:
     AtomicBuffer& operator=(const AtomicBuffer&) = delete;
     AtomicBuffer& operator=(AtomicBuffer&&) = delete;
 
-    [[nodiscard]] std::size_t capacity() const override { return _buffer.size() - MIN_READER_WRITER_DISTANCE; }
+    std::size_t capacity() const override { return _buffer.size() - MIN_READER_WRITER_DISTANCE; }
 
-    [[nodiscard]] std::size_t size() const override
+    std::size_t size() const override
     {
         auto writer = _writer.load();
         auto reader = _reader.load();
@@ -49,7 +49,7 @@ public:
         }
     }
 
-    [[nodiscard]] std::size_t free() const override
+    std::size_t free() const override
     {
         auto writer = _writer.load();
         auto reader = _reader.load();

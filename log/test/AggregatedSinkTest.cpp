@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "LogSinkMock.h"
 #include "se-oss/log/sink/AggregatedSink.h"
 
 #include <gmock/gmock.h>
@@ -21,15 +22,6 @@ enum class TestSinks : uint8_t
     SINK_A,
     SINK_B,
     SINK_C
-};
-
-class LogSinkMock : public ILogSink
-{
-public:
-    MOCK_METHOD(void, write, (const LogMetadata&, const void*, std::size_t), (override));
-    MOCK_METHOD(void, flush, (), (override));
-    MOCK_METHOD(void, setLogLevel, (LogLevel), (override));
-    MOCK_METHOD(void, setFilter, (std::function<bool(const LogMetadata&)>), (override));
 };
 
 }  // namespace
@@ -60,10 +52,7 @@ TEST_F(AggregatedSinkTest, EmptyByDefault)
     EXPECT_TRUE(emptySink.empty());
 }
 
-TEST_F(AggregatedSinkTest, NotEmptyAfterAttach)
-{
-    EXPECT_FALSE(_aggregatedSink.empty());
-}
+TEST_F(AggregatedSinkTest, NotEmptyAfterAttach) { EXPECT_FALSE(_aggregatedSink.empty()); }
 
 TEST_F(AggregatedSinkTest, WriteForwardsToAllSinks)
 {

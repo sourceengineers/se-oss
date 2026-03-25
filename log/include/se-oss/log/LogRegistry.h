@@ -76,10 +76,7 @@ public:
      * @param context The component identifier.
      * @return Reference to the Logger instance.
      */
-    Logger createLogger(TContext context)
-    {
-        return Logger(getContext(context));
-    }
+    Logger createLogger(TContext context) { return Logger {getContext(context)}; }
 
     LogContext& getContext(TContext context)
     {

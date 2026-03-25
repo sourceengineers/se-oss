@@ -28,12 +28,6 @@ int main()
     auto shellSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>(true);
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<LogContext, LogSink>>();
-    logRegistry->setTimeProvider([]() {
-        return std::chrono::duration_cast<std::chrono::microseconds>(
-                   std::chrono::system_clock::now().time_since_epoch()
-        )
-            .count();
-    });
     logRegistry->attachSink(LogSink::SHELL, std::move(shellSink));
     logRegistry->getSink(LogSink::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
 

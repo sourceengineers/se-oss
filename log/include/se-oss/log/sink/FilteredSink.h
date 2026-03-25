@@ -8,6 +8,7 @@
 
 #include "ILogSink.h"
 #include "se-oss/log/ILogFilter.h"
+#include "se-oss/log/LogFilter.h"
 
 namespace se_oss {
 
@@ -43,7 +44,7 @@ public:
 
     void write(const LogMetadata& metadata, const void* data, std::size_t length) override
     {
-        if (_filter == nullptr || !_filter(metadata)) {
+        if (!_filter.passesFilter(metadata)) {
             return;
         }
         _sink.write(data, length);
@@ -51,12 +52,9 @@ public:
 
     void flush() override { _sink.flush(); }
 
-    void setLogLevel(LogLevel level) override
-    {
-        _filter = [level](LogMetadata metadata) { return metadata.level >= level; };
-    }
+    void setLogLevel(LogLevel level) override { _filter.setLogLevel(level); }
 
-    void setFilter(std::function<bool(const LogMetadata&)> filter) override { _filter = filter; }
+    void setFilter(LogFilterFunction filter) override { _filter.setFilter(filter); }
 
     /**
      * Provides access to the underlying writer.
@@ -66,7 +64,7 @@ public:
 
 private:
     T _sink;
-    std::function<bool(const LogMetadata&)> _filter {[](const LogMetadata&) -> bool { return true; }};
+    LogFilter _filter {};
 };
 
 }  // namespace se_oss

@@ -7,9 +7,10 @@
 #include "se-oss/log/format/PrintfFormatter.h"
 
 #include <cstring>
-#include <string>
 
 #include <gtest/gtest.h>
+
+#include <string>
 
 using namespace se_oss;
 
@@ -291,8 +292,8 @@ TEST(PrintfFormatter, FormatTruncation)
 
 TEST(PrintfFormatter, FormatAllLogLevels)
 {
-    const LogLevel levels[] = {LogLevel::TRACE, LogLevel::DEBUG, LogLevel::INFO,
-                               LogLevel::WARN,  LogLevel::ERROR,  LogLevel::FATAL};
+    const LogLevel levels[] =
+        {LogLevel::TRACE, LogLevel::DEBUG, LogLevel::INFO, LogLevel::WARN, LogLevel::ERROR, LogLevel::FATAL};
     const char* expected[] = {"T", "D", "I", "W", "E", "F"};
 
     for (std::size_t i = 0; i < 6; ++i) {

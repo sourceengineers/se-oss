@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "SinkMock.h"
+#include "WriterMock.h"
 #include "se-oss/log/sink/FilteredSink.h"
 
 #include <gtest/gtest.h>
@@ -35,7 +35,7 @@ protected:
         Mock::VerifyAndClearExpectations(&_filteredSink.inner());
     }
 
-    FilteredSink<SinkMock> _filteredSink {};
+    FilteredSink<WriterMock> _filteredSink {};
 };
 
 TEST_F(FilteredSinkTest, FilterTrace)

@@ -11,6 +11,9 @@
 #include <functional>
 
 namespace se_oss {
+
+using LogFilterFunction = std::function<bool(const LogMetadata&)>;
+
 class ILogFilter
 {
 protected:
@@ -33,6 +36,6 @@ public:
      * Sets a custom filter function.
      * @param filter A function that takes LogMetadata and returns true to allow the message.
      */
-    virtual void setFilter(std::function<bool(const LogMetadata&)> filter) = 0;
+    virtual void setFilter(LogFilterFunction filter) = 0;
 };
 }  // namespace se_oss

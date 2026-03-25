@@ -11,6 +11,8 @@
 
 namespace se_oss {
 
+static constexpr uint64_t INVALID_TIME {UINT64_MAX};
+
 /**
  * Enum representing the severity level of a log message.
  */
@@ -86,7 +88,7 @@ struct LogRecord
 {
     LogMetadata metadata {}; /**< The log metadata. */
     const char* loggerName {nullptr}; /**< The name of the logger source. */
-    uint64_t timestamp {UINT64_MAX}; /**< The timestamp of the log message. */
+    uint64_t timestamp {INVALID_TIME}; /**< The timestamp of the log message. */
 };
 
 /**

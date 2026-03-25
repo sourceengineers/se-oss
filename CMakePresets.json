@@ -83,7 +83,7 @@
         {
             "name": "ci-example",
             "configurePreset": "ci-host",
-            "targets": [ "example_log_minimal", "example_log_printf", "example_log_cbor" ]
+            "targets": [ "example_log_minimal", "example_log_printf", "example_log_cbor", "example_log_custom" ]
         },
         {
             "name": "ci-example-string-replacement",

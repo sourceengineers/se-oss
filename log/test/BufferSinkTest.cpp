@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "SinkMock.h"
+#include "WriterMock.h"
 #include "se-oss/log/sink/BufferSink.h"
 
 #include <gtest/gtest.h>

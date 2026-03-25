@@ -9,6 +9,8 @@
 #include "IBuffer.h"
 #include "se-oss/log/sink/ILogSink.h"
 
+#include <array>
+
 namespace se_oss {
 
 /**
@@ -21,15 +23,15 @@ namespace se_oss {
  * @tparam MAX_MESSAGE_LENGTH The maximum size of the intermediate formatting buffer.
  */
 template<std::size_t MAX_MESSAGE_LENGTH>
-class NoBuffer final : public IBuffer
+class ImmediateBuffer final : public IBuffer
 {
 public:
-    NoBuffer() = default;
-    ~NoBuffer() override = default;
-    NoBuffer(const NoBuffer&) = delete;
-    NoBuffer(NoBuffer&&) = delete;
-    NoBuffer& operator=(const NoBuffer&) = delete;
-    NoBuffer& operator=(NoBuffer&&) = delete;
+    ImmediateBuffer() = default;
+    ~ImmediateBuffer() override = default;
+    ImmediateBuffer(const ImmediateBuffer&) = delete;
+    ImmediateBuffer(ImmediateBuffer&&) = delete;
+    ImmediateBuffer& operator=(const ImmediateBuffer&) = delete;
+    ImmediateBuffer& operator=(ImmediateBuffer&&) = delete;
 
     std::size_t capacity() const override { return _formatBuffer.size(); }
     std::size_t size() const override { return 0U; }
@@ -50,7 +52,7 @@ public:
     }
 
 private:
-    std::array<uint8_t, MAX_MESSAGE_LENGTH> _formatBuffer {};
+    std::array<uint8_t, MAX_MESSAGE_LENGTH + LogHeader::PACKED_SIZE> _formatBuffer {};
     std::size_t _size {0U};
 };
 

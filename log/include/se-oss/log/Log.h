@@ -197,17 +197,16 @@ namespace se_oss {
  * This class is responsible for logging messages to a configured sink via a buffer.
  * It manages the log level, statistics, and message distribution.
  */
-class Logger final
+class Logger final : public ILogFilter
 {
 public:
     /**
      * Constructs a new Logger.
      *
-     * @param name A human-readable name for this logger.
      * @param context Thread context the log instance acts on
      */
     explicit Logger(LogContext& context);
-    ~Logger() = default;
+    ~Logger() override = default;
     // Note: The intention is that a logger can be copied and adjusted locally.
     //       The log context is managed by an internal reference.
     Logger(const Logger&) = default;
@@ -228,18 +227,20 @@ public:
     void log(LogLevel level, TFormat format, const Values&... values);
 
     /**
-     * Sets the minimum log level.
-     * Messages with a level lower than this will be ignored.
-     * @param level The new minimum log level.
-     */
-    // void setLogLevel(LogLevel level) { _context._level = level; }
-    // todo
-
-    /**
      * Retrieves current logger statistics.
      * @return A copy of the LogStatistics structure.
      */
     LogStatistics statistics() const { return _context.statistics(); }
+
+    uint8_t logTag() const { return _logTag; }
+    void setLogTag(uint8_t tag) { _logTag = tag; }
+
+    const char* name() const { return _name; }
+    void setName(const char* name) { _name = name; }
+
+    // ILogFilter realization
+    void setLogLevel(LogLevel level) override { return _context.setLogLevel(level); }
+    void setFilter(std::function<bool(const LogMetadata&)> filter) override { return _context.setFilter(filter); }
 
 private:
     LogContext& _context;
@@ -250,11 +251,7 @@ private:
     LogRecord createRecord(LogLevel level) const;
 };
 
-inline Logger::Logger(LogContext& context) :
-    _name {context.name()},
-    _context {context}
-{
-}
+inline Logger::Logger(LogContext& context) : _context {context}, _name {context.name()} { }
 
 template<typename TFormat, typename... Values>
 void Logger::log(LogLevel level, TFormat format, const Values&... values)
@@ -264,42 +261,26 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
         "Format type must be either const char* or uint32_t"
     );
 
-    // todo: move filter log instance
-    // if (level < LogContext::MAX_LEVEL || level < _context._level) {
-    //     return;
-    // }
-
     LogRecord record = createRecord(level);
-    std::size_t maxMessageLength = log_detail::maxMessageLength();
-
-    if (log_detail::isImmediate()) {
-        // immediate logging
-        _context.writeMessage(maxMessageLength, [&](void* buffer, std::size_t size) {
-            auto* byteBuffer = static_cast<uint8_t*>(buffer);
-            return log_detail::format(byteBuffer, size, record, format, std::forward<const Values>(values)...);
-        });
-    } else {
-        // deferred logging
-        _context.writeMessage(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
-            uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
-            std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
-            std::size_t bytesWritten = log_detail::format(
-                byteBuffer,
-                usableBufferSize,
-                record,
-                format,
-                std::forward<const Values>(values)...
-            );
-            if (bytesWritten > 0U) {
-                LogHeader header {};
-                header.metadata = record.metadata;
-                header.messageLength = bytesWritten;
-                (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
-                bytesWritten += LogHeader::PACKED_SIZE;
-            }
-            return bytesWritten;
-        });
+    if (!_context.passesFilter(record.metadata)) {
+        return;
     }
+
+    std::size_t maxMessageLength = log_detail::maxMessageLength();
+    _context.writeMessage(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
+        uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
+        std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
+        std::size_t bytesWritten =
+            log_detail::format(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
+        if (bytesWritten > 0U) {
+            LogHeader header {};
+            header.metadata = record.metadata;
+            header.messageLength = bytesWritten;
+            (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
+            bytesWritten += LogHeader::PACKED_SIZE;
+        }
+        return bytesWritten;
+    });
 }
 
 inline LogRecord Logger::createRecord(LogLevel level) const

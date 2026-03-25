@@ -13,7 +13,7 @@ add_executable(
         FilteredSinkTest.cpp
         LogPrintfTest.cpp
         PrintfFormatterTest.cpp
-        NoBufferTest.cpp
+        ImmediateBufferTest.cpp
 )
 
 target_link_libraries(

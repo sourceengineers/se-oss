@@ -11,7 +11,7 @@ if (${SE_OSS_SUPPORT_CBOR})
     FetchContent_Declare(
             tinycbor
             GIT_REPOSITORY https://github.com/intel/tinycbor.git
-            GIT_TAG 17362494e2ddc567ba5ccba7b4e16f0639f578a3 # need to use main, because cmake version is no release yet
+            GIT_TAG v7.0 # need to use main, because cmake version is no release yet
     )
     FetchContent_MakeAvailable(tinycbor)
 endif ()

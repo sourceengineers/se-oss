@@ -56,7 +56,7 @@ public:
  */
 struct LogHeader
 {
-    static constexpr size_t PACKED_SIZE {4U}; /**< Size of the serialized header. */
+    static constexpr size_t PACKED_SIZE {5U}; /**< Size of the serialized header. */
     LogMetadata metadata {}; /**< Log metadata. */
     uint16_t messageLength {0U}; /**< Length of the message payload. */
 };

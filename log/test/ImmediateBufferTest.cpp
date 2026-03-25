@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "se-oss/log/buffer/NoBuffer.h"
+#include "se-oss/log/buffer/ImmediateBuffer.h"
 
 #include <cstring>
 
@@ -13,22 +13,22 @@
 using namespace se_oss;
 using namespace testing;
 
-class NoBufferTest : public Test
+class ImmediateBufferTest : public Test
 {
 };
 
-TEST_F(NoBufferTest, InitialState)
+TEST_F(ImmediateBufferTest, InitialState)
 {
-    NoBuffer<128> buffer;
-    EXPECT_EQ(buffer.capacity(), 128);
+    ImmediateBuffer<128> buffer;
+    EXPECT_EQ(buffer.capacity(), 128 + LogHeader::PACKED_SIZE);
     EXPECT_EQ(buffer.size(), 0);
-    EXPECT_EQ(buffer.free(), 128);
+    EXPECT_EQ(buffer.free(), 128 + LogHeader::PACKED_SIZE);
 }
 
-TEST_F(NoBufferTest, ReadWrite)
+TEST_F(ImmediateBufferTest, ReadWrite)
 {
     std::srand(std::time({}));
-    NoBuffer<128> buffer;
+    ImmediateBuffer<128> buffer;
 
     for (size_t i = 0U; i < 10U; ++i) {
         std::array<uint8_t, 42U> data {};

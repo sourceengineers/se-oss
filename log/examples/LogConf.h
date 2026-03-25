@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef SE_LOGCOMPONENTS_H
-#define SE_LOGCOMPONENTS_H
+#pragma once
 
 #include <cstdint>
 
@@ -42,5 +41,3 @@ constexpr const char* toString(LogSink sink)
     }
     return "";
 }
-
-#endif  // SE_LOGCOMPONENTS_H

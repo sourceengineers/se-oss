@@ -7,7 +7,7 @@
 #pragma once
 
 #include "buffer/IBuffer.h"
-#include "buffer/NoBuffer.h"
+#include "buffer/ImmediateBuffer.h"
 #include "format/PrintfFormatter.h"
 
 #include <memory>
@@ -21,7 +21,7 @@ namespace se_oss {
  * the formatter to use, the buffer strategy, and the maximum message length.
  *
  * @tparam Formatter The formatter class (e.g., PrintfFormatter, CborFormatter).
- * @tparam Buffer The buffer class (e.g., AtomicBuffer, NoBuffer).
+ * @tparam Buffer The buffer class (e.g., AtomicBuffer, ImmediateBuffer).
  * @tparam MAX_MESSAGE_LENGTH The maximum size in bytes for a single log message.
  */
 template<class Formatter, class Buffer, std::size_t MAX_MESSAGE_LENGTH>
@@ -33,7 +33,7 @@ class LogConf
     };
 
     template<std::size_t N>
-    struct is_immediate_buffer<NoBuffer<N>> : std::true_type
+    struct is_immediate_buffer<ImmediateBuffer<N>> : std::true_type
     {
     };
 
@@ -70,8 +70,10 @@ constexpr std::size_t DEFAULT_MAX_MESSAGE_LENGTH {128};
  * - Output to console
  * - Max message length of 128 characters
  */
-using DefaultLogConf =
-    LogConf<PrintfFormatter<TimeFormat::ISO8601>, NoBuffer<DEFAULT_MAX_MESSAGE_LENGTH>, DEFAULT_MAX_MESSAGE_LENGTH>;
+using DefaultLogConf = LogConf<
+    PrintfFormatter<TimeFormat::ISO8601>,
+    ImmediateBuffer<DEFAULT_MAX_MESSAGE_LENGTH>,
+    DEFAULT_MAX_MESSAGE_LENGTH>;
 
 /**
  * Customization point for logger configuration.

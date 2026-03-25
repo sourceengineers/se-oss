@@ -14,6 +14,7 @@ add_library(
         se_oss_log
         STATIC
         ${CMAKE_CURRENT_LIST_DIR}/src/ConsoleSink.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/LogContext.cpp
 )
 
 target_sources(
@@ -30,7 +31,7 @@ target_sources(
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/Types.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/AtomicBuffer.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/IBuffer.h
-        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/NoBuffer.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/ImmediateBuffer.h
         $<$<BOOL:${SE_OSS_SUPPORT_CBOR}>:${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/CborFormatter.h>
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/PrintfFormatter.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/AggregatedSink.h
