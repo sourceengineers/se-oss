@@ -118,11 +118,10 @@ public:
     void appendTime(const char* format, uint64_t timestampMilliseconds)
     {
         static constexpr std::uint64_t MILLISECONDS_PER_SECOND {1000ULL};
-        static constexpr std::uint64_t MICROSECONDS_PER_MILLISECOND {1000ULL};
         if (!valid) {
             return;
         }
-        auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MICROSECONDS_PER_MILLISECOND);
+        auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MILLISECONDS_PER_SECOND);
         const tm* time =
             std::gmtime(&epochSeconds);  // returns a pointer to a static object and thus does not allocate memory
         std::size_t length = std::strftime(_buffer + _length, _capacity - _length, format, time);
@@ -131,7 +130,9 @@ public:
         } else {
             _length += length;
         }
-        append(".%03" PRIu32 "Z ", timestampMilliseconds % MILLISECONDS_PER_SECOND);
+        // Note: a static cast is required so that the templated parameter has a fixed type.
+        // Otherwise, some compilers will optimize the value out altogether.
+        append(".%03" PRIu32 "Z ", static_cast<uint32_t>(timestampMilliseconds % MILLISECONDS_PER_SECOND));
     }
 
     void endLine()
