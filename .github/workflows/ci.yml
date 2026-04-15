@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
 
+permissions: {}
+
 jobs:
   examples:
     runs-on: ubuntu-latest
@@ -12,9 +14,10 @@ jobs:
       options: --user root
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: Configure and Build Examples
         run: cmake --workflow --preset ci-example
@@ -29,7 +32,7 @@ jobs:
         run: cmake --install build/x86_64/string_replacment --component example-string-replacement
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: examples
           path: release
@@ -42,9 +45,10 @@ jobs:
       options: --user root
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: Configure, Build and Test
         run: cmake --workflow --preset ci-test
@@ -53,7 +57,7 @@ jobs:
         run: cmake --install build/x86_64/test --component tests
 
       - name: Upload Test Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: unit-tests
           path: release
@@ -66,10 +70,10 @@ jobs:
       options: --user root
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: Run Static Analysis
         run: cmake --workflow --preset ci-static-analysis
-      
