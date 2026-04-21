@@ -118,3 +118,40 @@ TEST_F(AggregatedSinkTest, FlushWithNoSinksDoesNotCrash)
 
     EXPECT_NO_THROW(emptySink.flush());
 }
+
+TEST_F(AggregatedSinkTest, SetFilter_ThenInvoke_DelegatesToFilter)
+{
+    // Capture the filter function that gets forwarded to sinks
+    LogFilterFunction capturedFilter;
+    EXPECT_CALL(*_sinkA, setFilter(_)).WillOnce(SaveArg<0>(&capturedFilter));
+    EXPECT_CALL(*_sinkB, setFilter(_)).Times(1);
+
+    _aggregatedSink.setFilter([](const LogMetadata& m) -> bool { return m.level >= LogLevel::WARN; });
+
+    // Invoke the captured internal lambda — _filter is non-null, delegates
+    LogMetadata metadata {};
+    metadata.level = LogLevel::WARN;
+    EXPECT_TRUE(capturedFilter(metadata));
+
+    metadata.level = LogLevel::DEBUG;
+    EXPECT_FALSE(capturedFilter(metadata));
+}
+
+TEST_F(AggregatedSinkTest, SetLogLevel_ClearsFilter_ThenSetFilter_NullpathPath)
+{
+    // First set a filter
+    LogFilterFunction capturedFilter;
+    EXPECT_CALL(*_sinkA, setFilter(_)).WillOnce(SaveArg<0>(&capturedFilter));
+    EXPECT_CALL(*_sinkB, setFilter(_)).Times(1);
+    _aggregatedSink.setFilter([](const LogMetadata&) -> bool { return true; });
+
+    // Now setLogLevel clears _filter to nullptr
+    EXPECT_CALL(*_sinkA, setLogLevel(LogLevel::WARN)).Times(1);
+    EXPECT_CALL(*_sinkB, setLogLevel(LogLevel::WARN)).Times(1);
+    _aggregatedSink.setLogLevel(LogLevel::WARN);
+
+    // The previously captured lambda should now see _filter == nullptr → return false
+    LogMetadata metadata {};
+    metadata.level = LogLevel::FATAL;
+    EXPECT_FALSE(capturedFilter(metadata));
+}

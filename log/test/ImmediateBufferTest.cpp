@@ -48,3 +48,31 @@ TEST_F(ImmediateBufferTest, ReadWrite)
         EXPECT_EQ(readData, data);
     }
 }
+
+TEST_F(ImmediateBufferTest, Write_ReserveTooLarge_ReturnsFalse)
+{
+    ImmediateBuffer<16> buffer;
+    std::size_t tooLarge = buffer.capacity() + 1;
+    bool result = buffer.write(tooLarge, [](void*, size_t sz) { return sz; });
+    EXPECT_FALSE(result);
+}
+
+TEST_F(ImmediateBufferTest, Write_ProducerReturnsZero_ReturnsFalse)
+{
+    ImmediateBuffer<128> buffer;
+    bool result = buffer.write(10, [](void*, size_t) -> size_t { return 0; });
+    EXPECT_FALSE(result);
+}
+
+TEST_F(ImmediateBufferTest, Read_ConsumerReturnsZero_ReturnsFalse)
+{
+    ImmediateBuffer<128> buffer;
+    // Write some data first
+    buffer.write(10, [](void* ptr, size_t sz) {
+        std::memset(ptr, 0xAB, 10);
+        return sz;
+    });
+    // Consumer returns 0
+    bool result = buffer.read([](const void*, size_t) -> size_t { return 0; });
+    EXPECT_FALSE(result);
+}

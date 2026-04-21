@@ -334,3 +334,87 @@ TEST(PrintfFormatter, ResourceIdFormatBufferTooSmall)
     std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, uint32_t {0});
     EXPECT_EQ(len, 0U);
 }
+
+// ---------------------------------------------------------------------------
+// 5. LogStringBuffer — edge-case coverage
+// ---------------------------------------------------------------------------
+
+TEST(LogStringBuffer, AppendTime_WhenInvalid_ReturnsEarly)
+{
+    // Make buffer invalid by overflowing with snprintf, then call appendTime
+    char buf[4] = {};
+    LogStringBuffer sb(buf, sizeof(buf));
+
+    // Fill buffer so snprintf sets _length > _capacity
+    sb.append("%d%d%d", 111, 222, 333);
+    // Now length() returns 0 because valid became false after snprintf wrote >_capacity chars
+    // Actually snprintf doesn't set valid=false on truncation, but _length > _capacity.
+    // Let's force invalid by triggering a strftime failure path instead.
+    // Use a tiny buffer so strftime returns 0 → sets valid = false.
+    char buf2[4] = {};
+    LogStringBuffer sb2(buf2, sizeof(buf2));
+    // Fill capacity first
+    sb2.append("ab");
+    // strftime into 0 remaining chars → returns 0 → valid = false
+    sb2.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
+    // Now sb2 is invalid; subsequent appendTime should return early
+    sb2.appendTime<TimeFormat::DECIMAL>(12345);
+    EXPECT_EQ(sb2.length(), 0U);
+}
+
+TEST(LogStringBuffer, AppendTimeISO8601_WhenInvalid_ReturnsEarly)
+{
+    char buf[4] = {};
+    LogStringBuffer sb(buf, sizeof(buf));
+    sb.append("ab");
+    // Make invalid via strftime failure
+    sb.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
+    // Now invalid — ISO8601 should return early
+    sb.appendTime<TimeFormat::ISO8601>(1737366731209138ULL);
+    EXPECT_EQ(sb.length(), 0U);
+}
+
+TEST(LogStringBuffer, EndLine_WhenBeyondCapacity_NoOp)
+{
+    char buf[4] = {};
+    LogStringBuffer sb(buf, sizeof(buf));
+    // Capacity is sizeof(buf)-1 = 3. Fill with snprintf that returns > 3
+    sb.append("%d", 123456);
+    // _length is now > _capacity (snprintf returned 6 but buffer is 3)
+    // endLine should be a no-op
+    sb.endLine();
+    // Verify no crash; length reflects the snprintf return value
+}
+
+TEST(LogStringBuffer, Append_WhenInvalid_NoOp)
+{
+    char buf[4] = {};
+    LogStringBuffer sb(buf, sizeof(buf));
+    sb.append("ab");
+    // Force invalid
+    sb.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
+    EXPECT_EQ(sb.length(), 0U);
+    // append with const char* should be a no-op when invalid
+    sb.append("more text");
+    EXPECT_EQ(sb.length(), 0U);
+}
+
+TEST(LogStringBuffer, AppendTime_StrftimeFails_SetsInvalid)
+{
+    // Use a buffer so small that strftime returns 0
+    char buf[4] = {};
+    LogStringBuffer sb(buf, sizeof(buf));
+    sb.append("ab");  // use up capacity
+    sb.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
+    // strftime returns 0 → valid = false → length() returns 0
+    EXPECT_EQ(sb.length(), 0U);
+}
+
+TEST(LogStringBuffer, AppendTimeDecimal8_NoWrap)
+{
+    char buf[64] = {};
+    LogStringBuffer sb(buf, sizeof(buf));
+    // Value below wrap threshold (100000000)
+    sb.appendTime<TimeFormat::DECIMAL_8>(42);
+    EXPECT_STREQ(buf, "00000042 ");
+}

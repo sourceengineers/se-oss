@@ -162,3 +162,69 @@ TEST_F(AtomicBufferTest, ReadEmpty)
     });
     EXPECT_FALSE(readResult);
 }
+
+TEST_F(AtomicBufferTest, Write_ProducerReturnsZero_NoStateChange)
+{
+    AtomicBuffer<1024> buffer;
+    auto sizeBefore = buffer.size();
+    auto freeBefore = buffer.free();
+
+    bool writeResult = buffer.write(10, [](void*, size_t) -> size_t { return 0; });
+    // write returns true (space was available) but no data committed
+    EXPECT_TRUE(writeResult);
+    EXPECT_EQ(buffer.size(), sizeBefore);
+    EXPECT_EQ(buffer.free(), freeBefore);
+}
+
+TEST_F(AtomicBufferTest, Write_WriterBehindReader_InsufficientSpace)
+{
+    AtomicBuffer<20> buffer;
+
+    // Fill 15 bytes
+    buffer.write(15, [](void* dest, size_t sz) {
+        std::memset(dest, 'A', sz);
+        return sz;
+    });
+
+    // Read 15 bytes to advance reader to 15
+    buffer.read([](const void*, size_t sz) { return sz; });
+
+    // Write 10 bytes, writer wraps to 0
+    buffer.write(10, [](void* dest, size_t sz) {
+        std::memset(dest, 'B', sz);
+        return sz;
+    });
+    // Now writer=10, reader=15. Writer is behind reader.
+
+    // Try to reserve 6 bytes: reader - writer = 5, which is <= 6 → fail
+    bool result = buffer.write(6, [](void* dest, size_t sz) {
+        EXPECT_TRUE(false);  // should not be called
+        return sz;
+    });
+    EXPECT_FALSE(result);
+}
+
+TEST_F(AtomicBufferTest, Read_ReaderAtWatermark_Resets)
+{
+    AtomicBuffer<20> buffer;
+
+    // Write 15 bytes (writer at 15)
+    buffer.write(15, [](void* dest, size_t sz) {
+        std::memset(dest, 'A', sz);
+        return sz;
+    });
+
+    // Read all 15 bytes (reader at 15)
+    buffer.read([](const void*, size_t sz) { return sz; });
+
+    // Write 5 bytes, wraps: watermark set to 15, writer at 5
+    buffer.write(10, [](void* dest, size_t sz) {
+        std::memset(dest, 'C', sz);
+        return sz;
+    });
+
+    // Reader is at 15, watermark is at 15 → reader >= watermark triggers reset
+    bool readResult = buffer.read([](const void*, size_t sz) { return sz; });
+    EXPECT_TRUE(readResult);
+    EXPECT_EQ(buffer.size(), 0);
+}

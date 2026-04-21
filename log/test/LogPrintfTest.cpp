@@ -54,12 +54,6 @@ std::string bufferToString(const std::vector<uint8_t>& buffer)
 
 }  // namespace
 
-template<>
-auto se_oss::logConf<>()
-{
-    return LogConf<PrintfFormatter<TimeFormat::HEX_8>, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
-}
-
 class LogPrintfTest : public ::testing::Test
 {
 protected:
@@ -67,8 +61,8 @@ protected:
     {
         _logRegistry = std::make_unique<LogRegistry<LogComponents, LogSinks>>();
 
-        // Mock time: 1234567890000 microseconds
-        // 1234567890000 (0x11F71FB04D0) -> truncated to uint32_t -> 0x71FB04D0
+        // Mock time: 1234567890000 microseconds since epoch
+        // ISO8601: 1970-01-15T06:56:07.890Z
         _logRegistry->setTimeProvider([]() { return 1234567890000ULL; });
 
         _buffer.clear();
@@ -112,12 +106,12 @@ TEST_F(LogPrintfTest, TestAllSeverities)
 
     ASSERT_EQ(lines.size(), 6);
 
-    EXPECT_TRUE(lines[0] == "71FB0450 T [test] -- Test Trace 1");
-    EXPECT_TRUE(lines[1] == "71FB0450 D [test] -- Test Debug debug");
-    EXPECT_TRUE(lines[2] == "71FB0450 I [test] -- Test Info");
-    EXPECT_TRUE(lines[3] == "71FB0450 W [test] -- Test Warn 100");
-    EXPECT_TRUE(lines[4] == "71FB0450 E [test] -- Test Error 1.500000");
-    EXPECT_TRUE(lines[5] == "71FB0450 F [test] -- Test Fatal");
+    EXPECT_TRUE(lines[0] == "1970-01-15T06:56:07.890Z T [test] -- Test Trace 1");
+    EXPECT_TRUE(lines[1] == "1970-01-15T06:56:07.890Z D [test] -- Test Debug debug");
+    EXPECT_TRUE(lines[2] == "1970-01-15T06:56:07.890Z I [test] -- Test Info");
+    EXPECT_TRUE(lines[3] == "1970-01-15T06:56:07.890Z W [test] -- Test Warn 100");
+    EXPECT_TRUE(lines[4] == "1970-01-15T06:56:07.890Z E [test] -- Test Error 1.500000");
+    EXPECT_TRUE(lines[5] == "1970-01-15T06:56:07.890Z F [test] -- Test Fatal");
 }
 
 TEST_F(LogPrintfTest, TestLogLevelFiltering)
@@ -145,6 +139,6 @@ TEST_F(LogPrintfTest, TestLogLevelFiltering)
 
     ASSERT_EQ(lines.size(), 2);
 
-    EXPECT_TRUE(lines[0] == "71FB0450 I [test] -- Visible Info");
-    EXPECT_TRUE(lines[1] == "71FB0450 W [test] -- Visible Warn");
+    EXPECT_TRUE(lines[0] == "1970-01-15T06:56:07.890Z I [test] -- Visible Info");
+    EXPECT_TRUE(lines[1] == "1970-01-15T06:56:07.890Z W [test] -- Visible Warn");
 }

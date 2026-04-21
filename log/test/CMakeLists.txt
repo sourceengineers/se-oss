@@ -11,9 +11,16 @@ add_executable(
         CborFormatterTest.cpp
         ConsoleSinkTest.cpp
         FilteredSinkTest.cpp
-        LogPrintfTest.cpp
-        PrintfFormatterTest.cpp
         ImmediateBufferTest.cpp
+        LogContextTest.cpp
+        LogFilterTest.cpp
+        LoggerTest.cpp
+        LogHeaderTest.cpp
+        LogPrintfTest.cpp
+        LogRegistryTest.cpp
+        NullSinkTest.cpp
+        PrintfFormatterTest.cpp
+        TypesTest.cpp
 )
 
 target_link_libraries(
