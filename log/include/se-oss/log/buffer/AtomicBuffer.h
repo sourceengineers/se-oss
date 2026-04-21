@@ -13,13 +13,17 @@
 #include <functional>
 
 namespace se_oss {
+
 /**
  * Thread-safe Single Producer Single Consumer (SPSC) circular buffer.
  *
  * This buffer is designed for lock-free communication between a producer and a background thread (consumer).
  *
- *
  * Based on the lock-free ring-buffer by ferrous systems: https://ferrous-systems.com/blog/lock-free-ring-buffer/
+ *
+ * @note The buffer only requires that a single read and write instruction on the memory bus is atomic.
+ * There is no need for an atomic compare-and-swap chain. Hence, the buffer is thread-safe on plattforms
+ * which do not support `std::atomic` as long as the `size_t` memory bus access is atomic.
  *
  * @tparam SIZE The size of the buffer in bytes.
  */
