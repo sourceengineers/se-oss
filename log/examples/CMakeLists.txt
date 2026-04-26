@@ -17,11 +17,15 @@ target_link_libraries(example_log_cbor PRIVATE se_oss::log)
 add_executable(example_log_custom log_custom_formatter.cpp)
 target_link_libraries(example_log_custom PRIVATE se_oss::log)
 
+add_executable(example_log_multi_thread log_multi_thread.cpp)
+target_link_libraries(example_log_multi_thread PRIVATE se_oss::log)
+
 install(
         TARGETS
         example_log_minimal
         example_log_printf
         example_log_cbor
+        example_log_multi_thread
         DESTINATION examples
         COMPONENT examples
 )
