@@ -8,5 +8,4 @@ dependencies = [
     "shibuya>=2026.1.9",
     "sphinx-autobuild>=2024.10.3",
     "sphinx>=8.2.3",
-    "sphinxcontrib-plantuml>=0.30",
 ]

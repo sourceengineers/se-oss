@@ -35,8 +35,6 @@ author = "Source Engineers GmbH"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinxcontrib.plantuml',
-    'sphinx_needs',
     'myst_parser',
 ]
 

@@ -439,30 +439,6 @@ wheels = [
 ]
 
 [[package]]
-name = "se-requirements-doc"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "markdown-it-py" },
-    { name = "myst-parser" },
-    { name = "shibuya" },
-    { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "sphinx-autobuild" },
-    { name = "sphinxcontrib-plantuml" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "markdown-it-py", specifier = ">=4.0.0" },
-    { name = "myst-parser", specifier = ">=5.0.0" },
-    { name = "shibuya", specifier = ">=2026.1.9" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-autobuild", specifier = ">=2024.10.3" },
-    { name = "sphinxcontrib-plantuml", specifier = ">=0.30" },
-]
-
-[[package]]
 name = "shibuya"
 version = "2026.1.9"
 source = { registry = "https://pypi.org/simple" }
@@ -474,6 +450,28 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/1d/b2/b94cb04adbb984973fe83fd670dd066514610241d829723f678366e691d2/shibuya-2026.1.9.tar.gz", hash = "sha256:b389f10fd9c07b048e940f32d1e1ac096a2d49736389173ac771b37a10b51fdf", size = 86002, upload-time = "2026-01-09T02:19:14.365Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/37/ae/06d7dfc5633c7250fefc61fd624990aa2c37e3495c08a2f23968b1acb23e/shibuya-2026.1.9-py3-none-any.whl", hash = "sha256:b58a3cc6e5619c71d00fcf0be4a3060c87040c2a62a1b3f1a93a6a41ca8eaf45", size = 103389, upload-time = "2026-01-09T02:19:12.798Z" },
+]
+
+[[package]]
+name = "shinx-build"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "markdown-it-py" },
+    { name = "myst-parser" },
+    { name = "shibuya" },
+    { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "sphinx-autobuild" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "markdown-it-py", specifier = ">=4.0.0" },
+    { name = "myst-parser", specifier = ">=5.0.0" },
+    { name = "shibuya", specifier = ">=2026.1.9" },
+    { name = "sphinx", specifier = ">=8.2.3" },
+    { name = "sphinx-autobuild", specifier = ">=2024.10.3" },
 ]
 
 [[package]]
@@ -600,16 +598,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/b2/e8/9ed3830aeed71f17c
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c2/42/4c8646762ee83602e3fb3fbe774c2fac12f317deb0b5dbeeedd2d3ba4b77/sphinxcontrib_jsmath-1.0.1-py2.py3-none-any.whl", hash = "sha256:2ec2eaebfb78f3f2078e73666b1415417a116cc848b72e5172e596c871103178", size = 5071, upload-time = "2019-01-21T16:10:14.333Z" },
 ]
-
-[[package]]
-name = "sphinxcontrib-plantuml"
-version = "0.31"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/08/8f/f26dd61b92176c4cba6b7898ca2875e7dfc29263d8e1b3b63d6acf81434f/sphinxcontrib_plantuml-0.31.tar.gz", hash = "sha256:fd74752f8ea070e641c3f8a402fccfa1d4a4056e0967b56033d2a76282d9f956", size = 15736, upload-time = "2025-09-03T11:11:35.028Z" }
 
 [[package]]
 name = "sphinxcontrib-qthelp"
