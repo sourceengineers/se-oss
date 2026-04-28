@@ -7,6 +7,9 @@ build/
 .idea/**/modules.xml
 .idea/watchdog-test.iml
 
+# CMake
+CMakeUserPresets.json
+
 # Python
 .venv
 venv
