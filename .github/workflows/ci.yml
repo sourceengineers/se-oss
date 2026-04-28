@@ -79,7 +79,7 @@ jobs:
         run: cmake --workflow --preset ci-static-analysis
 
   docs:
-    if: github.ref == 'refs/heads/feature/sphinx-build'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
