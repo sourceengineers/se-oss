@@ -54,7 +54,7 @@ html_theme = "shibuya"
 html_static_path = ["_static"]
 html_theme_options = {
     "light_logo": "_static/sourceengineers_logo.svg",
-    "dark_logo": "_static/sourceengineers_logo.svg",  # todo: dark logo
+    "dark_logo": "_static/sourceengineers_logo_inverted.svg",
     "accent_color": "indigo",
     "github_url": "https://github.com/sourceengineers/se-oss",
 }

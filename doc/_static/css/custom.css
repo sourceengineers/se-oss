@@ -1,7 +1,6 @@
 /* Shrink the global rem unit so all rem-based sizes (font + spacing) scale down. */
 html {
     font-size: 1rem;
-    --sy-s-navbar-height: 100px;
 }
 
 /* Tighten the prose container itself. */
@@ -74,6 +73,12 @@ table th {
     display: none;
 }
 
+/* Lighter dark-mode background (default Shibuya slate-1 is #111113). */
+html.dark {
+    --sy-c-background: #1f2024;
+    --sy-c-background-dropback: #2a2b30cc;
+}
+
 /* Reduce vertical breathing room around code blocks and admonitions. */
 .yue pre,
 .yue .admonition,
@@ -86,5 +91,5 @@ table th {
 .yue pre.literal-block,
 .yue .highlight > pre,
 .yue .highlight {
-    font-size: 0.95rem;
+    font-size: 0.875rem;
 }
