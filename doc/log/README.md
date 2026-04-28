@@ -61,7 +61,7 @@ that a configuration structure is provided. The following parameters can be set:
 | Parameter          | Description                                               | Default           |
 |--------------------|-----------------------------------------------------------|-------------------|
 | Formatter          | Formatter used to format/serialize log records.           | `PrintfFormatter` |
-| Buffer             | Buffer used to store log records between logger and sink. | `NoBuffer`        | 
+| Buffer             | Buffer used to store log records between logger and sink. | `ImmediateBuffer` | 
 | Max Message Length | Maximum length of a log message.                          | 128               |
 
 If using any other configration than default, provide the configration once per 

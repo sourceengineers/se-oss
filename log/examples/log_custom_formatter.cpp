@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "LogComponents.h"
+#include "LogConf.h"
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
 #include "se-oss/log/sink/ConsoleSink.h"
@@ -31,7 +31,7 @@ public:
         se_oss::LogStringBuffer string {buffer, bufferSize};
         string.appendTime("%y%m%dT%H%M%S", record.timestamp);
         string.append("| %s | ", toString(record.metadata.level));
-        string.append("%s | ", record.sourceName);
+        string.append("%s | ", record.loggerName);
         string.append(formatString, std::forward<const Values>(values)...);
         string.endLine();
         return string.length();
@@ -48,41 +48,35 @@ int main()
 {
     auto consoleSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>();
 
-    auto logRegistry = std::make_unique<se_oss::LogRegistry<LogComponents, LogSinks>>();
-    logRegistry->setTimeProvider([]() {
-        return std::chrono::duration_cast<std::chrono::microseconds>(
-                   std::chrono::system_clock::now().time_since_epoch()
-        )
-            .count();
-    });
-    logRegistry->attachSink(LogSinks::SHELL, std::move(consoleSink));
-    logRegistry->getSink(LogSinks::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
+    auto logRegistry = std::make_unique<se_oss::LogRegistry<MyLogContext, MyLogSink>>();
+    logRegistry->attachSink(MyLogSink::SHELL, std::move(consoleSink));
+    logRegistry->getSink(MyLogSink::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
 
-    se_oss::Logger& logger = logRegistry->createOrGetLogger(LogComponents::CELLULAR);
+    se_oss::Logger log = logRegistry->createLogger(MyLogContext::CELLULAR);
 
-    logger.setLogLevel(se_oss::LogLevel::TRACE);
+    log.setLogLevel(se_oss::LogLevel::TRACE);
 
-    LOG_TRACE(logger, "trace");
-    LOG_DEBUG(logger, "debug");
-    LOG_INFO(logger, "info");
-    LOG_WARN(logger, "warn");
-    LOG_ERROR(logger, "error");
-    LOG_FATAL(logger, "fatal");
+    LOG_TRACE(log, "trace");
+    LOG_DEBUG(log, "debug");
+    LOG_INFO(log, "info");
+    LOG_WARN(log, "warn");
+    LOG_ERROR(log, "error");
+    LOG_FATAL(log, "fatal");
 
     for (uint32_t i = 0; i < 10; ++i) {
-        LOG_INFO(logger, "hello %u", i);
+        LOG_INFO(log, "hello %u", i);
     }
 
     logRegistry->distributeMessages();
 
-    LOG_INFO(logger, "values %u", 1U);
-    LOG_INFO(logger, "values %u, %u", 1U, 2U);
-    LOG_INFO(logger, "values %u, %u, %u", 1U, 2U, 3U);
-    LOG_INFO(logger, "values %u, %u, %u, %u", 1U, 2U, 3U, 4U);
-    LOG_INFO(logger, "values with floats %f", 42.0F);
-    LOG_INFO(logger, "values with floats %f, %u", 42.0F, 2U);
-    LOG_INFO(logger, "values negative %f, %d", -42.0F, -2);
-    LOG_INFO(logger, "values string %s", "hello");
+    LOG_INFO(log, "values %u", 1U);
+    LOG_INFO(log, "values %u, %u", 1U, 2U);
+    LOG_INFO(log, "values %u, %u, %u", 1U, 2U, 3U);
+    LOG_INFO(log, "values %u, %u, %u, %u", 1U, 2U, 3U, 4U);
+    LOG_INFO(log, "values with floats %f", 42.0F);
+    LOG_INFO(log, "values with floats %f, %u", 42.0F, 2U);
+    LOG_INFO(log, "values negative %f, %d", -42.0F, -2);
+    LOG_INFO(log, "values string %s", "hello");
 
     logRegistry->distributeMessages();
 

@@ -7,8 +7,11 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 
 namespace se_oss {
+
+static constexpr uint64_t INVALID_TIME {UINT64_MAX};
 
 /**
  * Enum representing the severity level of a log message.
@@ -74,7 +77,8 @@ constexpr LogLevel toLogLevel(uint8_t level)
 struct LogMetadata
 {
     LogLevel level {LogLevel::TRACE}; /**< The log level. */
-    uint8_t sourceId {UINT8_MAX}; /**< The ID of the logger source. */
+    uint8_t contextTag {UINT8_MAX}; /**< The ID of the logger source. */
+    uint8_t loggerTag {UINT8_MAX};
 };
 
 /**
@@ -83,8 +87,8 @@ struct LogMetadata
 struct LogRecord
 {
     LogMetadata metadata {}; /**< The log metadata. */
-    const char* sourceName {nullptr}; /**< The name of the logger source. */
-    uint64_t timestamp {UINT64_MAX}; /**< The timestamp of the log message. */
+    const char* loggerName {nullptr}; /**< The name of the logger source. */
+    uint64_t timestamp {INVALID_TIME}; /**< The timestamp of the log message. */
 };
 
 /**
@@ -110,5 +114,7 @@ enum class TimeFormat : uint8_t
     //! is in microseconds since epoch.
     ISO8601
 };
+
+using TimeProvider = std::function<uint64_t()>;
 
 }  // namespace se_oss

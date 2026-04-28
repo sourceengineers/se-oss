@@ -85,7 +85,7 @@ public:
      * Checks if the aggregator has no sinks attached.
      * @return True if empty, false otherwise.
      */
-    [[nodiscard]] bool empty() const { return _sinks.empty(); }
+    bool empty() const { return _sinks.empty(); }
 
 private:
     std::unordered_map<TSink, std::unique_ptr<ILogSink>> _sinks {};

@@ -23,10 +23,11 @@ enum class CborLogKeys : uint8_t
 {
     TIMESTAMP = 1U, /**< Timestamp of the log record. */
     LOG_LEVEL = 2U, /**< Log level. */
-    SOURCE_ID = 3U, /**< Source ID. */
-    MESSAGE_STRING = 4U, /**< The format string as ASCII string. */
-    MESSAGE_ID = 5U, /**< ID of the format string (for usage with string replacement). */
-    VALUES = 6U /**< Array of argument values. */
+    CONTEXT_TAG = 3U, /**< Tag of the log context. */
+    LOGGER_TAG = 4U, /**< Tag of the logger instance. */
+    MESSAGE_STRING = 5U, /**< The format string as ASCII string. */
+    MESSAGE_ID = 6U, /**< ID of the format string (for usage with string replacement). */
+    VALUES = 7U /**< Array of argument values. */
 };
 
 constexpr uint8_t toUint(CborLogKeys key) { return static_cast<uint8_t>(key); }
@@ -157,8 +158,11 @@ private:
         cbor_encode_uint(encoder, toUint(CborLogKeys::LOG_LEVEL));
         cbor_encode_uint(encoder, toUint(record.metadata.level));
 
-        cbor_encode_uint(encoder, toUint(CborLogKeys::SOURCE_ID));
-        cbor_encode_uint(encoder, record.metadata.sourceId);
+        cbor_encode_uint(encoder, toUint(CborLogKeys::CONTEXT_TAG));
+        cbor_encode_uint(encoder, record.metadata.contextTag);
+
+        cbor_encode_uint(encoder, toUint(CborLogKeys::LOGGER_TAG));
+        cbor_encode_uint(encoder, record.metadata.loggerTag);
     }
 };
 }  // namespace se_oss

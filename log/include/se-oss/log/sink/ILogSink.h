@@ -56,7 +56,7 @@ public:
  */
 struct LogHeader
 {
-    static constexpr size_t PACKED_SIZE {4U}; /**< Size of the serialized header. */
+    static constexpr size_t PACKED_SIZE {5U}; /**< Size of the serialized header. */
     LogMetadata metadata {}; /**< Log metadata. */
     uint16_t messageLength {0U}; /**< Length of the message payload. */
 };
@@ -70,8 +70,10 @@ constexpr void* serialize(const LogHeader& header, void* buffer, std::size_t buf
     auto* byteBuffer = static_cast<uint8_t*>(buffer);
     std::memcpy(byteBuffer, &header.metadata.level, sizeof(header.metadata.level));
     byteBuffer += sizeof(header.metadata.level);
-    std::memcpy(byteBuffer, &header.metadata.sourceId, sizeof(header.metadata.sourceId));
-    byteBuffer += sizeof(header.metadata.sourceId);
+    std::memcpy(byteBuffer, &header.metadata.contextTag, sizeof(header.metadata.contextTag));
+    byteBuffer += sizeof(header.metadata.contextTag);
+    std::memcpy(byteBuffer, &header.metadata.loggerTag, sizeof(header.metadata.loggerTag));
+    byteBuffer += sizeof(header.metadata.loggerTag);
     std::memcpy(byteBuffer, &header.messageLength, sizeof(header.messageLength));
     byteBuffer += sizeof(header.messageLength);
     return byteBuffer;
@@ -85,8 +87,10 @@ constexpr const void* deserialize(LogHeader& header, const void* buffer, std::si
     auto* byteBuffer = static_cast<const uint8_t*>(buffer);
     std::memcpy(&header.metadata.level, buffer, sizeof(header.metadata.level));
     byteBuffer += sizeof(header.metadata.level);
-    std::memcpy(&header.metadata.sourceId, byteBuffer, sizeof(header.metadata.sourceId));
-    byteBuffer += sizeof(header.metadata.sourceId);
+    std::memcpy(&header.metadata.contextTag, byteBuffer, sizeof(header.metadata.contextTag));
+    byteBuffer += sizeof(header.metadata.contextTag);
+    std::memcpy(&header.metadata.loggerTag, byteBuffer, sizeof(header.metadata.loggerTag));
+    byteBuffer += sizeof(header.metadata.loggerTag);
     std::memcpy(&header.messageLength, byteBuffer, sizeof(header.messageLength));
     byteBuffer += sizeof(header.messageLength);
     return byteBuffer;

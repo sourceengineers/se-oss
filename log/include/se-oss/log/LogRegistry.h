@@ -25,12 +25,12 @@ namespace se_oss {
 /**
  * Default components for logging.
  */
-enum class DefaultLogComponents : uint8_t
+enum class DefaultLogContext : uint8_t
 {
     DEFAULT = 0 /**< The default component. */
 };
 
-constexpr const char* toString(DefaultLogComponents component)
+constexpr const char* toString(DefaultLogContext component)
 {
     (void)component;
     return "default";
@@ -39,7 +39,7 @@ constexpr const char* toString(DefaultLogComponents component)
 /**
  * Default sinks for logging.
  */
-enum class DefaultLogSinks : uint8_t
+enum class DefaultLogSink : uint8_t
 {
     CONSOLE = 0 /**< The default console sink. */
 };
@@ -51,10 +51,10 @@ enum class DefaultLogSinks : uint8_t
  * and sinks (destinations). It handles the creation and retrieval of loggers and
  * the attachment of sinks.
  *
- * @tparam TComponent Enum type representing the log components.
+ * @tparam TContext Enum type representing the log components.
  * @tparam TSink Enum type representing the log sinks.
  */
-template<typename TComponent = DefaultLogComponents, typename TSink = DefaultLogSinks>
+template<typename TContext = DefaultLogContext, typename TSink = DefaultLogSink>
 class LogRegistry
 {
 public:
@@ -73,23 +73,25 @@ public:
      * @note this function will allocate memory when a logger was not yet
      *       created, i.e., on the first call only.
      *
-     * @param component The component identifier.
+     * @param context The component identifier.
      * @return Reference to the Logger instance.
      */
-    Logger& createOrGetLogger(TComponent component)
+    Logger createLogger(TContext context) { return Logger {getContext(context)}; }
+
+    LogContext& getContext(TContext context)
     {
         assert(checkSinkHandler<TSink>());
 
-        if (_logger.find(component) == _logger.end()) {
-            _logger.emplace(
+        if (_logContexts.find(context) == _logContexts.end()) {
+            _logContexts.emplace(
                 std::piecewise_construct,
-                std::forward_as_tuple(component),
-                std::forward_as_tuple(static_cast<uint8_t>(component), toString(component), _sinkHandler, [this]() {
+                std::forward_as_tuple(context),
+                std::forward_as_tuple(static_cast<uint8_t>(context), toString(context), _sinkHandler, [this]() {
                     return getTime();
                 })
             );
         }
-        return _logger.at(component);
+        return _logContexts.at(context);
     }
 
     /**
@@ -123,14 +125,14 @@ public:
      */
     void distributeMessages()
     {
-        for (auto& logger : _logger) {
+        for (auto& logger : _logContexts) {
             logger.second.distributeMessages();
         }
     }
 
 private:
     AggregatedSink<TSink> _sinkHandler {};
-    std::unordered_map<TComponent, Logger> _logger {};
+    std::unordered_map<TContext, LogContext> _logContexts {};
     std::function<uint64_t()> _timeProvider =
 #ifdef SE_OSS_HAS_CHRONO
         {[]() {
@@ -154,17 +156,17 @@ private:
     }
 
     template<typename T = TSink>
-    std::enable_if_t<!std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler() const
+    std::enable_if_t<!std::is_same<T, DefaultLogSink>::value, bool> checkSinkHandler() const
     {
         return !_sinkHandler.empty();
     }
 
-    template<typename T = DefaultLogSinks>
-    std::enable_if_t<std::is_same<T, DefaultLogSinks>::value, bool> checkSinkHandler()
+    template<typename T = DefaultLogSink>
+    std::enable_if_t<std::is_same<T, DefaultLogSink>::value, bool> checkSinkHandler()
     {
         // In case of the default logger create the console sink ad hoc
         if (_sinkHandler.empty()) {
-            attachSink(DefaultLogSinks::CONSOLE, std::make_unique<FilteredSink<ConsoleSink>>());
+            attachSink(DefaultLogSink::CONSOLE, std::make_unique<FilteredSink<ConsoleSink>>());
         }
         return true;
     }

@@ -10,10 +10,10 @@
 
 #include <gmock/gmock.h>
 
-class SinkMock : public se_oss::IWriter
+class WriterMock : public se_oss::IWriter
 {
 public:
-    SinkMock() = default;
+    WriterMock() = default;
 
     MOCK_METHOD(void, write, (const void*, std::size_t), (override));
     MOCK_METHOD(void, flush, (), (override));

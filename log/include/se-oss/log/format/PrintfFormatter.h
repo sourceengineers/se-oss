@@ -186,7 +186,7 @@ public:
         LogStringBuffer string {buffer, bufferSize};
         string.appendTime<TIME_STRING>(record.timestamp);
         string.append("%s ", toShortString(record.metadata.level));
-        string.append("[%s] -- ", record.sourceName);
+        string.append("[%s] -- ", record.loggerName);
         string.append(formatString, std::forward<const Values>(values)...);
         string.endLine();
         return string.length();
