@@ -27,11 +27,11 @@ int main()
 {
     auto shellSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>(true);
 
-    auto logRegistry = std::make_unique<se_oss::LogRegistry<LogContext, LogSink>>();
-    logRegistry->attachSink(LogSink::SHELL, std::move(shellSink));
-    logRegistry->getSink(LogSink::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
+    auto logRegistry = std::make_unique<se_oss::LogRegistry<MyLogContext, MyLogSink>>();
+    logRegistry->attachSink(MyLogSink::SHELL, std::move(shellSink));
+    logRegistry->getSink(MyLogSink::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
 
-    se_oss::Logger log = logRegistry->createLogger(LogContext::CELLULAR);
+    se_oss::Logger log = logRegistry->createLogger(MyLogContext::CELLULAR);
 
     log.setLogLevel(se_oss::LogLevel::TRACE);
 
