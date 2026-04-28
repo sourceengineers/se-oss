@@ -1,0 +1,90 @@
+/* Shrink the global rem unit so all rem-based sizes (font + spacing) scale down. */
+html {
+    font-size: 1rem;
+    --sy-s-navbar-height: 100px;
+}
+
+/* Tighten the prose container itself. */
+.yue {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.yue p,
+.yue li {
+    line-height: 1.55;
+}
+
+/* Halve the default 1rem / 1.25rem paragraph spacing. */
+.yue p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.625rem;
+}
+
+/* Smaller headings. */
+.yue h1 { font-size: 1.85em; margin-bottom: 0.6em; }
+.yue h2 { font-size: 1.35em; margin-top: 1.4em; margin-bottom: 0.6em; }
+.yue h3 { font-size: 1.15em; margin-top: 1.2em; margin-bottom: 0.4em; }
+
+/* Tables inherit a normal size instead of the default ~0.86em soup. */
+.docutils.container table,
+table.docutils,
+table td,
+table th {
+    font-size: inherit;
+}
+.yue table {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    line-height: 1.5;
+}
+
+/* Less padding around the main article (Shibuya uses Tailwind px-6 pb-6 pt-8 xl:px-12). */
+.sy-main > div > div {
+    padding: 1rem 1.25rem !important;
+}
+@media (min-width: 1280px) {
+    .sy-main > div > div {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
+/* Tighter sidebars + match paragraph font size. */
+.sy-lside,
+.sy-rside {
+    font-size: 0.95rem;
+}
+.sy-lside .sy-scrollbar,
+.sy-rside .sy-scrollbar {
+    padding: 1rem !important;
+}
+.globaltoc li > ul,
+.sy-rside ul.this-page-menu a {
+    font-size: inherit;
+}
+
+/* Limit right-sidebar (on-this-page) TOC to 2 levels. */
+.localtoc ul ul ul {
+    display: none;
+}
+
+/* Hide the "Made with Sphinx and Shibuya theme" footer line. */
+.sy-foot-copyright p:has(a[href*="shibuya.lepture.com"]) {
+    display: none;
+}
+
+/* Reduce vertical breathing room around code blocks and admonitions. */
+.yue pre,
+.yue .admonition,
+.yue .highlight {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+/* Code listings should match paragraph font size. */
+.yue pre.literal-block,
+.yue .highlight > pre,
+.yue .highlight {
+    font-size: 0.95rem;
+}

@@ -1,6 +1,7 @@
 # CLion
 cmake-build-*/
 build/
+_build/
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/vcs.xml
