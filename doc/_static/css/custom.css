@@ -1,0 +1,98 @@
+:root {
+    --sy-s-navbar-height: 60px;
+}
+
+/* Enlarge the header logo so that it is readable */
+.sy-head-brand img.light-logo,
+.sy-head-brand img.dark-logo {
+    height: 40px;
+}
+
+/* Tighten the prose container itself. */
+.yue {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.yue p,
+.yue li {
+    line-height: 1.55;
+}
+
+/* Halve the default 1rem / 1.25rem paragraph spacing. */
+.yue p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.625rem;
+}
+
+/* Smaller headings. */
+.yue h1 { font-size: 1.85em; margin-bottom: 0.6em; }
+.yue h2 { font-size: 1.35em; margin-top: 1.4em; margin-bottom: 0.6em; }
+.yue h3 { font-size: 1.15em; margin-top: 1.2em; margin-bottom: 0.4em; }
+
+/* Tables inherit a normal size instead of the default ~0.86em soup. */
+.docutils.container table,
+table.docutils,
+table td,
+table th {
+    font-size: inherit;
+}
+.yue table {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    line-height: 1.5;
+}
+
+/* Less padding around the main article (Shibuya uses Tailwind px-6 pb-6 pt-8 xl:px-12). */
+.sy-main > div > div {
+    padding: 1rem 1.25rem !important;
+}
+@media (min-width: 1280px) {
+    .sy-main > div > div {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
+/* Tighter sidebars + match paragraph font size. */
+.sy-lside,
+.sy-rside {
+    font-size: 1rem;
+}
+.sy-lside .sy-scrollbar,
+.sy-rside .sy-scrollbar {
+    padding: 1rem !important;
+}
+.globaltoc li > ul,
+.sy-rside ul.this-page-menu a {
+    font-size: inherit;
+}
+
+/* Limit right-sidebar (on-this-page) TOC to 2 levels. */
+.localtoc ul ul ul {
+    display: none;
+}
+
+/* Lighter dark-mode background (default Shibuya slate-1 is #111113). */
+html.dark {
+    --sy-c-background: #1f2024;
+    --sy-c-background-dropback: #2a2b30cc;
+    --sy-c-link: var(--sy-c-text);
+}
+
+/* Reduce vertical breathing room around code blocks and admonitions. */
+.yue pre,
+.yue section > div,
+.yue .admonition,
+.yue .table-wrapper,
+.yue .highlight {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+/* Reduce code listing font size. */
+.yue pre.literal-block,
+.yue .highlight > pre,
+.yue .highlight {
+    font-size: 0.875rem;
+}

@@ -1,0 +1,11 @@
+[project]
+name = "shinx-build"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "markdown-it-py>=4.0.0",
+    "myst-parser>=5.0.0",
+    "shibuya>=2026.1.9",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinx>=8.2.3",
+]
