@@ -94,6 +94,13 @@ cmake --workflow --preset ci-example
 cmake --workflow --preset ci-test
 ```
 
+## License
+
+Software source files in this repository are licensed under the MIT license (see `LICENCE.MIT` or http://opensource.org/licenses/MIT) unless stated otherwhise in the file header.
+
+Documentaiton source files in the `doc/` folder are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) unless state otherwhise in the file header.
+
+
 ## Contributing
 
 ### Semantic Versioning
