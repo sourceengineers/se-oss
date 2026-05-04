@@ -1,12 +1,17 @@
-/* Shrink the global rem unit so all rem-based sizes (font + spacing) scale down. */
-html {
-    font-size: 1rem;
+:root {
+    --sy-s-navbar-height: 60px;
+}
+
+/* Enlarge the header logo so that it is readable */
+.sy-head-brand img.light-logo,
+.sy-head-brand img.dark-logo {
+    height: 40px;
 }
 
 /* Tighten the prose container itself. */
 .yue {
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .yue p,
@@ -52,7 +57,7 @@ table th {
 /* Tighter sidebars + match paragraph font size. */
 .sy-lside,
 .sy-rside {
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 .sy-lside .sy-scrollbar,
 .sy-rside .sy-scrollbar {
@@ -68,26 +73,24 @@ table th {
     display: none;
 }
 
-/* Hide the "Made with Sphinx and Shibuya theme" footer line. */
-.sy-foot-copyright p:has(a[href*="shibuya.lepture.com"]) {
-    display: none;
-}
-
 /* Lighter dark-mode background (default Shibuya slate-1 is #111113). */
 html.dark {
     --sy-c-background: #1f2024;
     --sy-c-background-dropback: #2a2b30cc;
+    --sy-c-link: var(--sy-c-text);
 }
 
 /* Reduce vertical breathing room around code blocks and admonitions. */
 .yue pre,
+.yue section > div,
 .yue .admonition,
+.yue .table-wrapper,
 .yue .highlight {
     margin-top: 1em;
     margin-bottom: 1em;
 }
 
-/* Code listings should match paragraph font size. */
+/* Reduce code listing font size. */
 .yue pre.literal-block,
 .yue .highlight > pre,
 .yue .highlight {

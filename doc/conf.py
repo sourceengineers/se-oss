@@ -12,15 +12,15 @@ import os
 
 def is_git_repo_dirty(path) -> bool:
     try:
-        return subprocess.check_output(['git', 'status', '--porcelain'], cwd=path).decode('ascii').strip() != ""
+        return subprocess.check_output(['git', 'status', '--porcelain'], cwd=path).decode('ascii', errors='ignore').strip() != ""
     except subprocess.CalledProcessError:
         return True
     
 def get_git_revision_hash(path) -> str:
     if is_git_repo_dirty(path):
-        return "unkown"
+        return "unknown"
     try:
-        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+        return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii', errors='ignore').strip()
     except subprocess.CalledProcessError:
         return "unknown"
     
@@ -28,7 +28,7 @@ git_revision = get_git_revision_hash(path=os.path.join(os.path.dirname(os.path.r
 build_time = datetime.datetime.now().strftime('%B %d, %Y, at %H:%M')
 
 project = "se-oss Documentation"
-copyright = f"CC-BY Source Engineers GmbH<br>Last update on {build_time} from git commit <code>{git_revision}</code>"
+copyright = f"<a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a> Source Engineers GmbH, Switzerland. Last update on {build_time} from git commit <code>{git_revision}</code>."
 author = "Source Engineers GmbH"
 
 # -- General configuration ---------------------------------------------------
