@@ -71,7 +71,7 @@
                 "SE_OSS_TESTS": "ON",
                 "SE_OSS_SUPPORT_CBOR": "ON",
                 "SE_OSS_LOG_RELEASE_MAX_LEVEL": "TRACE",
-                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_BUILD_TYPE": "Debug",
                 "TESTING": "ON",
                 "CMAKE_CXX_FLAGS": "--coverage",
                 "CMAKE_C_FLAGS": "--coverage"
