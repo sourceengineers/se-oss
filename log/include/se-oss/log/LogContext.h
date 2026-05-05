@@ -49,7 +49,18 @@ public:
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
 
-    void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer);
+    void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer)
+    {
+        bool writeSuccessful = _buffer->write(reserveSize, producer);
+
+        if (writeSuccessful && log_detail::isImmediate()) {
+            (void)distributeSingleMessage();
+        }
+
+        if (!writeSuccessful) {
+            _statistics.droppedMessages++;
+        }
+    }
 
     /**
      * Distributes messages from the buffer to the sink.
@@ -59,7 +70,17 @@ public:
      *
      * @param maxNumberOfMessages Maximum number of messages to process in this call.
      */
-    void distributeMessages(std::size_t maxNumberOfMessages = 20U) const;
+    void distributeMessages(std::size_t maxNumberOfMessages = 20U) const
+    {
+        if (log_detail::isImmediate()) {
+            return;
+        }
+
+        bool readSuccessful {true};
+        for (size_t i = 0; i < maxNumberOfMessages && readSuccessful; ++i) {
+            readSuccessful = distributeSingleMessage();
+        }
+    }
 
     // ILogFilter realization
     void setLogLevel(LogLevel level) override { return _filter.setLogLevel(level); }
@@ -74,7 +95,15 @@ private:
     LogStatistics _statistics {};
     const TimeProvider _timeProvider {};
 
-    bool distributeSingleMessage() const;
+    bool distributeSingleMessage() const
+    {
+        return _buffer->read([&](const void* buffer, std::size_t size) {
+            LogHeader header {};
+            auto* bufferPosition = deserialize(header, buffer, size);
+            _sink.write(header.metadata, bufferPosition, header.messageLength);
+            return LogHeader::PACKED_SIZE + header.messageLength;
+        });
+    }
 };
 
 }  // namespace se_oss

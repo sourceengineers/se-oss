@@ -5,7 +5,7 @@
  */
 
 #include "WriterMock.h"
-#include "se-oss/log/sink/ConsoleSink.h"
+#include "se-oss/log/sink/ConsoleWriter.h"
 
 #include <gtest/gtest.h>
 
@@ -19,7 +19,7 @@ class ConsoleSinkTest : public Test
 TEST_F(ConsoleSinkTest, ForwardToConsole)
 {
     internal::CaptureStdout();
-    ConsoleSink sink;
+    ConsoleWriter sink;
 
     std::string message = "Hello World\n";
     sink.write(message.data(), message.size());
@@ -30,7 +30,7 @@ TEST_F(ConsoleSinkTest, ForwardToConsole)
 TEST_F(ConsoleSinkTest, HexOutput)
 {
     internal::CaptureStdout();
-    ConsoleSink sink {true};
+    ConsoleWriter sink {true};
 
     std::string message = "Hello World";
     std::string hexMessage = "48656C6C6F20576F726C64\n";
@@ -41,7 +41,7 @@ TEST_F(ConsoleSinkTest, HexOutput)
 
 TEST_F(ConsoleSinkTest, Flush)
 {
-    ConsoleSink sink {};
+    ConsoleWriter sink {};
     // nothing happens when flushing in console mode
     sink.flush();
 }

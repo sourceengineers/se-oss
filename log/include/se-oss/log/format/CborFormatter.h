@@ -63,7 +63,7 @@ public:
         size_t nValues = sizeof...(Values);
 
         cbor_encoder_init(&encoder, byteBuffer, bufferSize, 0);
-        cbor_encoder_create_map(&encoder, &mapEncoder, 4U + (nValues > 0U ? 1U : 0U));
+        cbor_encoder_create_map(&encoder, &mapEncoder, 5U + (nValues > 0U ? 1U : 0U));
 
         encodeRecord(&mapEncoder, record);
         encodeFormatString(&mapEncoder, formatString);
