@@ -4,15 +4,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "se-oss/log/sink/ConsoleSink.h"
+#include "se-oss/log/sink/ConsoleWriter.h"
 
+#include <cstdint>
 #include <cstdio>
 
 namespace se_oss {
 
-ConsoleSink::ConsoleSink(bool hexOutput) : _hexOutput {hexOutput} { }
+ConsoleWriter::ConsoleWriter(bool hexOutput) : _hexOutput {hexOutput} { }
 
-void ConsoleSink::write(const void* data, size_t length)
+void ConsoleWriter::write(const void* data, size_t length)
 {
     if (!_hexOutput) {
         std::fwrite(data, sizeof(char), length, stdout);

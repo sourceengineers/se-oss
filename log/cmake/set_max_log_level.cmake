@@ -3,7 +3,7 @@
 
 function(se_set_max_log_level)
     set(prefix SE)
-    set(singleValues TARGET MAX_LEVEL RELEASE_MAX_LEVEL)
+    set(singleValues TARGET MAX_LEVEL)
     set(multiValues)
 
     include(CMakeParseArguments)
@@ -16,11 +16,10 @@ function(se_set_max_log_level)
     )
 
     _se_to_log_level(${SE_MAX_LEVEL} level)
-    _se_to_log_level(${SE_RELEASE_MAX_LEVEL} release_level)
 
     target_compile_definitions(
             ${SE_TARGET}
-            PUBLIC SE_LOG_MAX_LOG_LEVEL=$<IF:$<CONFIG:Debug>,${level},${release_level}>
+            PUBLIC SE_LOG_MAX_LOG_LEVEL=${level}
     )
 endfunction()
 

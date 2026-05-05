@@ -7,14 +7,12 @@ option(SE_OSS_LOG_BENCHMARKS "Compile se-log benchmarks" OFF)
 
 option(SE_OSS_LOG_REPLACE_STRINGS "Replace format strings with IDs" OFF)
 set(SE_OSS_LOG_MAX_LEVEL "TRACE" CACHE STRING "Log levels above here will be included in the output binary")
-set(SE_OSS_LOG_RELEASE_MAX_LEVEL "INFO" CACHE STRING "Log levels above here will be included in the output binary")
 
 
 add_library(
         se_oss_log
         STATIC
-        ${CMAKE_CURRENT_LIST_DIR}/src/ConsoleSink.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/LogContext.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/ConsoleWriter.cpp
 )
 
 target_sources(
@@ -36,6 +34,8 @@ target_sources(
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/PrintfFormatter.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/AggregatedSink.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/BufferSink.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/ConsoleSink.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/ConsoleWriter.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/FilteredSink.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/ILogSink.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/IWriter.h
@@ -69,7 +69,6 @@ include(cmake/set_max_log_level.cmake)
 se_set_max_log_level(
         TARGET se_oss_log
         MAX_LEVEL ${SE_OSS_LOG_MAX_LEVEL}
-        RELEASE_MAX_LEVEL ${SE_OSS_LOG_RELEASE_MAX_LEVEL}
 )
 
 add_library(se_oss::log ALIAS se_oss_log)
