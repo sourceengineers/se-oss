@@ -81,14 +81,16 @@ html.dark {
 }
 
 /* Reduce vertical breathing room around code blocks and admonitions. */
-.yue pre,
 .yue section > div,
 .yue .admonition,
-.yue .table-wrapper,
-.yue .highlight {
+.yue .table-wrapper
+{
     margin-top: 1em;
     margin-bottom: 1em;
 }
+
+
+
 
 /* Reduce code listing font size. */
 .yue pre.literal-block,
