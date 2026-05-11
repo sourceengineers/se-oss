@@ -54,8 +54,8 @@ TEST(LogStringBuffer, AppendTruncation)
     LogStringBuffer sb(buf, sizeof(buf));
 
     sb.append("abcdefghijklmnop");
-    EXPECT_EQ(sb.length(), 7U);
-    EXPECT_EQ(std::string(buf, 7), "abcdefg");
+    EXPECT_EQ(sb.length(), 8U);
+    EXPECT_EQ(std::string(buf, 8), "abcdefgh");
 }
 
 TEST(LogStringBuffer, AppendMultiple)
@@ -276,18 +276,30 @@ TEST(PrintfFormatter, FormatWithISO8601Time)
 TEST(PrintfFormatter, FormatTruncation)
 {
     // Very small buffer — not enough for the full message
-    char buf[10] = {};
+    char buf[32] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::INFO;
     record.loggerName = "src";
     record.timestamp = 0;
 
-    std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "hello world this is long");
-    // The formatted output exceeds the buffer; snprintf returns the would-be length
-    // which causes _length to exceed _capacity. The buffer content is truncated.
-    // length() still returns the tracked _length (snprintf's return value sum).
-    // The key thing is no crash / no buffer overflow.
-    (void)len;
+    std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "hello world this is too long %u", 42U);
+    std::string output(buf, len);
+
+    EXPECT_EQ(len, 32);
+    EXPECT_EQ(output, "I [src] -- hello world this is \n");
+}
+
+TEST(PrintfFormatter, InvalidFormat)
+{
+    char buf[256] = {};
+    LogRecord record {};
+    record.metadata.level = LogLevel::ERROR;
+    record.loggerName = "src";
+    record.timestamp = 1737366731209138ULL;
+
+    std::size_t len = PrintfFormatter<TimeFormat::ISO8601>::format(buf, sizeof(buf), record, "invalid %z", 42U);
+    std::string output(buf, len);
+    EXPECT_EQ(len, 0U);
 }
 
 TEST(PrintfFormatter, FormatAllLogLevels)

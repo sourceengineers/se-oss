@@ -20,7 +20,7 @@ class LogStringBuffer
 public:
     LogStringBuffer(void* buffer, std::size_t size) :
         _buffer {static_cast<char*>(buffer)},
-        _capacity {size - END_LINE_LENGTH}
+        _capacity {size}
     {
     }
 
@@ -50,6 +50,10 @@ public:
         int32_t length = std::snprintf(_buffer + _length, _capacity - _length, formatString, values...);
         if (length < 0) {
             valid = false;
+        } else if (_length + length > _capacity) {
+            // snprintf truncated the string in _buffer but returned the length as if it was formatted successfully
+            // So, we need to truncate the length manually.
+            _length = _capacity - 1U;
         } else {
             _length += length;
         }
@@ -70,9 +74,9 @@ public:
     template<TimeFormat TS>
     std::enable_if_t<TS == TimeFormat::DECIMAL_8> appendTime(uint64_t timestamp)
     {
-        static constexpr std::uint64_t TIEMSTAMP_WRAP_VALUE {100000000ULL};
-        if (timestamp >= TIEMSTAMP_WRAP_VALUE) {
-            timestamp = timestamp % TIEMSTAMP_WRAP_VALUE;
+        static constexpr std::uint64_t TIMESTAMP_WRAP_VALUE {100000000ULL};
+        if (timestamp >= TIMESTAMP_WRAP_VALUE) {
+            timestamp = timestamp % TIMESTAMP_WRAP_VALUE;
         }
         append("%08" PRIu32 " ", static_cast<uint32_t>(timestamp));
     }
@@ -80,9 +84,9 @@ public:
     template<TimeFormat TS>
     std::enable_if_t<TS == TimeFormat::DECIMAL_10> appendTime(uint64_t timestamp)
     {
-        static constexpr std::uint64_t TIEMSTAMP_WRAP_VALUE {10000000000ULL};
-        if (timestamp >= TIEMSTAMP_WRAP_VALUE) {
-            timestamp = timestamp % TIEMSTAMP_WRAP_VALUE;
+        static constexpr std::uint64_t TIMESTAMP_WRAP_VALUE {10000000000ULL};
+        if (timestamp >= TIMESTAMP_WRAP_VALUE) {
+            timestamp = timestamp % TIMESTAMP_WRAP_VALUE;
         }
         append("%010" PRIu64 " ", timestamp);
     }
@@ -108,10 +112,6 @@ public:
     std::enable_if_t<TS == TimeFormat::ISO8601> appendTime(uint64_t timestamp)
     {
         static constexpr std::uint64_t MICROSECONDS_PER_MILLISECOND {1000ULL};
-        if (!valid) {
-            return;
-        }
-
         appendTime("%Y-%m-%dT%H:%M:%S", timestamp / MICROSECONDS_PER_MILLISECOND);
     }
 
