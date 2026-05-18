@@ -32,6 +32,7 @@ target_sources(
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/ImmediateBuffer.h
         $<$<BOOL:${SE_OSS_SUPPORT_CBOR}>:${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/CborFormatter.h>
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/PrintfFormatter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/StringBuffer.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/AggregatedSink.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/BufferSink.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/ConsoleSink.h

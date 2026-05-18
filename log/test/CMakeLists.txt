@@ -20,6 +20,7 @@ add_executable(
         LogRegistryTest.cpp
         NullSinkTest.cpp
         PrintfFormatterTest.cpp
+        StringBufferTest.cpp
         TypesTest.cpp
 )
 
