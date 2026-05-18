@@ -4,21 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+#define FORMAT_CBOR
+
 #include "LogConf.h"
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
 #include "se-oss/log/format/CborFormatter.h"
 #include "se-oss/log/sink/ConsoleSink.h"
-
-// Configure logger
-constexpr std::size_t LOG_BUFFER_SIZE {2048U};
-constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
-
-template<>
-auto se_oss::logConf<>()
-{
-    return LogConf<CborFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
-}
 
 int main()
 {

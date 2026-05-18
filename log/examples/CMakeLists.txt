@@ -2,14 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
+add_library(se_oss_log_conf INTERFACE)
+target_include_directories(se_oss_log_conf INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+#target_link_libraries(se_oss_log PRIVATE se_oss_log_conf)
 
 add_executable(example_log_minimal log_minimal.cpp)
 target_link_libraries(example_log_minimal PRIVATE se_oss::log)
 
-
 add_executable(example_log_printf log_printf.cpp)
 target_link_libraries(example_log_printf PRIVATE se_oss::log)
-
 
 add_executable(example_log_cbor log_cbor.cpp)
 target_link_libraries(example_log_cbor PRIVATE se_oss::log)

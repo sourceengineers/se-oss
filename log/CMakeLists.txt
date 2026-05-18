@@ -6,7 +6,7 @@ option(SE_OSS_LOG_TESTS "Compile se-log tests" OFF)
 option(SE_OSS_LOG_BENCHMARKS "Compile se-log benchmarks" OFF)
 
 # user conf
-if (NOT TARGET se_oss_log_conf)
+if (NOT TARGET se_oss_log_conf AND NOT ${SE_OSS_LOG_EXAMPLES})
     message(STATUS "[se-oss] No conf provided, using default")
     add_library(se_oss_log_conf INTERFACE)
     target_include_directories(se_oss_log_conf INTERFACE ${CMAKE_CURRENT_LIST_DIR}/default_conf)
