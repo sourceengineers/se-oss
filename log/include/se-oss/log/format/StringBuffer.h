@@ -139,9 +139,14 @@ public:
             return;
         }
         auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MILLISECONDS_PER_SECOND);
-        const tm* time =
-            std::gmtime(&epochSeconds);  // returns a pointer to a static object and thus does not allocate memory
-        std::size_t length = std::strftime(_buffer + _length, _capacity - _length, format, time);
+        tm time {};
+        if (gmtime_r(&epochSeconds, &time) != &time) {
+            _valid = false;
+            _buffer[_length] = TERMINATION_CHARACTER;
+            return;
+        }
+
+        std::size_t length = std::strftime(_buffer + _length, _capacity - _length, format, &time);
         if (length == 0) {
             _valid = false;
             _buffer[_length] = TERMINATION_CHARACTER;
