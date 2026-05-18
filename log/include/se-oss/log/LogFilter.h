@@ -6,9 +6,8 @@
 
 #pragma once
 
+#include "Conf.h"
 #include "Types.h"
-
-#include <atomic>
 
 namespace se_oss {
 
@@ -26,7 +25,7 @@ public:
 
     [[nodiscard]] bool passesFilter(LogMetadata metadata) const
     {
-        if (metadata.level < MAX_LEVEL) {
+        if (metadata.level < log_conf::MAX_LOG_LEVEL) {
             return false;
         }
         if (_filter == nullptr) {
@@ -45,7 +44,6 @@ public:
 
 
 private:
-    static constexpr LogLevel MAX_LEVEL {toLogLevel(SE_LOG_MAX_LOG_LEVEL)};
     FilterFunction _filter {[](const auto&) -> bool { return true; }};
 };
 
