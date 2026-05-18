@@ -8,8 +8,7 @@
 
 #include "Log.h"
 #include "sink/AggregatedSink.h"
-#include "sink/ConsoleWriter.h"
-#include "sink/FilteredSink.h"
+#include "sink/ConsoleSink.h"
 
 #include <cassert>
 #include <memory>
@@ -166,7 +165,7 @@ private:
     {
         // In case of the default logger create the console sink ad hoc
         if (_sinkHandler.empty()) {
-            attachSink(DefaultLogSink::CONSOLE, std::make_unique<FilteredSink<ConsoleWriter>>());
+            attachSink(DefaultLogSink::CONSOLE, std::make_unique<ConsoleSink>());
         }
         return true;
     }

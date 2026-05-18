@@ -12,11 +12,11 @@
 using namespace se_oss;
 using namespace testing;
 
-class ConsoleSinkTest : public Test
+class ConsoleWriterTest : public Test
 {
 };
 
-TEST_F(ConsoleSinkTest, ForwardToConsole)
+TEST_F(ConsoleWriterTest, ForwardToConsole)
 {
     internal::CaptureStdout();
     ConsoleWriter sink;
@@ -27,7 +27,7 @@ TEST_F(ConsoleSinkTest, ForwardToConsole)
     EXPECT_EQ(output, message);
 }
 
-TEST_F(ConsoleSinkTest, HexOutput)
+TEST_F(ConsoleWriterTest, HexOutput)
 {
     internal::CaptureStdout();
     ConsoleWriter sink {true};
@@ -39,7 +39,7 @@ TEST_F(ConsoleSinkTest, HexOutput)
     EXPECT_EQ(output, hexMessage);
 }
 
-TEST_F(ConsoleSinkTest, Flush)
+TEST_F(ConsoleWriterTest, Flush)
 {
     ConsoleWriter sink {};
     // nothing happens when flushing in console mode

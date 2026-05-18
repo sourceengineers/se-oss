@@ -32,8 +32,6 @@ int main()
 
     log.setLogLevel(se_oss::LogLevel::TRACE);
 
-    LOG_INFO(log, "State changed to %u", 42U);
-
     LOG_TRACE(log, "trace");
     LOG_DEBUG(log, "debug");
     LOG_INFO(log, "info");
