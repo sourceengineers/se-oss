@@ -23,6 +23,6 @@ Features:
     configuration
     formatter
     filtering
-    structured-log
     resource-replacement
+..     structured-log
 

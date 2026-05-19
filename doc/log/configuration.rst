@@ -121,6 +121,18 @@ with a 2048 atomic byte buffer and a maximum message length of 256 bytes:
     } // namespace se_oss
 
 
+Buffers
+^^^^^^^
+
+The library provides two types of buffers:
+
+* ``ImmediateBuffer``: The buffer is used for string formatting only, the log output is send immediately to the sink.
+  This buffer is suited for simple single-thread applications.
+* ``AtomicBuffer``: This buffer is lock-free and thread-safe in a single-producer single-consumer scenario.
+  Log messages are passed on to sink when the user calls ``logRegistry->distributeMessages();``
+  This buffer is suited for multi-thread applications.
+
+
 .. _default_conf:
 
 Default Configuration

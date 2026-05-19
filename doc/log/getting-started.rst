@@ -172,21 +172,21 @@ The listing below contains the complete multi-threaded example code.
 
         std::thread threadA {[=]() mutable {
             for (size_t i = 0; i < 5; ++i) {
-    	    LOG_INFO(logA, "Hello from thread a.");
-    	    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    	}
+                LOG_INFO(logA, "Hello from thread a.");
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            }
         }};
         std::thread threadB {[=]() mutable {
             for (size_t i = 0; i < 5; ++i) {
-    	    LOG_INFO(logB, "Hello from thread b.");
-    	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    	}
+                LOG_INFO(logB, "Hello from thread b.");
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
         }};
         std::thread distributor {[&]() {
-    	for (size_t i = 0; i < 5; ++i) {
-    	    logRegistry->distributeMessages();
-    	    std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    	}
+            for (size_t i = 0; i < 5; ++i) {
+                logRegistry->distributeMessages();
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            }
         }};
 
         threadA.join();
