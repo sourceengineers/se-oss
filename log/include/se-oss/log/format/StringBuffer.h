@@ -33,11 +33,12 @@ public:
         _buffer {static_cast<char*>(buffer)},
         _capacity {size}
     {
-        if (_buffer != nullptr) {
-            _buffer[0] = TERMINATION_CHARACTER;
-        } else {
-            _valid = false;
+        if (_buffer == nullptr || _capacity == 0U) {
+            return;
         }
+
+        _buffer[_length] = TERMINATION_CHARACTER;
+        _valid = true;
     }
 
     ~StringBuffer() = default;
@@ -167,7 +168,7 @@ private:
     char* _buffer;  //!< String buffer containing a valid c-string, i.e., including the termination character
     std::size_t _capacity;  //!< Capacity of the buffer in bytes
     std::size_t _length {0U};  //!< String length not including the termination character
-    bool _valid {true};
+    bool _valid {false};
 };
 
 }  // namespace se_oss
