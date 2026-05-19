@@ -9,16 +9,6 @@
 #include "se-oss/log/LogRegistry.h"
 #include "se-oss/log/sink/ConsoleSink.h"
 
-// Configure logger
-constexpr std::size_t LOG_BUFFER_SIZE {2048U};
-constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
-
-template<>
-auto se_oss::logConf<>()
-{
-    return LogConf<PrintfFormatter<TimeFormat::ISO8601>, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
-}
-
 int main()
 {
     auto consoleSink = std::make_unique<se_oss::ConsoleSink>();

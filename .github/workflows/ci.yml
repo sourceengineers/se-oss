@@ -22,14 +22,11 @@ jobs:
       - name: Configure and Build Examples
         run: cmake --workflow --preset ci-example
 
-      - name: Configure and Build String Replacement Example
-        run: cmake --workflow --preset ci-example-string-replacement
+      - name: Configure and Build Deferred Loggin Examples
+        run: cmake --workflow --preset ci-example-deferred
 
       - name: Install Examples
-        run: cmake --install build/x86_64/release --component examples
-
-      - name: Install String Replacement Example
-        run: cmake --install build/x86_64/string_replacment --component example-string-replacement
+        run: cmake --install build/x86_64/release --component examples && cmake --install build/x86_64/deferred --component examples
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

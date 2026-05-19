@@ -6,9 +6,7 @@
 
 #pragma once
 
-#include "Conf.h"
 #include "LogContext.h"
-#include "buffer/AtomicBuffer.h"
 #include "sink/ILogSink.h"
 
 #ifdef SE_OSS_LOG_REPLACE_STRINGS
@@ -266,12 +264,11 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
         return;
     }
 
-    std::size_t maxMessageLength = log_detail::maxMessageLength();
-    _context.writeMessage(maxMessageLength + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
+    _context.writeMessage(log_conf::MAX_MESSAGE_LENGTH + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
         uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
         std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
         std::size_t bytesWritten =
-            log_detail::format(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
+            log_conf::Formatter::format(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
         if (bytesWritten > 0U) {
             LogHeader header {};
             header.metadata = record.metadata;

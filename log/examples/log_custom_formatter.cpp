@@ -9,38 +9,6 @@
 #include "se-oss/log/LogRegistry.h"
 #include "se-oss/log/sink/ConsoleSink.h"
 
-// Configure logger
-constexpr std::size_t LOG_BUFFER_SIZE {2048U};
-constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
-
-class MyFormatter
-{
-public:
-    template<typename... Values>
-    static size_t format(
-        void* buffer,
-        std::size_t bufferSize,
-        const se_oss::LogRecord& record,
-        const char* const formatString,
-        const Values&... values
-    )
-    {
-        se_oss::StringBuffer string {buffer, bufferSize};
-        string.appendTime("%y%m%dT%H%M%S", record.timestamp);
-        string.append("| %s | ", toString(record.metadata.level));
-        string.append("%s | ", record.loggerName);
-        string.append(formatString, std::forward<const Values>(values)...);
-        string.append("\n");
-        return string.length();
-    }
-};
-
-template<>
-auto se_oss::logConf<>()
-{
-    return LogConf<MyFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
-}
-
 int main()
 {
     auto consoleSink = std::make_unique<se_oss::ConsoleSink>();
