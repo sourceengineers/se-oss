@@ -16,3 +16,5 @@ CMakeUserPresets.json
 venv
 __pycache__/
 
+# drawio
+*.bkp

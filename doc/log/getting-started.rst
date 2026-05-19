@@ -217,8 +217,6 @@ The expected output on ``stdout`` is:
 Software Design
 ---------------
 
-
-
 ..  figure:: res/se-log.png
     :alt: se-log design
     :width: 100%
@@ -226,3 +224,10 @@ Software Design
 
     Software design overview for se-log.
 
+The figure above shows the simplified design of the classes implemented in the log library.
+The ``LogRegistry`` serves a helper class declaring clear ownership of the objects created for logging.
+
+The log front-end requires ``Logger`` instance.
+Multiple of those instances can reference a shared ``LogContext``.
+The context is owner of the buffer used for logging. For multi-threaded applications there should be one context per thread.
+The context knows a sink so that messages can be distributed.

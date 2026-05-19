@@ -9,10 +9,8 @@ Features:
     * simple printf-style
     * compact binary format
 
- todo: ...
-
-
-
+* Supports log tags for fine tuned filtering
+* Highly configurable so it can grow with your product
 
 
 
