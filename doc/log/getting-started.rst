@@ -143,14 +143,6 @@ The listing below contains the complete multi-threaded example code.
     #include <se-oss/log/sink/FilteredSink.h>
     #include <thread>
 
-    constexpr std::size_t LOG_BUFFER_SIZE {2048U};
-    constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
-    template<>
-    auto se_oss::logConf<>()
-    {
-        return LogConf<PrintfFormatter<TimeFormat::ISO8601>, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
-    }
-
     enum class LogContextId
     {
         ThreadA,

@@ -29,15 +29,11 @@ Time Format Configuration
 The time format of the ``PrintfFormatter`` can be selected as template parameter:
 
 .. code-block:: c++
-    :caption: main.cpp
+    :caption: UserLogConf.h
 
-    #include "se-oss/log/Conf.h"
-
-    template <>
-    auto se_oss::logConf<>()
-    {
-        return LogConf<PrintfFormatter<TimeFormat::ISO8601>, AtomicBuffer<1024>, 128>{};
-    }
+    // [..]
+    using Formatter = PrintfFormatter<TimeFormat::ISO8601>;
+    // [..]
 
 These time formats are supported:
 
@@ -60,6 +56,9 @@ These time formats are supported:
 +----------------+-----------------------------------------------------+-------------------------------+
 
 
+----
+
+
 .. _Binary Formatter:
 
 Binary Serialization using CBOR
@@ -78,15 +77,11 @@ This has the following advantages:
 * CBOR serialization is often computationally cheaper than printf
 
 .. code-block:: c++
-    :caption: main.cpp
+    :caption: UserLogConf.h
 
-    #include "se-oss/log/Conf.h"
-
-    template <>
-    auto se_oss::logConf<>()
-    {
-        return LogConf<CborFormatter, AtomicBuffer<1024>, 128>{};
-    }
+    // [..]
+    using Formatter = CborFormatter;
+    // [..]
 
 A change of formatter does not impact the log calls. So, the call stays is the same as before:
 
@@ -127,6 +122,7 @@ The message can also be viewed as JSON-like structure.
 
 .. code-block:: text
     :caption: CBOR Diagnostic Format
+    :emphasize-lines: 7-9
 
     {
         1: 1777995210227616,
@@ -139,18 +135,65 @@ The message can also be viewed as JSON-like structure.
         ]
     }
 
+As you can see in the highlighted lines, the log arguments are not formatted on the target.
+They are instead output as a array.
 
 .. note::
     This formatter requires a tool on the host to interpret the log message.
 
+CBOR Keys
+^^^^^^^^^
+se-log serializes messages as one map with the following keys as defined in ``CborLogKeys``:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value Type
+     - Description
+   * - ``1``
+     - ``u64``
+     - Timestamp, by default in microseconds since epoch
+   * - ``2``
+     - ``u8``
+     - Log level
+   * - ``3``
+     - ``u8``
+     - Context tag
+   * - ``4``
+     - ``u8``
+     - Logger tag
+   * - ``5``
+     - ``string``
+     - Log format message as string
+   * - ``6``
+     - ``u32``
+     - Log format message ID for string replacement
+   * - ``7``
+     - ``any``
+     - Array of log arguments
+
+
+----
 
 
 Custom Formatter
 ----------------
 
+If the formatter and serializer above do not satisfy your needs you can implement your own formatter.
+To do so, implement a class containing a static ``format`` method with the signature below.
+Then select your formatter class in the log configuration.
 
 .. code-block:: cpp
-    :caption: main.cpp
+    :caption: UserLogConf.h
+    :emphasize-lines: 12-18,33
+
+    #pragma once
+
+    #include "se-oss/log/buffer/AtomicBuffer.h"
+    #include "se-oss/log/format/StringBuffer.h"
+
+    namespace se_oss {
 
     class MyFormatter
     {
@@ -164,7 +207,7 @@ Custom Formatter
             const Values&... values
         )
         {
-            se_oss::LogStringBuffer string {buffer, bufferSize};
+            LogStringBuffer string {buffer, bufferSize};
             string.appendTime("%y%m%dT%H%M%S", record.timestamp);
             string.append("| %s | ", toString(record.metadata.level));
             string.append("%s | ", record.loggerName);
@@ -174,9 +217,14 @@ Custom Formatter
         }
     };
 
-    template<>
-    auto se_oss::logConf<>()
-    {
-        return LogConf<MyFormatter, AtomicBuffer<LOG_BUFFER_SIZE>, LOG_MAX_MESSAGE_LENGTH> {};
-    }
+    namespace log_conf {
+
+    // #define SE_OSS_LOG_REPLACE_STRINGS
+    using Formatter = MyFormatter;
+    using Buffer = AtomicBuffer<2048>;
+    constexpr std::size_t MAX_MESSAGE_LENGTH {256};
+    constexpr LogLevel MAX_LOG_LEVEL {LogLevel::TRACE};
+
+    } // namespace log_conf
+    } // namespace se_oss
 

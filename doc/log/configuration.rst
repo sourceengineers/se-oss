@@ -16,10 +16,6 @@ The logging library supports the following options in CMake:
      - Description
      - Default
      - Options
-   * - ``SE_OSS_LOG_REPLACE_STRINGS``
-     - Replace format strings with IDs
-     - ``OFF``
-     - ``ON``, ``OFF``
    * - ``SE_OSS_LOG_SUPPORT_CBOR``
      - Support CBOR binary encoding
      - ``OFF``
@@ -32,18 +28,13 @@ The logging library supports the following options in CMake:
      - Compile se-log tests
      - ``OFF``
      - ``ON``, ``OFF``
-   * - ``SE_OSS_LOG_MAX_LEVEL``
-     - Log levels above here will be included in the output binary
-     - ``TRACE``
-     - ``TRACE``, ``DEBUG``, ``WARN``, ``INFO``, ``WARN``, ``ERROR``, ``FATAL``
 
 An option can be turned on in CMake by forcing the variable in the cache:
 
 .. code-block:: cmake
     :caption: CMakeLists.txt
 
-    set(SE_OSS_LOG_REPLACE_STRINGS ON CACHE BOOL "" FORCE)
-    set(SE_OSS_LOG_MAX_LEVEL "INFO" CACHE STRING "" FORCE)
+    set(SE_OSS_LOG_SUPPORT_CBOR ON CACHE BOOL "" FORCE)
 
 ``SE_OSS_LOG_SUPPORT_CBOR``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -51,7 +42,7 @@ An option can be turned on in CMake by forcing the variable in the cache:
 With this option enabled ``se-oss`` will fetch `intel/tinycbor <https://github.com/intel/tinycbor>`_ (MIT License) as a dependency.
 You will also need to configure the logger to use the ``CborFormatter`` as described in the C++ Configuration below.
 
-See :ref:`Binary Formatter` for more information.
+See :ref:`Binary Formatter` for details.
 
 ``SE_OSS_LOG_REPLACE_STRINGS``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -65,8 +56,22 @@ See :ref:`string_replacement` for details.
 C++ Configuration
 -----------------
 
-Besides the CMake options, the log library can be configured from C++ code. For
-that a configuration structure is provided. The following parameters can be set:
+The logging behavior can be configured using a configuration header file.
+Create a file called ``UserLogConf.h`` in your project and add the interface library called ``se_oss_log_conf`` to the CMakeLists `before` adding ``se-oss``.
+If no ``se_oss_log_conf`` is provided the logger will fall back on the default configuration.
+
+.. code-block:: cmake
+    :caption: CMakeLists.txt
+    :emphasize-lines: 2-3
+
+    # [..]
+    add_library(se_oss_log_conf INTERFACE)
+    target_include_directories(se_oss_log_conf INTERFACE ${CMAKE_SOURCE_DIR}/src/conf)
+
+    set(SE_OSS_COMPONENT_LOG ON CACHE BOOL "" FORCE)
+    FetchContent_Declare( #[..]
+
+The following parameters must be set in ``UserLogConf.h``:
 
 .. list-table::
    :header-rows: 1
@@ -75,32 +80,50 @@ that a configuration structure is provided. The following parameters can be set:
    * - Parameter
      - Description
      - Default
-   * - Formatter
+   * - ``SE_OSS_LOG_REPLACE_STRINGS``
+     - Replace format strings with IDs
+     - disabled
+   * - ``log_conf::Formatter``
      - Formatter used to format/serialize log records.
      - ``PrintfFormatter``
-   * - Buffer
+   * - ``log_conf::Buffer``
      - Buffer used to store log records between logger and sink.
      - ``ImmediateBuffer``
-   * - Max Message Length
+   * - ``log_conf::MAX_MESSAGE_LENGTH``
      - Maximum length of a log message.
      - 128
+   * - ``log_conf::MAX_LOG_LEVEL``
+     - Log levels above here will be included in the output binary.
+     - ``LogLevel::TRACE``
 
 If using any other configration than default, provide the configration once per
 binary in one source file. Here's an example for using the ``PrintfFormatter``
-with a 1024 atomic byte buffer and a maximum message length of 128 bytes:
+with a 2048 atomic byte buffer and a maximum message length of 256 bytes:
 
 .. code-block:: c++
-    :caption: main.cpp
+    :caption: UserLogConf.h
 
-    #include "se-oss/log/Conf.h"
+    #pragma once
 
-    template <>
-    auto se_oss::logConf<>()
-    {
-        return LogConf<PrintfFormatter<TimeFormat::ISO8601>, AtomicBuffer<1024>, 128>{};
-    }
+    #include "se-oss/log/buffer/AtomicBuffer.h"
+    #include "se-oss/log/format/PrintfFormatter.h"
+
+    namespace se_oss {
+    namespace log_conf {
+
+    // #define SE_OSS_LOG_REPLACE_STRINGS
+    using Formatter = PrintfFormatter<TimeFormat::ISO8601>;
+    using Buffer = AtomicBuffer<2048>;
+    constexpr std::size_t MAX_MESSAGE_LENGTH {256};
+    constexpr LogLevel MAX_LOG_LEVEL {LogLevel::TRACE};
+
+    } // namespace log_conf
+    } // namespace se_oss
+
+
+.. _default_conf:
 
 Default Configuration
 ^^^^^^^^^^^^^^^^^^^^^
-
+If not ``se_oss_log_conf`` is provided in the CMakeLists the logger falls back on the default configuration.
 The default configuration provides a minimal logger writing messages to ``stdout``. See :ref:`minimal_setup`.
