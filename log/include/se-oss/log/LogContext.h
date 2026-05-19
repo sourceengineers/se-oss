@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "Conf.h"
 #include "ILogFilter.h"
 #include "LogFilter.h"
 #include "buffer/IBuffer.h"
@@ -14,6 +13,8 @@
 
 #include <atomic>
 #include <memory>
+
+#include "UserLogConf.h"
 
 namespace se_oss {
 
@@ -48,18 +49,20 @@ public:
     uint64_t time() const { return _timeProvider ? _timeProvider() : INVALID_TIME; }
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
+    void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer);
 
-    void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer)
+    /**
+     * Distributes messages from the buffer to the sink.
+     *
+     * Note: This method does nothing because in immediate mode, the message was already sent.
+     *
+     * @param maxNumberOfMessages Maximum number of messages to process in this call.
+     */
+    template<class TBuffer = log_conf::Buffer>
+    std::enable_if_t<log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(std::size_t maxNumberOfMessages = 20U)
     {
-        bool writeSuccessful = _buffer->write(reserveSize, producer);
-
-        if (writeSuccessful && log_detail::isImmediate()) {
-            (void)distributeSingleMessage();
-        }
-
-        if (!writeSuccessful) {
-            _statistics.droppedMessages++;
-        }
+        (void)maxNumberOfMessages;
+        return;
     }
 
     /**
@@ -70,12 +73,9 @@ public:
      *
      * @param maxNumberOfMessages Maximum number of messages to process in this call.
      */
-    void distributeMessages(std::size_t maxNumberOfMessages = 20U) const
+    template<class TBuffer = log_conf::Buffer>
+    std::enable_if_t<!log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(std::size_t maxNumberOfMessages = 20U)
     {
-        if (log_detail::isImmediate()) {
-            return;
-        }
-
         bool readSuccessful {true};
         for (size_t i = 0; i < maxNumberOfMessages && readSuccessful; ++i) {
             readSuccessful = distributeSingleMessage();
@@ -90,20 +90,12 @@ private:
     LogFilter _filter {};
     uint8_t _contextTag {0U};
     const char* _name {nullptr};
-    std::unique_ptr<IBuffer> _buffer {log_detail::createBuffer()};
+    log_conf::Buffer _buffer {};
     ILogSink& _sink;
     LogStatistics _statistics {};
     const TimeProvider _timeProvider {};
 
-    bool distributeSingleMessage() const
-    {
-        return _buffer->read([&](const void* buffer, std::size_t size) {
-            LogHeader header {};
-            auto* bufferPosition = deserialize(header, buffer, size);
-            _sink.write(header.metadata, bufferPosition, header.messageLength);
-            return LogHeader::PACKED_SIZE + header.messageLength;
-        });
-    }
+    bool distributeSingleMessage();
 };
 
 }  // namespace se_oss

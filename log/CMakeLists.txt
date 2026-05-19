@@ -5,14 +5,19 @@ option(SE_OSS_LOG_EXAMPLES "Compile se-log examples" OFF)
 option(SE_OSS_LOG_TESTS "Compile se-log tests" OFF)
 option(SE_OSS_LOG_BENCHMARKS "Compile se-log benchmarks" OFF)
 
-option(SE_OSS_LOG_REPLACE_STRINGS "Replace format strings with IDs" OFF)
-set(SE_OSS_LOG_MAX_LEVEL "TRACE" CACHE STRING "Log levels above here will be included in the output binary")
+# user conf
+if (NOT TARGET se_oss_log_conf AND NOT ${SE_OSS_LOG_EXAMPLES})
+    message(STATUS "[se-oss] No conf provided, using default")
+    add_library(se_oss_log_conf INTERFACE)
+    target_include_directories(se_oss_log_conf INTERFACE ${CMAKE_CURRENT_LIST_DIR}/default_conf)
+endif ()
 
-
+# log library
 add_library(
         se_oss_log
         STATIC
         ${CMAKE_CURRENT_LIST_DIR}/src/ConsoleWriter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/LogContext.cpp
 )
 
 target_sources(
@@ -32,6 +37,7 @@ target_sources(
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/buffer/ImmediateBuffer.h
         $<$<BOOL:${SE_OSS_SUPPORT_CBOR}>:${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/CborFormatter.h>
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/PrintfFormatter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/format/StringBuffer.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/AggregatedSink.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/BufferSink.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/sink/ConsoleSink.h
@@ -48,6 +54,12 @@ target_include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
+target_link_libraries(
+        se_oss_log
+        PUBLIC
+        se_oss_log_conf
+)
+
 if (${SE_OSS_SUPPORT_CBOR})
     target_link_libraries(
             se_oss_log
@@ -55,21 +67,6 @@ if (${SE_OSS_SUPPORT_CBOR})
             tinycbor
     )
 endif ()
-
-if (${SE_OSS_LOG_REPLACE_STRINGS})
-    message(STATUS "[se-log] Replacing format strings enabled")
-    target_compile_definitions(
-            se_oss_log
-            PUBLIC
-            SE_OSS_LOG_REPLACE_STRINGS
-    )
-endif ()
-
-include(cmake/set_max_log_level.cmake)
-se_set_max_log_level(
-        TARGET se_oss_log
-        MAX_LEVEL ${SE_OSS_LOG_MAX_LEVEL}
-)
 
 add_library(se_oss::log ALIAS se_oss_log)
 
