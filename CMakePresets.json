@@ -54,12 +54,12 @@
             }
         },
         {
-            "name": "ci-example-string-replacement",
-            "displayName": "Host example for compile time string replacement.",
+            "name": "ci-example-deferred",
+            "displayName": "Host examples using deferred log configuration.",
             "inherits": "ci-host",
-            "binaryDir": "build/x86_64/string_replacment",
+            "binaryDir": "build/x86_64/deferred",
             "cacheVariables": {
-                "SE_OSS_LOG_REPLACE_STRINGS": "ON"
+                "SE_OSS_LOG_EXAMPLE_DEFERRED": "ON"
             }
         },
         {
@@ -80,14 +80,14 @@
 
     "buildPresets": [
         {
-            "name": "ci-example",
+            "name": "ci-example-immediate",
             "configurePreset": "ci-host",
-            "targets": [ "example_log_minimal", "example_log_printf", "example_log_cbor", "example_log_custom" ]
+            "targets": [ "example_log_minimal", "example_log_custom" ]
         },
         {
-            "name": "ci-example-string-replacement",
-            "configurePreset": "ci-example-string-replacement",
-            "targets": [ "example_log_cbor_string_replacement" ]
+            "name": "ci-example-deferred",
+            "configurePreset": "ci-example-deferred",
+            "targets": [ "example_log_printf", "example_log_cbor", "example_log_cbor_string_replacement" ]
         },
         {
             "name": "ci-test",
@@ -130,15 +130,15 @@
             "displayName": "Build examples",
             "steps": [
                 { "type": "configure", "name": "ci-host" },
-                { "type": "build",     "name": "ci-example" }
+                { "type": "build",     "name": "ci-example-immediate" }
             ]
         },
         {
-            "name": "ci-example-string-replacement",
-            "displayName": "Build compile time string replacement example",
+            "name": "ci-example-deferred",
+            "displayName": "Build deferred log examples",
             "steps": [
-                { "type": "configure", "name": "ci-example-string-replacement" },
-                { "type": "build",     "name": "ci-example-string-replacement" }
+                { "type": "configure", "name": "ci-example-deferred" },
+                { "type": "build",     "name": "ci-example-deferred" }
             ]
         },
         {
