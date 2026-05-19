@@ -7,7 +7,7 @@ if (${SE_OSS_SUPPORT_CBOR})
     message(STATUS "[se-log] Support for CBOR enabled")
     set(WITH_FLOATING_POINT ON CACHE BOOL "" FORCE)
     set(WITH_CBOR2JSON OFF CACHE BOOL "" FORCE)
-    set(WITH_TOOLS OFF CACHE BOOL "" FORCE)
+    set(BUILD_TOOLS OFF CACHE BOOL "" FORCE)
     FetchContent_Declare(
             tinycbor
             GIT_REPOSITORY https://github.com/intel/tinycbor.git
