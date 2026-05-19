@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#define FORMAT_CUSTOM
-
 #include "LogConf.h"
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
