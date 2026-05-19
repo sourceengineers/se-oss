@@ -4,16 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-#define FORMAT_CBOR
+#define FORMAT_CBOR_REPLACE_STRINGS
 
 #include "LogConf.h"
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
-#include "se-oss/log/format/CborFormatter.h"
 #include "se-oss/log/sink/ConsoleSink.h"
 #include "se-oss/log/sink/FilteredSink.h"
-
-#include <chrono>
 
 int main()
 {

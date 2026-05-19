@@ -59,8 +59,9 @@ public:
      * @param maxNumberOfMessages Maximum number of messages to process in this call.
      */
     template<class TBuffer = log_conf::Buffer>
-    std::enable_if_t<log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(std::size_t maxNumberOfMessages = 20U)
+    std::enable_if_t<log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(std::size_t maxNumberOfMessages = 20U) const
     {
+        (void)this;
         (void)maxNumberOfMessages;
         return;
     }
