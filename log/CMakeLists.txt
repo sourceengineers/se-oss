@@ -17,6 +17,7 @@ add_library(
         se_oss_log
         STATIC
         ${CMAKE_CURRENT_LIST_DIR}/src/ConsoleWriter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/LogContext.cpp
 )
 
 target_sources(

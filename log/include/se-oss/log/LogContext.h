@@ -49,19 +49,7 @@ public:
     uint64_t time() const { return _timeProvider ? _timeProvider() : INVALID_TIME; }
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
-
-    void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer)
-    {
-        bool writeSuccessful = _buffer.write(reserveSize, producer);
-
-        if (writeSuccessful && log_detail::is_immediate_buffer<log_conf::Buffer>::value) {
-            (void)distributeSingleMessage();
-        }
-
-        if (!writeSuccessful) {
-            _statistics.droppedMessages++;
-        }
-    }
+    void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer);
 
     /**
      * Distributes messages from the buffer to the sink.
@@ -107,15 +95,7 @@ private:
     LogStatistics _statistics {};
     const TimeProvider _timeProvider {};
 
-    bool distributeSingleMessage()
-    {
-        return _buffer.read([&](const void* buffer, std::size_t size) {
-            LogHeader header {};
-            auto* bufferPosition = deserialize(header, buffer, size);
-            _sink.write(header.metadata, bufferPosition, header.messageLength);
-            return LogHeader::PACKED_SIZE + header.messageLength;
-        });
-    }
+    bool distributeSingleMessage();
 };
 
 }  // namespace se_oss
