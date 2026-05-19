@@ -40,7 +40,6 @@ extensions = [
 
 templates_path = ["_templates"]
 exclude_patterns = ["README.rst", "_build", ".venv", "Thumbs.db", ".DS_Store"]
-numfig = True
 
 source_suffix = {
     '.rst': 'restructuredtext',

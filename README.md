@@ -31,7 +31,7 @@ add_subdirectory(<path>/se-oss)
 
 This repository contains the following software components:
 
-- [log](doc/log/README.md): Logging library.
+- [log](./log/index.rst): Logging library.
 
 
 ### Structure
