@@ -8,9 +8,6 @@
 #include "se-oss/log/Log.h"
 #include "se-oss/log/LogRegistry.h"
 #include "se-oss/log/sink/ConsoleSink.h"
-#include "se-oss/log/sink/FilteredSink.h"
-
-#include <chrono>
 
 // Configure logger
 constexpr std::size_t LOG_BUFFER_SIZE {2048U};
@@ -24,7 +21,7 @@ auto se_oss::logConf<>()
 
 int main()
 {
-    auto consoleSink = std::make_unique<se_oss::FilteredSink<se_oss::ConsoleSink>>();
+    auto consoleSink = std::make_unique<se_oss::ConsoleSink>();
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<MyLogContext, MyLogSink>>();
     logRegistry->attachSink(MyLogSink::SHELL, std::move(consoleSink));

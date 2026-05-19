@@ -48,7 +48,6 @@ public:
     uint64_t time() const { return _timeProvider ? _timeProvider() : INVALID_TIME; }
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
-
     void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer);
 
     /**

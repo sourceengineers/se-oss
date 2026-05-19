@@ -6,207 +6,12 @@
 
 #include "se-oss/log/format/PrintfFormatter.h"
 
-#include <cstring>
-
 #include <gtest/gtest.h>
 
+#include <cstring>
 #include <string>
 
 using namespace se_oss;
-
-// ---------------------------------------------------------------------------
-// 1. LogStringBuffer — Core Operations
-// ---------------------------------------------------------------------------
-
-TEST(LogStringBuffer, AppendSimpleString)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.append("hello");
-    EXPECT_EQ(sb.length(), 5U);
-    EXPECT_STREQ(buf, "hello");
-}
-
-TEST(LogStringBuffer, AppendFormattedString)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.append("%d %s", 42, "world");
-    EXPECT_EQ(sb.length(), 8U);
-    EXPECT_STREQ(buf, "42 world");
-}
-
-TEST(LogStringBuffer, AppendNullString)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.append(nullptr);
-    EXPECT_EQ(sb.length(), 0U);
-}
-
-TEST(LogStringBuffer, AppendTruncation)
-{
-    // Buffer of 8 bytes: 7 usable (1 reserved for endLine)
-    char buf[8] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.append("abcdefghijklmnop");
-    EXPECT_EQ(sb.length(), 7U);
-    EXPECT_EQ(std::string(buf, 7), "abcdefg");
-}
-
-TEST(LogStringBuffer, AppendMultiple)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.append("hello");
-    sb.append(" ");
-    sb.append("world");
-    EXPECT_EQ(sb.length(), 11U);
-    EXPECT_STREQ(buf, "hello world");
-}
-
-TEST(LogStringBuffer, EndLine)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.append("hi");
-    sb.endLine();
-    EXPECT_EQ(sb.length(), 3U);
-    EXPECT_EQ(buf[2], '\n');
-}
-
-TEST(LogStringBuffer, CapacityReservesEndLine)
-{
-    // Buffer of 6 bytes: 5 usable capacity, 1 reserved for newline
-    char buf[6] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.append("abcde");
-    EXPECT_EQ(sb.length(), 5U);
-
-    sb.endLine();
-    EXPECT_EQ(sb.length(), 6U);
-    EXPECT_EQ(buf[5], '\n');
-}
-
-TEST(LogStringBuffer, InvalidAfterSnprintfError)
-{
-    char buf[4] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    // Formatted append that exceeds remaining capacity sets _length beyond capacity
-    // but snprintf itself won't return negative for truncation. Instead, test that
-    // after the buffer is fully consumed, length reflects what was written.
-    sb.append("abc");
-    EXPECT_EQ(sb.length(), 3U);
-
-    // Further formatted append into 0 remaining capacity
-    sb.append("%d", 999);
-    // snprintf returns the number of chars that *would* have been written,
-    // so _length grows beyond _capacity, but the buffer content is safe.
-    // The key invariant is that endLine won't write past the buffer.
-}
-
-// ---------------------------------------------------------------------------
-// 2. LogStringBuffer — Time Formatting
-// ---------------------------------------------------------------------------
-
-TEST(LogStringBuffer, AppendTimeNone)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.appendTime<TimeFormat::NONE>(12345);
-    EXPECT_EQ(sb.length(), 0U);
-}
-
-TEST(LogStringBuffer, AppendTimeDecimal)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.appendTime<TimeFormat::DECIMAL>(12345);
-    EXPECT_STREQ(buf, "12345 ");
-}
-
-TEST(LogStringBuffer, AppendTimeDecimal8)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.appendTime<TimeFormat::DECIMAL_8>(123456789);
-    EXPECT_STREQ(buf, "23456789 ");
-}
-
-TEST(LogStringBuffer, AppendTimeDecimal8Wrap)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    // 200000042 % 100000000 = 42
-    sb.appendTime<TimeFormat::DECIMAL_8>(200000042);
-    EXPECT_STREQ(buf, "00000042 ");
-}
-
-TEST(LogStringBuffer, AppendTimeDecimal10)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.appendTime<TimeFormat::DECIMAL_10>(1234567890);
-    EXPECT_STREQ(buf, "1234567890 ");
-}
-
-TEST(LogStringBuffer, AppendTimeDecimal10Wrap)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    // 20000000042 % 10000000000 = 42
-    sb.appendTime<TimeFormat::DECIMAL_10>(20000000042ULL);
-    EXPECT_STREQ(buf, "0000000042 ");
-}
-
-TEST(LogStringBuffer, AppendTimeHex)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.appendTime<TimeFormat::HEX>(255);
-    EXPECT_STREQ(buf, "FF ");
-}
-
-TEST(LogStringBuffer, AppendTimeHex8)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    sb.appendTime<TimeFormat::HEX_8>(0xDEADBEEF);
-    EXPECT_STREQ(buf, "DEADBEEF ");
-}
-
-TEST(LogStringBuffer, AppendTimeISO8601)
-{
-    char buf[128] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    // 1737366731209138 microseconds since epoch
-    // = 1737366731209 milliseconds
-    // = 1737366731 seconds -> 2025-01-20T09:52:11 UTC
-    // milliseconds remainder: 1737366731209 % 1000 = 209
-    sb.appendTime<TimeFormat::ISO8601>(1737366731209138ULL);
-    EXPECT_EQ(std::string(buf, sb.length()), "2025-01-20T09:52:11.209Z ");
-}
-
-// ---------------------------------------------------------------------------
-// 3. PrintfFormatter::format (string format overload)
-// ---------------------------------------------------------------------------
 
 TEST(PrintfFormatter, FormatBasicMessage)
 {
@@ -276,18 +81,30 @@ TEST(PrintfFormatter, FormatWithISO8601Time)
 TEST(PrintfFormatter, FormatTruncation)
 {
     // Very small buffer — not enough for the full message
-    char buf[10] = {};
+    char buf[32] = {};
     LogRecord record {};
     record.metadata.level = LogLevel::INFO;
     record.loggerName = "src";
     record.timestamp = 0;
 
-    std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "hello world this is long");
-    // The formatted output exceeds the buffer; snprintf returns the would-be length
-    // which causes _length to exceed _capacity. The buffer content is truncated.
-    // length() still returns the tracked _length (snprintf's return value sum).
-    // The key thing is no crash / no buffer overflow.
-    (void)len;
+    std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, "hello world this is too long %u", 42U);
+    std::string output(buf, len);
+
+    EXPECT_EQ(len, 31);
+    EXPECT_EQ(output, "I [src] -- hello world this is ");
+}
+
+TEST(PrintfFormatter, InvalidFormat)
+{
+    char buf[256] = {};
+    LogRecord record {};
+    record.metadata.level = LogLevel::ERROR;
+    record.loggerName = "src";
+    record.timestamp = 1737366731209138ULL;
+
+    std::size_t len = PrintfFormatter<TimeFormat::ISO8601>::format(buf, sizeof(buf), record, "invalid %z", 42U);
+    std::string output(buf, len);
+    EXPECT_EQ(len, 0U);
 }
 
 TEST(PrintfFormatter, FormatAllLogLevels)
@@ -310,10 +127,6 @@ TEST(PrintfFormatter, FormatAllLogLevels)
     }
 }
 
-// ---------------------------------------------------------------------------
-// 4. PrintfFormatter::format (resource-ID overload, unsupported)
-// ---------------------------------------------------------------------------
-
 TEST(PrintfFormatter, ResourceIdFormatReturnsMessage)
 {
     char buf[256] = {};
@@ -333,88 +146,4 @@ TEST(PrintfFormatter, ResourceIdFormatBufferTooSmall)
 
     std::size_t len = PrintfFormatter<TimeFormat::NONE>::format(buf, sizeof(buf), record, uint32_t {0});
     EXPECT_EQ(len, 0U);
-}
-
-// ---------------------------------------------------------------------------
-// 5. LogStringBuffer — edge-case coverage
-// ---------------------------------------------------------------------------
-
-TEST(LogStringBuffer, AppendTime_WhenInvalid_ReturnsEarly)
-{
-    // Make buffer invalid by overflowing with snprintf, then call appendTime
-    char buf[4] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-
-    // Fill buffer so snprintf sets _length > _capacity
-    sb.append("%d%d%d", 111, 222, 333);
-    // Now length() returns 0 because valid became false after snprintf wrote >_capacity chars
-    // Actually snprintf doesn't set valid=false on truncation, but _length > _capacity.
-    // Let's force invalid by triggering a strftime failure path instead.
-    // Use a tiny buffer so strftime returns 0 → sets valid = false.
-    char buf2[4] = {};
-    LogStringBuffer sb2(buf2, sizeof(buf2));
-    // Fill capacity first
-    sb2.append("ab");
-    // strftime into 0 remaining chars → returns 0 → valid = false
-    sb2.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
-    // Now sb2 is invalid; subsequent appendTime should return early
-    sb2.appendTime<TimeFormat::DECIMAL>(12345);
-    EXPECT_EQ(sb2.length(), 0U);
-}
-
-TEST(LogStringBuffer, AppendTimeISO8601_WhenInvalid_ReturnsEarly)
-{
-    char buf[4] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-    sb.append("ab");
-    // Make invalid via strftime failure
-    sb.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
-    // Now invalid — ISO8601 should return early
-    sb.appendTime<TimeFormat::ISO8601>(1737366731209138ULL);
-    EXPECT_EQ(sb.length(), 0U);
-}
-
-TEST(LogStringBuffer, EndLine_WhenBeyondCapacity_NoOp)
-{
-    char buf[4] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-    // Capacity is sizeof(buf)-1 = 3. Fill with snprintf that returns > 3
-    sb.append("%d", 123456);
-    // _length is now > _capacity (snprintf returned 6 but buffer is 3)
-    // endLine should be a no-op
-    sb.endLine();
-    // Verify no crash; length reflects the snprintf return value
-}
-
-TEST(LogStringBuffer, Append_WhenInvalid_NoOp)
-{
-    char buf[4] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-    sb.append("ab");
-    // Force invalid
-    sb.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
-    EXPECT_EQ(sb.length(), 0U);
-    // append with const char* should be a no-op when invalid
-    sb.append("more text");
-    EXPECT_EQ(sb.length(), 0U);
-}
-
-TEST(LogStringBuffer, AppendTime_StrftimeFails_SetsInvalid)
-{
-    // Use a buffer so small that strftime returns 0
-    char buf[4] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-    sb.append("ab");  // use up capacity
-    sb.appendTime("%Y-%m-%dT%H:%M:%S", 1737366731209ULL);
-    // strftime returns 0 → valid = false → length() returns 0
-    EXPECT_EQ(sb.length(), 0U);
-}
-
-TEST(LogStringBuffer, AppendTimeDecimal8_NoWrap)
-{
-    char buf[64] = {};
-    LogStringBuffer sb(buf, sizeof(buf));
-    // Value below wrap threshold (100000000)
-    sb.appendTime<TimeFormat::DECIMAL_8>(42);
-    EXPECT_STREQ(buf, "00000042 ");
 }

@@ -9,7 +9,7 @@ add_executable(
         AtomicBufferTest.cpp
         BufferSinkTest.cpp
         CborFormatterTest.cpp
-        ConsoleSinkTest.cpp
+        ConsoleWriterTest.cpp
         FilteredSinkTest.cpp
         ImmediateBufferTest.cpp
         LogContextTest.cpp
@@ -20,6 +20,7 @@ add_executable(
         LogRegistryTest.cpp
         NullSinkTest.cpp
         PrintfFormatterTest.cpp
+        StringBufferTest.cpp
         TypesTest.cpp
 )
 

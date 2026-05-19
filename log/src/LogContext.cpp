@@ -5,9 +5,6 @@
  */
 
 #include "se-oss/log/LogContext.h"
-#include "se-oss/log/sink/ILogSink.h"
-
-#include <cstdio>
 
 namespace se_oss {
 
@@ -24,16 +21,6 @@ void LogContext::writeMessage(std::size_t reserveSize, const std::function<std::
     }
 }
 
-bool LogContext::distributeSingleMessage() const
-{
-    return _buffer->read([&](const void* buffer, std::size_t size) {
-        LogHeader header {};
-        auto* bufferPosition = deserialize(header, buffer, size);
-        _sink.write(header.metadata, bufferPosition, header.messageLength);
-        return LogHeader::PACKED_SIZE + header.messageLength;
-    });
-}
-
 void LogContext::distributeMessages(std::size_t maxNumberOfMessages) const
 {
     if (log_detail::isImmediate()) {
@@ -44,6 +31,16 @@ void LogContext::distributeMessages(std::size_t maxNumberOfMessages) const
     for (size_t i = 0; i < maxNumberOfMessages && readSuccessful; ++i) {
         readSuccessful = distributeSingleMessage();
     }
+}
+
+bool LogContext::distributeSingleMessage() const
+{
+    return _buffer->read([&](const void* buffer, std::size_t size) {
+        LogHeader header {};
+        auto* bufferPosition = deserialize(header, buffer, size);
+        _sink.write(header.metadata, bufferPosition, header.messageLength);
+        return LogHeader::PACKED_SIZE + header.messageLength;
+    });
 }
 
 }  // namespace se_oss
