@@ -60,6 +60,7 @@ html_theme_options = {
 html_css_files = [
     'css/custom.css',
 ]
+html_extra_path = ["extra/google9cf079d8cd279935.html"]
 
 # -- LaTeX configuration --------------------------------------------------
 # https://www.sphinx-doc.org/en/master/latex.html
