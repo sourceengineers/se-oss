@@ -140,10 +140,11 @@ public:
             return;
         }
         auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MILLISECONDS_PER_SECOND);
-        const tm* time = gmtime(&epochSeconds);
+        tm time {};
+        auto* timeOutput = gmtime_r(&epochSeconds, &time);
         std::size_t length {0U};
-        if (time != nullptr) {
-            length = std::strftime(_buffer + _length, _capacity - _length, format, time);
+        if (timeOutput == &time) {
+            length = std::strftime(_buffer + _length, _capacity - _length, format, &time);
         }
 
         if (length == 0) {
