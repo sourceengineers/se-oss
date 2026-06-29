@@ -53,6 +53,6 @@ constexpr LogLevel MAX_LOG_LEVEL {LogLevel::TRACE};
 
 #else
 
-#include "../default_conf/UserLogConf.h"
+#include "default_conf/UserLogConf.h"
 
 #endif

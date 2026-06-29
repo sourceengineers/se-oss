@@ -22,6 +22,7 @@ constexpr const char* toString(MyLogContext component)
         case MyLogContext::CELLULAR: return "cell";
         case MyLogContext::WUFF: return "wuff";
         case MyLogContext::STORAGE: return "storage";
+        // no default needed
     }
     return "";
 }
@@ -38,6 +39,7 @@ constexpr const char* toString(MyLogSink sink)
     switch (sink) {
         case MyLogSink::SHELL: return "shell";
         case MyLogSink::FILE: return "file";
+        // no default needed
     }
     return "";
 }

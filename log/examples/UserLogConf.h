@@ -67,6 +67,9 @@ public:
         const Values&... values
     )
     {
+        if (buffer == nullptr || formatString == nullptr) {
+            return 0U;
+        }
         StringBuffer string {buffer, bufferSize};
         string.appendTime("%y%m%dT%H%M%S", record.timestamp);
         string.append("| %s | ", toString(record.metadata.level));
