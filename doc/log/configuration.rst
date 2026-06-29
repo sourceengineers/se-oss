@@ -96,7 +96,7 @@ The following parameters must be set in ``UserLogConf.h``:
      - Log levels above here will be included in the output binary.
      - ``LogLevel::TRACE``
 
-If using any other configration than default, provide the configration once per
+If using any other configuration than default, provide the configuration once per
 binary in one source file. Here's an example for using the ``PrintfFormatter``
 with a 2048 atomic byte buffer and a maximum message length of 256 bytes:
 

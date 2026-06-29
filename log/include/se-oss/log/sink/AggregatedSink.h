@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -34,6 +34,9 @@ public:
 
     void write(const LogMetadata& metadata, const void* data, size_t length) override
     {
+        if (data == nullptr || length == 0) {
+            return;
+        }
         for (const auto& sink : _sinks) {
             sink.second->write(metadata, data, length);
         }
@@ -54,7 +57,7 @@ public:
         _filter = nullptr;
     }
 
-    void setFilter(std::function<bool(const LogMetadata&)> filter) override
+    void setFilter(LogFilterFunction filter) override
     {
         _filter = filter;
         for (const auto& sink : _sinks) {
@@ -89,7 +92,7 @@ public:
 
 private:
     std::unordered_map<TSink, std::unique_ptr<ILogSink>> _sinks {};
-    std::function<bool(const LogMetadata&)> _filter {};
+    LogFilterFunction _filter {};
 };
 
 }  // namespace se_oss

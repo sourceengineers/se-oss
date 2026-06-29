@@ -65,7 +65,9 @@ Binary Serialization using CBOR
 -------------------------------
 
 .. note::
-    This formatter requires the ``SE_OSS_LOG_SUPPORT_CBOR`` CMake option.
+    This formatter requires the ``SE_OSS_LOG_SUPPORT_CBOR`` CMake option. se-oss will then use the `tinycbor`_ library by Intel (MIT license).
+
+.. _tinycbor: https://github.com/intel/tinycbor
 
 Printf-style is well suited for human readable output such as serial interfaces but formatting (especially floating points) can be costly.
 In complex applications tooling is used on the host system to parse and filter log messages.
@@ -75,6 +77,12 @@ This has the following advantages:
 * Metadata such as log level, tags and timestamp are preserved in a binary structure
 * Value formatting can be deferred from the target to the host system. The target just sends the format string and values as a structure.
 * CBOR serialization is often computationally cheaper than printf
+
+Concise Binary Object Representation (CBOR) is used for structured serialization because of its efficient encoding (e.g. in comparison to JSON) and well-defined encoding.
+You can find further information about CBOR on the `official CBOR website`_ and the `CBOR book`_.
+
+.. _official CBOR website: https://cbor.io/
+.. _CBOR book: https://cborbook.com/
 
 .. code-block:: c++
     :caption: UserLogConf.h

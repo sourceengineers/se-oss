@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -20,7 +20,7 @@ int main()
     se_oss::Logger log = logRegistry->createLogger(MyLogContext::CELLULAR);
 
     log.setLogLevel(se_oss::LogLevel::TRACE);
-    logRegistry->getContext(MyLogContext::CELLULAR).setLogLevel(se_oss::LogLevel::TRACE);
+    logRegistry->createOrGetContext(MyLogContext::CELLULAR).setLogLevel(se_oss::LogLevel::TRACE);
 
     LOG_TRACE(log, "trace");
     LOG_DEBUG(log, "debug");

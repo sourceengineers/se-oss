@@ -36,9 +36,6 @@ enum class LogSinks : uint8_t
     BUFFER_SINK
 };
 
-constexpr std::size_t LOG_BUFFER_SIZE {2048U};
-constexpr std::size_t LOG_MAX_MESSAGE_LENGTH {128U};
-
 // Helper to convert vector<uint8_t> to string
 std::string bufferToString(const std::vector<uint8_t>& buffer)
 {

@@ -18,8 +18,8 @@ TEST(LogHeader, Serialize_NullBuffer_ReturnsNull)
 TEST(LogHeader, Serialize_BufferTooSmall_ReturnsNull)
 {
     LogHeader header {};
-    uint8_t buffer[1] {};
-    EXPECT_EQ(serialize(header, buffer, 1), nullptr);
+    uint8_t buffer[4] {};
+    EXPECT_EQ(serialize(header, buffer, 4), nullptr);
 }
 
 TEST(LogHeader, Deserialize_NullBuffer_ReturnsNull)
@@ -31,8 +31,8 @@ TEST(LogHeader, Deserialize_NullBuffer_ReturnsNull)
 TEST(LogHeader, Deserialize_BufferTooSmall_ReturnsNull)
 {
     LogHeader header {};
-    uint8_t buffer[1] {};
-    EXPECT_EQ(deserialize(header, buffer, 1), nullptr);
+    uint8_t buffer[4] {};
+    EXPECT_EQ(deserialize(header, buffer, 4), nullptr);
 }
 
 TEST(LogHeader, SerializeDeserialize_RoundTrip)
@@ -57,4 +57,20 @@ TEST(LogHeader, SerializeDeserialize_RoundTrip)
     EXPECT_EQ(deserialized.metadata.contextTag, 42);
     EXPECT_EQ(deserialized.metadata.loggerTag, 7);
     EXPECT_EQ(deserialized.messageLength, 1234);
+}
+
+TEST(LogHeader, WriteValueDoesNotFit)
+{
+    std::array<uint8_t, 3> buffer {};
+    uint32_t value {42U};
+    EXPECT_EQ(writeValue(value, buffer.data(), buffer.end()), nullptr);
+    EXPECT_EQ(writeValue(value, nullptr, buffer.end()), nullptr);
+}
+
+TEST(LogHeader, ReaderValueDoesNotFit)
+{
+    std::array<uint8_t, 3> buffer {};
+    uint32_t value {42U};
+    EXPECT_EQ(readValue(value, buffer.data(), buffer.end()), nullptr);
+    EXPECT_EQ(readValue(value, nullptr, buffer.end()), nullptr);
 }

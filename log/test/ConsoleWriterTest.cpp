@@ -45,3 +45,13 @@ TEST_F(ConsoleWriterTest, Flush)
     // nothing happens when flushing in console mode
     sink.flush();
 }
+
+TEST_F(ConsoleWriterTest, InvalidInput)
+{
+    internal::CaptureStdout();
+    ConsoleWriter sink;
+
+    sink.write(nullptr, 0U);
+    auto output = internal::GetCapturedStdout();
+    EXPECT_EQ(output, "");
+}

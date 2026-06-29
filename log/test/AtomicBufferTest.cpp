@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -227,4 +227,18 @@ TEST_F(AtomicBufferTest, Read_ReaderAtWatermark_Resets)
     bool readResult = buffer.read([](const void*, size_t sz) { return sz; });
     EXPECT_TRUE(readResult);
     EXPECT_EQ(buffer.size(), 0);
+}
+
+TEST_F(AtomicBufferTest, NoProducer)
+{
+    AtomicBuffer<1024> buffer;
+    bool writeResult = buffer.write(10, nullptr);
+    EXPECT_FALSE(writeResult);
+}
+
+TEST_F(AtomicBufferTest, NoConsumer)
+{
+    AtomicBuffer<1024> buffer;
+    bool readResult = buffer.read(nullptr);
+    EXPECT_FALSE(readResult);
 }

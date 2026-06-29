@@ -27,11 +27,12 @@ protected:
 
     void callSink(LogLevel filter, LogLevel logLevel, bool expectCall)
     {
+        std::array<uint8_t, 128> dummyData {};
         LogMetadata metadata {};
         metadata.level = logLevel;
         _filteredSink.setLogLevel(filter);
         EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(expectCall ? 1 : 0);
-        _filteredSink.write(metadata, nullptr, 0U);
+        _filteredSink.write(metadata, dummyData.data(), dummyData.size());
         Mock::VerifyAndClearExpectations(&_filteredSink.inner());
     }
 
@@ -118,17 +119,31 @@ TEST_F(FilteredSinkTest, FilterOff)
 TEST_F(FilteredSinkTest, CustomFilter)
 {
     LogMetadata metadata {};
+    std::array<uint8_t, 128> dummyData {};
+
     _filteredSink.setFilter([](const auto& metadata) -> bool { return metadata.contextTag == 42; });
 
     metadata.contextTag = 1;
     EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(0);
-    _filteredSink.write(metadata, nullptr, 0U);
+    _filteredSink.write(metadata, dummyData.data(), dummyData.size());
     Mock::VerifyAndClearExpectations(&_filteredSink.inner());
 
     metadata.contextTag = 42;
     EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(1);
-    _filteredSink.write(metadata, nullptr, 1U);
+    _filteredSink.write(metadata, dummyData.data(), dummyData.size());
     Mock::VerifyAndClearExpectations(&_filteredSink.inner());
+}
+
+TEST_F(FilteredSinkTest, InvalidBuffer)
+{
+    std::array<uint8_t, 128> dummyData {};
+
+    LogMetadata metadata {};
+    EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(0);
+    _filteredSink.write(metadata, dummyData.data(), 0U);
+
+    EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(0);
+    _filteredSink.write(metadata, nullptr, dummyData.size());
 }
 
 TEST_F(FilteredSinkTest, Flush)

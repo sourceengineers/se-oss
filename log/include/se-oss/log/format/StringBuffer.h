@@ -52,7 +52,7 @@ public:
         if (!_valid || string == nullptr) {
             return;
         }
-        std::size_t copyLength = std::min(std::strlen(string), _capacity - _length - TERMINATION_LENGTH);
+        std::size_t copyLength = strnlen(string, _capacity - _length - TERMINATION_LENGTH);
         std::copy_n(string, copyLength, _buffer + _length);
         _length += copyLength;
         _buffer[_length] = TERMINATION_CHARACTER;
@@ -61,7 +61,7 @@ public:
     template<typename... Values>
     void append(const char* const formatString, const Values&... values)
     {
-        if (!_valid) {
+        if (formatString == nullptr || !_valid) {
             return;
         }
         int32_t length = std::snprintf(_buffer + _length, _capacity - _length, formatString, values...);
@@ -136,18 +136,17 @@ public:
     void appendTime(const char* format, uint64_t timestampMilliseconds)
     {
         static constexpr std::uint64_t MILLISECONDS_PER_SECOND {1000ULL};
-        if (!_valid) {
+        if (format == nullptr || !_valid) {
             return;
         }
         auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MILLISECONDS_PER_SECOND);
         tm time {};
-        if (gmtime_r(&epochSeconds, &time) != &time) {
-            _valid = false;
-            _buffer[_length] = TERMINATION_CHARACTER;
-            return;
+        auto* timeOutput = gmtime_r(&epochSeconds, &time);
+        std::size_t length {0U};
+        if (timeOutput == &time) {
+            length = std::strftime(_buffer + _length, _capacity - _length, format, &time);
         }
 
-        std::size_t length = std::strftime(_buffer + _length, _capacity - _length, format, &time);
         if (length == 0) {
             _valid = false;
             _buffer[_length] = TERMINATION_CHARACTER;

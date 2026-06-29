@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -56,6 +56,10 @@ public:
     static size_t
     format(void* buffer, std::size_t bufferSize, const LogRecord& record, TFormat formatString, const Values&... values)
     {
+        if (buffer == nullptr) {
+            return 0U;
+        }
+
         auto* byteBuffer = static_cast<uint8_t*>(buffer);
         CborEncoder encoder;
         CborEncoder mapEncoder;
@@ -65,10 +69,10 @@ public:
         cbor_encoder_init(&encoder, byteBuffer, bufferSize, 0);
         cbor_encoder_create_map(&encoder, &mapEncoder, 5U + (nValues > 0U ? 1U : 0U));
 
-        encodeRecord(&mapEncoder, record);
-        encodeFormatString(&mapEncoder, formatString);
+        encodeRecord(mapEncoder, record);
+        encodeFormatString(mapEncoder, formatString);
 
-        serializeValues(&mapEncoder, std::forward<const Values&>(values)...);
+        serializeValues(mapEncoder, std::forward<const Values&>(values)...);
 
         auto result = cbor_encoder_close_container(&encoder, &mapEncoder);
 
@@ -81,88 +85,88 @@ public:
 
 private:
     template<typename... Values>
-    static void serializeValues(CborEncoder* encoder, const Values&... values)
+    static void serializeValues(CborEncoder& encoder, const Values&... values)
     {
         CborEncoder arrayEncoder;
         size_t nValues = sizeof...(Values);
 
-        cbor_encode_uint(encoder, toUint(CborLogKeys::VALUES));
-        cbor_encoder_create_array(encoder, &arrayEncoder, nValues);
+        cbor_encode_uint(&encoder, toUint(CborLogKeys::VALUES));
+        cbor_encoder_create_array(&encoder, &arrayEncoder, nValues);
         // Workaround for missing fold expression in C++14
-        std::array<CborError, sizeof...(Values)> errors[] {(encodeValue(&arrayEncoder, values))...};
+        std::array<CborError, sizeof...(Values)> errors[] {(encodeValue(arrayEncoder, values))...};
         (void)errors;
-        cbor_encoder_close_container(encoder, &arrayEncoder);
+        cbor_encoder_close_container(&encoder, &arrayEncoder);
     }
 
-    static void serializeValues(CborEncoder*)
+    static void serializeValues(CborEncoder&)
     {
         // no value to serialize
     }
 
     template<typename T>
     static std::enable_if_t<std::is_unsigned<T>::value && !std::is_same<T, bool>::value, CborError>
-    encodeValue(CborEncoder* encoder, T value)
+    encodeValue(CborEncoder& encoder, T value)
     {
-        return cbor_encode_uint(encoder, value);
+        return cbor_encode_uint(&encoder, value);
     }
 
     template<typename T>
     static std::enable_if_t<std::is_signed<T>::value && !std::is_floating_point<T>::value, CborError>
-    encodeValue(CborEncoder* encoder, T value)
+    encodeValue(CborEncoder& encoder, T value)
     {
-        return cbor_encode_int(encoder, value);
+        return cbor_encode_int(&encoder, value);
     }
 
     template<typename T>
-    static std::enable_if_t<std::is_same<T, bool>::value, CborError> encodeValue(CborEncoder* encoder, T value)
+    static std::enable_if_t<std::is_same<T, bool>::value, CborError> encodeValue(CborEncoder& encoder, T value)
     {
-        return cbor_encode_boolean(encoder, value);
+        return cbor_encode_boolean(&encoder, value);
     }
 
     template<typename T>
-    static std::enable_if_t<std::is_same<T, float>::value, CborError> encodeValue(CborEncoder* encoder, T value)
+    static std::enable_if_t<std::is_same<T, float>::value, CborError> encodeValue(CborEncoder& encoder, T value)
     {
-        return cbor_encode_float(encoder, value);
+        return cbor_encode_float(&encoder, value);
     }
 
     template<typename T>
-    static std::enable_if_t<std::is_same<T, double>::value, CborError> encodeValue(CborEncoder* encoder, T value)
+    static std::enable_if_t<std::is_same<T, double>::value, CborError> encodeValue(CborEncoder& encoder, T value)
     {
-        return cbor_encode_double(encoder, value);
+        return cbor_encode_double(&encoder, value);
     }
 
     template<typename T>
     static std::enable_if_t<std::is_same<T, const char*>::value || std::is_same<T, char*>::value, CborError>
-    encodeValue(CborEncoder* encoder, T value)
+    encodeValue(CborEncoder& encoder, T value)
     {
-        return cbor_encode_text_stringz(encoder, value);
+        return cbor_encode_text_stringz(&encoder, value);
     }
 
-    static void encodeFormatString(CborEncoder* encoder, const char* formatString)
+    static void encodeFormatString(CborEncoder& encoder, const char* formatString)
     {
-        cbor_encode_uint(encoder, toUint(CborLogKeys::MESSAGE_STRING));
-        cbor_encode_text_stringz(encoder, formatString);
+        cbor_encode_uint(&encoder, toUint(CborLogKeys::MESSAGE_STRING));
+        cbor_encode_text_stringz(&encoder, formatString);
     }
 
-    static void encodeFormatString(CborEncoder* encoder, uint32_t formatStringId)
+    static void encodeFormatString(CborEncoder& encoder, uint32_t formatStringId)
     {
-        cbor_encode_uint(encoder, toUint(CborLogKeys::MESSAGE_ID));
-        cbor_encode_uint(encoder, formatStringId);
+        cbor_encode_uint(&encoder, toUint(CborLogKeys::MESSAGE_ID));
+        cbor_encode_uint(&encoder, formatStringId);
     }
 
-    static void encodeRecord(CborEncoder* encoder, const LogRecord& record)
+    static void encodeRecord(CborEncoder& encoder, const LogRecord& record)
     {
-        cbor_encode_uint(encoder, toUint(CborLogKeys::TIMESTAMP));
-        cbor_encode_uint(encoder, record.timestamp);
+        cbor_encode_uint(&encoder, toUint(CborLogKeys::TIMESTAMP));
+        cbor_encode_uint(&encoder, record.timestamp);
 
-        cbor_encode_uint(encoder, toUint(CborLogKeys::LOG_LEVEL));
-        cbor_encode_uint(encoder, toUint(record.metadata.level));
+        cbor_encode_uint(&encoder, toUint(CborLogKeys::LOG_LEVEL));
+        cbor_encode_uint(&encoder, toUint(record.metadata.level));
 
-        cbor_encode_uint(encoder, toUint(CborLogKeys::CONTEXT_TAG));
-        cbor_encode_uint(encoder, record.metadata.contextTag);
+        cbor_encode_uint(&encoder, toUint(CborLogKeys::CONTEXT_TAG));
+        cbor_encode_uint(&encoder, record.metadata.contextTag);
 
-        cbor_encode_uint(encoder, toUint(CborLogKeys::LOGGER_TAG));
-        cbor_encode_uint(encoder, record.metadata.loggerTag);
+        cbor_encode_uint(&encoder, toUint(CborLogKeys::LOGGER_TAG));
+        cbor_encode_uint(&encoder, record.metadata.loggerTag);
     }
 };
 }  // namespace se_oss

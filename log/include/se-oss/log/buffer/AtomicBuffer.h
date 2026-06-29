@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -17,12 +17,13 @@ namespace se_oss {
 /**
  * Thread-safe Single Producer Single Consumer (SPSC) circular buffer.
  *
- * This buffer is designed for lock-free communication between a producer and a background thread (consumer).
+ * This buffer is designed for lock-free communication between one single producer and one single background thread (consumer).
+ * Note that the read and write access are non-reentrant.
  *
  * Based on the lock-free ring-buffer by ferrous systems: https://ferrous-systems.com/blog/lock-free-ring-buffer/
  *
  * @note The buffer only requires that a single read and write instruction on the memory bus is atomic.
- * There is no need for an atomic compare-and-swap chain. Hence, the buffer is thread-safe on plattforms
+ * There is no need for an atomic compare-and-swap chain. Hence, the buffer is thread-safe on platforms
  * which do not support `std::atomic` as long as the `size_t` memory bus access is atomic.
  *
  * @tparam SIZE The size of the buffer in bytes.
@@ -68,13 +69,16 @@ public:
 
     bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
     {
+        if (producer == nullptr) {
+          return false;
+        }
         auto writer = _writer.load();
         auto reader = _reader.load();
         auto watermark = _watermark.load();
         bool updateWatermark {false};
 
         // writer is behind reader -> check size up to reader
-        if (writer < reader && reader - writer <= reserveSize) {
+        if ((writer < reader) && (reader - writer <= reserveSize)) {
             return false;
         }
         // writer is ahead of reader -> check size up to watermark
@@ -102,6 +106,9 @@ public:
 
     bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) override
     {
+        if (consumer == nullptr) {
+          return false;
+        }
         auto writer = _writer.load();
         auto reader = _reader.load();
         auto watermark = _watermark.load();

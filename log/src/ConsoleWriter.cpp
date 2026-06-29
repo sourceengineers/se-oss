@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -15,6 +15,10 @@ ConsoleWriter::ConsoleWriter(bool hexOutput) : _hexOutput {hexOutput} { }
 
 void ConsoleWriter::write(const void* data, size_t length)
 {
+    if (data == nullptr || length == 0) {
+        return;
+    }
+
     if (!_hexOutput) {
         std::fwrite(data, sizeof(char), length, stdout);
     } else {

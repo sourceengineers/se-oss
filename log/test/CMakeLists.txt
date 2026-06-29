@@ -1,4 +1,5 @@
-# Copyright (c) 2025 Source Engineers GmbH
+# Copyright (c) 2025 Source Engineers GmbH, Switzerland
+# Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
 # SPDX-License-Identifier: MIT
 
 enable_testing()

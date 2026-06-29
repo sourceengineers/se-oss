@@ -89,7 +89,6 @@ TEST_F(LogRegistryCustomTest, GetTime_NoProvider_ReturnsZero)
     Logger logger = _registry->createLogger(TestContexts::COMP_A);
     logger.setLogLevel(LogLevel::TRACE);
     logger.log(LogLevel::INFO, "time check");
-    _registry->distributeMessages();
 
     // The timestamp in the output should reflect 0 (no time provider)
     // We just verify no crash and that some output was produced
@@ -123,4 +122,12 @@ TEST_F(LogRegistryCustomTest, DistributeMessages_IteratesAllContexts)
     std::string content(_buffer.begin(), _buffer.end());
     EXPECT_NE(content.find("from A"), std::string::npos);
     EXPECT_NE(content.find("from B"), std::string::npos);
+}
+
+TEST_F(LogRegistryCustomTest, InvalidSink)
+{
+    Logger loggerA = _registry->createLogger(TestContexts::COMP_A);
+    _registry->attachSink(TestSinks::SINK_A, nullptr);
+    // sink must not have changed because it's invalid
+    EXPECT_NE(&_registry->getSink(TestSinks::SINK_A), nullptr);
 }

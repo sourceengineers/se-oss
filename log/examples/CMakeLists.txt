@@ -7,7 +7,12 @@ option(SE_OSS_LOG_EXAMPLE_DEFERRED "Compile se-log benchmarks" OFF)
 if (${SE_OSS_LOG_EXAMPLE_DEFERRED})
 
     add_library(se_oss_log_conf INTERFACE)
-    target_include_directories(se_oss_log_conf INTERFACE ${CMAKE_CURRENT_LIST_DIR}/deferred_conf)
+    target_include_directories(
+            se_oss_log_conf
+            INTERFACE
+            ${CMAKE_CURRENT_LIST_DIR}/deferred_conf
+            ${CMAKE_SOURCE_DIR}/log
+    )
 
     add_executable(example_log_printf log_printf.cpp)
     target_compile_definitions(example_log_printf PUBLIC FORMAT_PRINTF)
@@ -36,7 +41,12 @@ if (${SE_OSS_LOG_EXAMPLE_DEFERRED})
 else ()
 
     add_library(se_oss_log_conf INTERFACE)
-    target_include_directories(se_oss_log_conf INTERFACE ${CMAKE_CURRENT_LIST_DIR}/immediate_conf)
+    target_include_directories(
+            se_oss_log_conf
+            INTERFACE
+            ${CMAKE_CURRENT_LIST_DIR}/immediate_conf
+            ${CMAKE_SOURCE_DIR}/log
+    )
 
     add_executable(example_log_minimal log_minimal.cpp)
     target_link_libraries(example_log_minimal PRIVATE se_oss::log)

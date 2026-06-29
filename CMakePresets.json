@@ -34,12 +34,7 @@
             "name": "gcc-x86_64",
             "inherits": "base",
             "displayName": "Host toolchain",
-            "generator": "Ninja",
-            "vendor": {
-                "jetbrains.com/clion": {
-                    "toolchain": "Docker ARM Cortex-M"
-                }
-            }
+            "generator": "Ninja"
         },
         {
             "name": "ci-host",

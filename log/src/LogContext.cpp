@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -12,11 +12,12 @@ void LogContext::writeMessage(std::size_t reserveSize, const std::function<std::
 {
     bool writeSuccessful = _buffer.write(reserveSize, producer);
 
+    bool readSuccessful {false};
     if (writeSuccessful && log_detail::is_immediate_buffer<log_conf::Buffer>::value) {
-        (void)distributeSingleMessage();
+        readSuccessful = distributeSingleMessage();
     }
 
-    if (!writeSuccessful) {
+    if (!writeSuccessful || !readSuccessful) {
         _statistics.droppedMessages++;
     }
 }

@@ -11,8 +11,6 @@
 
 namespace se_oss {
 
-using FilterFunction = std::function<bool(const LogMetadata&)>;
-
 class LogFilter : public ILogFilter
 {
 public:
@@ -40,11 +38,11 @@ public:
         _filter = [level](LogMetadata metadata) { return metadata.level >= level; };
     }
 
-    void setFilter(std::function<bool(const LogMetadata&)> filter) override { _filter = filter; }
+    void setFilter(LogFilterFunction filter) override { _filter = filter; }
 
 
 private:
-    FilterFunction _filter {[](const auto&) -> bool { return true; }};
+    LogFilterFunction _filter {[](const auto&) -> bool { return true; }};
 };
 
 } // namespace se_oss

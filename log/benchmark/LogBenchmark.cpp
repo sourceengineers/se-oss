@@ -30,18 +30,18 @@ auto se_oss::logConf<>()
 }
 #endif
 
-static se_oss::Logger* LOG {nullptr};
-static se_oss::LogRegistry<> LOG_REGISTRY {};
+static se_oss::Logger* log {nullptr};
+static se_oss::LogRegistry<> log_registry {};
 
 static void setup(const benchmark::State&)
 {
-    if (LOG == nullptr) {
+    if (log == nullptr) {
         // override default sink
-        LOG_REGISTRY.attachSink(
+        log_registry.attachSink(
             se_oss::DefaultLogSinks::CONSOLE,
             std::make_unique<se_oss::FilteredSink<se_oss::NullSink>>()
         );
-        LOG = &LOG_REGISTRY.createOrGetLogger(se_oss::DefaultLogComponents::DEFAULT);
+        log = &log_registry.createOrGetLogger(se_oss::DefaultLogComponents::DEFAULT);
     }
 }
 
@@ -49,9 +49,9 @@ static void log_uint(benchmark::State& state)
 {
     for (auto _ : state) {
         for (int i = 1; i <= 1000; i++) {
-            LOG_INFO(*LOG, "formatting a value %u", i);
+            LOG_INFO(*log, "formatting a value %u", i);
             if (i % 10 == 0) {
-                LOG_REGISTRY.distributeMessages();
+                log_registry.distributeMessages();
             }
         }
     }
@@ -61,9 +61,9 @@ static void log_float(benchmark::State& state)
 {
     for (auto _ : state) {
         for (int i = 1; i <= 1000; i++) {
-            LOG_INFO(*LOG, "formatting a value %f", static_cast<float>(i));
+            LOG_INFO(*log, "formatting a value %f", static_cast<float>(i));
             if (i % 10 == 0) {
-                LOG_REGISTRY.distributeMessages();
+                log_registry.distributeMessages();
             }
         }
     }

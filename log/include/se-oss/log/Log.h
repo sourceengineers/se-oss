@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2025 Source Engineers GmbH
- *
+ * Copyright (c) 2025 Source Engineers GmbH, Switzerland
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
@@ -238,7 +238,7 @@ public:
 
     // ILogFilter realization
     void setLogLevel(LogLevel level) override { return _context.setLogLevel(level); }
-    void setFilter(std::function<bool(const LogMetadata&)> filter) override { return _context.setFilter(filter); }
+    void setFilter(LogFilterFunction filter) override { return _context.setFilter(filter); }
 
 private:
     LogContext& _context;
@@ -264,20 +264,28 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
         return;
     }
 
-    _context.writeMessage(log_conf::MAX_MESSAGE_LENGTH + LogHeader::PACKED_SIZE, [&](void* buffer, std::size_t size) {
-        uint8_t* byteBuffer = static_cast<uint8_t*>(buffer) + LogHeader::PACKED_SIZE;
-        std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
-        std::size_t bytesWritten =
-            log_conf::Formatter::format(byteBuffer, usableBufferSize, record, format, std::forward<const Values>(values)...);
-        if (bytesWritten > 0U) {
+    // Function used to serialize a log record into a reserved space provided by the buffer
+    auto logSerializerFunction = [&](void* buffer, std::size_t size) -> std::size_t {
+        std::size_t bytesWritten {0U};
+
+        if (buffer != nullptr && size > LogHeader::PACKED_SIZE) {
+            auto* byteBuffer = static_cast<uint8_t*>(buffer);
+            std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
+            std::size_t messageLength =
+                log_conf::Formatter::format(byteBuffer + LogHeader::PACKED_SIZE, usableBufferSize, record, format, std::forward<const Values>(values)...);
+
             LogHeader header {};
             header.metadata = record.metadata;
-            header.messageLength = bytesWritten;
-            (void)serialize(header, buffer, LogHeader::PACKED_SIZE);
-            bytesWritten += LogHeader::PACKED_SIZE;
+            header.messageLength = messageLength;
+            auto* headerEnd = serialize(header, byteBuffer, LogHeader::PACKED_SIZE);
+
+            if (messageLength > 0U && headerEnd != nullptr) {
+                bytesWritten = messageLength + LogHeader::PACKED_SIZE;
+            }
         }
         return bytesWritten;
-    });
+    };
+    _context.writeMessage(log_conf::MAX_MESSAGE_LENGTH + LogHeader::PACKED_SIZE, logSerializerFunction);
 }
 
 inline LogRecord Logger::createRecord(LogLevel level) const
@@ -285,6 +293,7 @@ inline LogRecord Logger::createRecord(LogLevel level) const
     LogRecord record {};
     record.metadata.level = level;
     record.metadata.contextTag = _context.contextTag();
+    record.metadata.loggerTag = _logTag;
     record.loggerName = _name;
     record.timestamp = _context.time();
     return record;
