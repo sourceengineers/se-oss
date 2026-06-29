@@ -171,7 +171,10 @@ private:
     }
 
     template<typename T = TSink>
-    std::enable_if_t<!std::is_same<T, DefaultLogSink>::value, void> createDefaultSinkIfNeeded() const { }
+    std::enable_if_t<!std::is_same<T, DefaultLogSink>::value, void> createDefaultSinkIfNeeded() const
+    {
+        static_cast<void>(this);
+    }
 
     template<typename T = DefaultLogSink>
     std::enable_if_t<std::is_same<T, DefaultLogSink>::value, void> createDefaultSinkIfNeeded()
