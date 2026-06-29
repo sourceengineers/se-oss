@@ -37,6 +37,9 @@ public:
         const Values&... values
     )
     {
+        if (buffer == nullptr || formatString == nullptr) {
+          return 0U;
+        }
         StringBuffer string {buffer, bufferSize};
         string.appendTime<TIME_STRING>(record.timestamp);
         string.append("%s ", toShortString(record.metadata.level));
@@ -57,7 +60,7 @@ public:
     template<typename... Values>
     static size_t format(void* buffer, std::size_t bufferSize, const LogRecord&, uint32_t, const Values&...)
     {
-        if (bufferSize < sizeof(FEATURE_NOT_SUPPORTED_MESSAGE)) {
+        if (buffer == nullptr || bufferSize < sizeof(FEATURE_NOT_SUPPORTED_MESSAGE)) {
             return 0U;
         }
 

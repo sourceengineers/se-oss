@@ -10,7 +10,6 @@
 #include "sink/AggregatedSink.h"
 #include "sink/ConsoleSink.h"
 
-#include <cassert>
 #include <memory>
 #include <unordered_map>
 
@@ -57,6 +56,10 @@ template<typename TContext = DefaultLogContext, typename TSink = DefaultLogSink>
 class LogRegistry
 {
 public:
+    static_assert(std::is_enum<TContext>::value, "TContext must be an enum type");
+    static_assert(std::is_same<std::underlying_type_t<TContext>, uint8_t>::value, "TContext underlying type must be uint8_t");
+    static_assert(std::is_enum<TSink>::value, "TSink must be an enum type");
+
     LogRegistry() = default;
     ~LogRegistry() = default;
     LogRegistry(const LogRegistry&) = delete;
@@ -65,21 +68,32 @@ public:
     LogRegistry& operator=(LogRegistry&&) = delete;
 
     /**
-     * Creates or retrieves a logger for a specific component.
+     * Creates a logger for a specific component.
      *
-     * If the logger for the given component does not exist, it is created.
+     * If the log context for the given context identifier does not exist, it is created.
      *
-     * @note this function will allocate memory when a logger was not yet
+     * @note this function will allocate memory when a log context was not yet
      *       created, i.e., on the first call only.
      *
      * @param context The component identifier.
-     * @return Reference to the Logger instance.
+     * @return A new logger instance.
      */
-    Logger createLogger(TContext context) { return Logger {getContext(context)}; }
+    Logger createLogger(TContext context) { return Logger {createOrGetContext(context)}; }
 
-    LogContext& getContext(TContext context)
+    /**
+     * Creates or gets a log context from the registry, i.e., for setting a context filter
+     *
+     * If the log context for the given context identifier does not exist, it is created.
+     *
+     * @note this function will allocate memory when a log context was not yet
+     *       created, i.e., on the first call only.
+     *
+     * @param context Context identifier
+     * @return Reference to the requested context
+     */
+    LogContext& createOrGetContext(TContext context)
     {
-        assert(checkSinkHandler<TSink>());
+        createDefaultSinkIfNeeded<TSink>();
 
         if (_logContexts.find(context) == _logContexts.end()) {
             _logContexts.emplace(
@@ -106,7 +120,9 @@ public:
      */
     void attachSink(TSink id, std::unique_ptr<ILogSink> sink)
     {
-        assert(sink != nullptr);
+        if (sink == nullptr) {
+            return;
+        }
         _sinkHandler.attachSink(id, std::move(sink));
     }
 
@@ -155,19 +171,15 @@ private:
     }
 
     template<typename T = TSink>
-    std::enable_if_t<!std::is_same<T, DefaultLogSink>::value, bool> checkSinkHandler() const
-    {
-        return !_sinkHandler.empty();
-    }
+    std::enable_if_t<!std::is_same<T, DefaultLogSink>::value, void> createDefaultSinkIfNeeded() const { }
 
     template<typename T = DefaultLogSink>
-    std::enable_if_t<std::is_same<T, DefaultLogSink>::value, bool> checkSinkHandler()
+    std::enable_if_t<std::is_same<T, DefaultLogSink>::value, void> createDefaultSinkIfNeeded()
     {
         // In case of the default logger create the console sink ad hoc
         if (_sinkHandler.empty()) {
             attachSink(DefaultLogSink::CONSOLE, std::make_unique<ConsoleSink>());
         }
-        return true;
     }
 };
 

@@ -48,7 +48,7 @@ public:
 
     // ILogFilter implementation
     void setLogLevel(LogLevel level) override = 0;
-    void setFilter(std::function<bool(const LogMetadata&)> filter) override = 0;
+    void setFilter(LogFilterFunction filter) override = 0;
 };
 
 /**

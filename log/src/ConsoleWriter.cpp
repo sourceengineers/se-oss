@@ -15,6 +15,10 @@ ConsoleWriter::ConsoleWriter(bool hexOutput) : _hexOutput {hexOutput} { }
 
 void ConsoleWriter::write(const void* data, size_t length)
 {
+    if (data == nullptr || length == 0) {
+        return;
+    }
+
     if (!_hexOutput) {
         std::fwrite(data, sizeof(char), length, stdout);
     } else {

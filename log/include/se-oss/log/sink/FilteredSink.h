@@ -44,6 +44,9 @@ public:
 
     void write(const LogMetadata& metadata, const void* data, std::size_t length) override
     {
+        if (data == nullptr || length == 0) {
+            return;
+        }
         if (!_filter.passesFilter(metadata)) {
             return;
         }
