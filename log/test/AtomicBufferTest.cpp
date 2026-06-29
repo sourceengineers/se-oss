@@ -228,3 +228,17 @@ TEST_F(AtomicBufferTest, Read_ReaderAtWatermark_Resets)
     EXPECT_TRUE(readResult);
     EXPECT_EQ(buffer.size(), 0);
 }
+
+TEST_F(AtomicBufferTest, NoProducer)
+{
+    AtomicBuffer<1024> buffer;
+    bool writeResult = buffer.write(10, nullptr);
+    EXPECT_FALSE(writeResult);
+}
+
+TEST_F(AtomicBufferTest, NoConsumer)
+{
+    AtomicBuffer<1024> buffer;
+    bool readResult = buffer.read(nullptr);
+    EXPECT_FALSE(readResult);
+}
