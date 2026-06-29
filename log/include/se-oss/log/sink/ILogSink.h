@@ -61,22 +61,39 @@ struct LogHeader
     uint16_t messageLength {0U}; /**< Length of the message payload. */
 };
 
+template<typename T>
+constexpr uint8_t* writeValue(const T& value, uint8_t* writer, const uint8_t* bufferEnd)
+{
+    if (writer == nullptr || static_cast<std::size_t>(bufferEnd - writer) < sizeof(T)) {
+        return nullptr;
+    }
+    std::memcpy(writer, &value, sizeof(T));
+    return writer + sizeof(T);
+}
+
+template<typename T>
+constexpr const uint8_t* readValue(T& value, const uint8_t* reader, const uint8_t* bufferEnd)
+{
+    if (reader == nullptr || static_cast<std::size_t>(bufferEnd - reader) < sizeof(T)) {
+        return nullptr;
+    }
+    std::memcpy(&value, reader, sizeof(T));
+    return reader + sizeof(T);
+}
+
 constexpr void* serialize(const LogHeader& header, void* buffer, std::size_t bufferSize)
 {
     if (buffer == nullptr || bufferSize < LogHeader::PACKED_SIZE) {
         return nullptr;
     }
 
-    auto* byteBuffer = static_cast<uint8_t*>(buffer);
-    std::memcpy(byteBuffer, &header.metadata.level, sizeof(header.metadata.level));
-    byteBuffer += sizeof(header.metadata.level);
-    std::memcpy(byteBuffer, &header.metadata.contextTag, sizeof(header.metadata.contextTag));
-    byteBuffer += sizeof(header.metadata.contextTag);
-    std::memcpy(byteBuffer, &header.metadata.loggerTag, sizeof(header.metadata.loggerTag));
-    byteBuffer += sizeof(header.metadata.loggerTag);
-    std::memcpy(byteBuffer, &header.messageLength, sizeof(header.messageLength));
-    byteBuffer += sizeof(header.messageLength);
-    return byteBuffer;
+    auto* writer = static_cast<uint8_t*>(buffer);
+    const auto* bufferEnd = writer + bufferSize;
+    writer = writeValue(header.metadata.level, writer, bufferEnd);
+    writer = writeValue(header.metadata.contextTag, writer, bufferEnd);
+    writer = writeValue(header.metadata.loggerTag, writer, bufferEnd);
+    writer = writeValue(header.messageLength, writer, bufferEnd);
+    return writer;
 }
 
 constexpr const void* deserialize(LogHeader& header, const void* buffer, std::size_t bufferSize)
@@ -84,16 +101,13 @@ constexpr const void* deserialize(LogHeader& header, const void* buffer, std::si
     if (buffer == nullptr || bufferSize < LogHeader::PACKED_SIZE) {
         return nullptr;
     }
-    auto* byteBuffer = static_cast<const uint8_t*>(buffer);
-    std::memcpy(&header.metadata.level, buffer, sizeof(header.metadata.level));
-    byteBuffer += sizeof(header.metadata.level);
-    std::memcpy(&header.metadata.contextTag, byteBuffer, sizeof(header.metadata.contextTag));
-    byteBuffer += sizeof(header.metadata.contextTag);
-    std::memcpy(&header.metadata.loggerTag, byteBuffer, sizeof(header.metadata.loggerTag));
-    byteBuffer += sizeof(header.metadata.loggerTag);
-    std::memcpy(&header.messageLength, byteBuffer, sizeof(header.messageLength));
-    byteBuffer += sizeof(header.messageLength);
-    return byteBuffer;
+    auto* reader = static_cast<const uint8_t*>(buffer);
+    const auto* bufferEnd = reader + bufferSize;
+    reader = readValue(header.metadata.level, reader, bufferEnd);
+    reader = readValue(header.metadata.contextTag, reader, bufferEnd);
+    reader = readValue(header.metadata.loggerTag, reader, bufferEnd);
+    reader = readValue(header.messageLength, reader, bufferEnd);
+    return reader;
 }
 
 }  // namespace se_oss
