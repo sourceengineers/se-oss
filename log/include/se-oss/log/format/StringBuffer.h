@@ -68,12 +68,12 @@ public:
         if (length < 0) {
             _valid = false;
             _buffer[_length] = TERMINATION_CHARACTER;
-        } else if (_length + length >= _capacity) {
+        } else if (_length + static_cast<std::size_t>(length) >= _capacity) {
             // snprintf truncated the string in _buffer but returned the length as if it was formatted successfully
             // So, we need to truncate the length manually.
             _length = _capacity - TERMINATION_LENGTH;
         } else {
-            _length += length;
+            _length += static_cast<std::size_t>(length);
         }
     }
 
