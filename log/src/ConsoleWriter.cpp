@@ -22,7 +22,7 @@ void ConsoleWriter::write(const void* data, size_t length)
     if (!_hexOutput) {
         std::fwrite(data, sizeof(char), length, stdout);
     } else {
-        auto byteData = static_cast<const uint8_t*>(data);
+        const auto* byteData = static_cast<const uint8_t*>(data);
         for (size_t i = 0; i < length; ++i) {
             std::printf("%02X", byteData[i]);
         }
