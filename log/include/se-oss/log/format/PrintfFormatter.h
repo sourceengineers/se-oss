@@ -60,6 +60,12 @@ public:
     template<typename... Values>
     static size_t format(void* buffer, std::size_t bufferSize, const LogRecord&, uint32_t, const Values&...)
     {
+        // Note: declared at block scope on purpose. As a static constexpr class member this array would need an
+        //       additional out-of-line definition to be ODR-usable in C++14, which C++17 no longer requires.
+        static constexpr char FEATURE_NOT_SUPPORTED_MESSAGE[] {
+            "Printf formatting does not support string replacement\n"
+        };
+
         if (buffer == nullptr || bufferSize < sizeof(FEATURE_NOT_SUPPORTED_MESSAGE)) {
             return 0U;
         }
@@ -68,8 +74,5 @@ public:
         std::copy_n(FEATURE_NOT_SUPPORTED_MESSAGE, sizeof(FEATURE_NOT_SUPPORTED_MESSAGE), stringBuffer);
         return sizeof(FEATURE_NOT_SUPPORTED_MESSAGE);
     }
-
-private:
-    static constexpr char FEATURE_NOT_SUPPORTED_MESSAGE[] {"Printf formatting does not support string replacement\n"};
 };
 }  // namespace se_oss
