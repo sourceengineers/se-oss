@@ -52,7 +52,7 @@ public:
         if (!_valid || string == nullptr) {
             return;
         }
-        std::size_t copyLength = strnlen(string, _capacity - _length - TERMINATION_LENGTH);
+        std::size_t copyLength = boundedLength(string, _capacity - _length - TERMINATION_LENGTH);
         std::copy_n(string, copyLength, _buffer + _length);
         _length += copyLength;
         _buffer[_length] = TERMINATION_CHARACTER;
@@ -86,7 +86,7 @@ public:
     template<TimeFormat TS>
     std::enable_if_t<TS == TimeFormat::DECIMAL> appendTime(uint64_t timestamp)
     {
-        append("%" PRIu64 " ", timestamp);
+        append("%llu ", static_cast<unsigned long long>(timestamp));
     }
 
     template<TimeFormat TS>
@@ -106,13 +106,13 @@ public:
         if (timestamp >= TIMESTAMP_WRAP_VALUE) {
             timestamp = timestamp % TIMESTAMP_WRAP_VALUE;
         }
-        append("%010" PRIu64 " ", timestamp);
+        append("%010llu ", static_cast<unsigned long long>(timestamp));
     }
 
     template<TimeFormat TS>
     std::enable_if_t<TS == TimeFormat::HEX> appendTime(uint64_t timestamp)
     {
-        append("%" PRIX64 " ", timestamp);
+        append("%llX ", static_cast<unsigned long long>(timestamp));
     }
 
     template<TimeFormat TS>
@@ -161,6 +161,25 @@ public:
     std::size_t length() const { return _valid ? _length : 0U; }
 
 private:
+    /**
+     * Bounded string length.
+     *
+     * Note: replaces strnlen(), which is POSIX rather than ISO C++ and is therefore not exposed by every bare-metal
+     *       C library (e.g. newlib, unless _GNU_SOURCE is defined).
+     *
+     * @param string String to measure, must not be a nullptr.
+     * @param maxLength Maximum number of characters to inspect.
+     * @return Length of the string in characters, at most maxLength.
+     */
+    static std::size_t boundedLength(const char* string, std::size_t maxLength)
+    {
+        std::size_t length {0U};
+        while (length < maxLength && string[length] != TERMINATION_CHARACTER) {
+            ++length;
+        }
+        return length;
+    }
+
     static constexpr std::size_t TERMINATION_LENGTH {1U};
     static constexpr char TERMINATION_CHARACTER {'\0'};
 
