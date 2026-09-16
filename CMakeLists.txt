@@ -20,7 +20,7 @@ option(SE_OSS_BENCHMARKS "Compile se-oss benchmarks" OFF)
 #       into the cache
 set(SE_OSS_LOG_EXAMPLES ${SE_OSS_EXAMPLES} CACHE BOOL "")
 set(SE_OSS_LOG_TESTS ${SE_OSS_TESTS} CACHE BOOL "")
-set(SE_OSS_LOG_BENCHMARKS $SE_OSS_BENCHMARKS} CACHE BOOL "")
+set(SE_OSS_LOG_BENCHMARKS ${SE_OSS_BENCHMARKS} CACHE BOOL "")
 
 add_subdirectory(lib)
 
