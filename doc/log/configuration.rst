@@ -28,6 +28,10 @@ The logging library supports the following options in CMake:
      - Compile se-log tests
      - ``OFF``
      - ``ON``, ``OFF``
+   * - ``SE_OSS_LOG_BENCHMARKS``
+     - Compile se-log benchmarks (``se_log_benchmark``; with ``SE_OSS_SUPPORT_CBOR`` also the ``_cbor`` and ``_lookup`` variants)
+     - ``OFF``
+     - ``ON``, ``OFF``
 
 An option can be turned on in CMake by forcing the variable in the cache:
 
