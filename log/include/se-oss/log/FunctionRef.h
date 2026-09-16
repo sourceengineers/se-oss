@@ -57,6 +57,7 @@ public:
             && !std::is_function<std::remove_reference_t<F>>::value
             && (std::is_void<R>::value
                 || std::is_convertible<decltype(std::declval<F&>()(std::declval<Args>()...)), R>::value)>>
+    // cppcheck-suppress noExplicitConstructor
     FunctionRef(F&& callable) noexcept :  // NOLINT(google-explicit-constructor)
         _target {const_cast<void*>(static_cast<const void*>(std::addressof(callable)))},
         _invoke {&invokeObject<std::remove_reference_t<F>>}
@@ -68,6 +69,7 @@ public:
      *
      * @param function The function to reference.
      */
+    // cppcheck-suppress noExplicitConstructor
     FunctionRef(R (*function)(Args...)) noexcept :  // NOLINT(google-explicit-constructor)
         _target {function},
         _invoke {&invokeFunction}
