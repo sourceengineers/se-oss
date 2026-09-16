@@ -8,9 +8,9 @@
 
 #include "IBuffer.h"
 
+#include <algorithm>
 #include <array>
 #include <atomic>
-#include <functional>
 
 namespace se_oss {
 
@@ -67,11 +67,8 @@ public:
         }
     }
 
-    bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
+    bool write(std::size_t reserveSize, BufferProducer producer) override
     {
-        if (producer == nullptr) {
-          return false;
-        }
         auto writer = _writer.load();
         auto reader = _reader.load();
         auto watermark = _watermark.load();
@@ -104,11 +101,8 @@ public:
         return true;
     }
 
-    bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) override
+    bool read(BufferConsumer consumer) override
     {
-        if (consumer == nullptr) {
-          return false;
-        }
         auto writer = _writer.load();
         auto reader = _reader.load();
         auto watermark = _watermark.load();

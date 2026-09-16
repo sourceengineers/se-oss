@@ -12,7 +12,9 @@ add_executable(
         CborFormatterTest.cpp
         ConsoleWriterTest.cpp
         FilteredSinkTest.cpp
+        FunctionRefTest.cpp
         ImmediateBufferTest.cpp
+        LogAllocationTest.cpp
         LogContextTest.cpp
         LogFilterTest.cpp
         LoggerTest.cpp

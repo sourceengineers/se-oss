@@ -37,12 +37,12 @@ public:
     std::size_t size() const override { return 0U; }
     std::size_t free() const override { return _formatBuffer.size(); }
 
-    bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) override
+    bool read(BufferConsumer consumer) override
     {
         return consumer(_formatBuffer.data(), _size) > 0U;
     }
 
-    bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
+    bool write(std::size_t reserveSize, BufferProducer producer) override
     {
         if (reserveSize > _formatBuffer.size()) {
             return false;

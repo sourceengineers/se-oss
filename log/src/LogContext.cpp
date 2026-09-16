@@ -8,7 +8,7 @@
 
 namespace se_oss {
 
-void LogContext::writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer)
+void LogContext::writeMessage(std::size_t reserveSize, BufferProducer producer)
 {
     bool writeSuccessful = _buffer.write(reserveSize, producer);
 

@@ -231,3 +231,5 @@ The log front-end requires ``Logger`` instance.
 Multiple of those instances can reference a shared ``LogContext``.
 The context is owner of the buffer used for logging. For multi-threaded applications there should be one context per thread.
 The context knows a sink so that messages can be distributed.
+Messages travel from the logger into the buffer and on to the sink through ``FunctionRef`` parameters rather than
+``std::function``, so a log call never allocates on the heap, whatever its arguments.

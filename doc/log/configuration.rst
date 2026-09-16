@@ -132,6 +132,13 @@ The library provides two types of buffers:
   Log messages are passed on to sink when the user calls ``logRegistry->distributeMessages();``
   This buffer is suited for multi-thread applications.
 
+Both buffers receive the message producer and consumer as a ``FunctionRef``, a non-owning two-word
+reference to the caller's callable. Handing a lambda to ``IBuffer::write`` or ``IBuffer::read``
+therefore never allocates, and the log hot path is free of heap allocations by construction, however
+many arguments a message carries. A custom ``IBuffer`` implementation takes the same
+``BufferProducer`` / ``BufferConsumer`` parameters and must not keep them beyond the call: a
+``FunctionRef`` does not own the callable it refers to.
+
 
 .. _default_conf:
 

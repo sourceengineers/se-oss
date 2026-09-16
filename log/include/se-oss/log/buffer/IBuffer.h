@@ -6,9 +6,29 @@
 
 #pragma once
 
-#include <functional>
+#include "se-oss/log/FunctionRef.h"
+
+#include <cstddef>
 
 namespace se_oss {
+
+/**
+ * Callable that fills the space a buffer has reserved for one message. It receives the write
+ * position and the reserved size and returns the number of bytes it wrote, 0 on failure.
+ *
+ * Note: a FunctionRef only refers to the caller's callable, so passing a lambda here never
+ *       allocates, however much the lambda captures. It is valid for the duration of the call only.
+ */
+using BufferProducer = FunctionRef<std::size_t(void*, std::size_t)>;
+
+/**
+ * Callable that consumes the next message from a buffer. It receives the read position and the
+ * number of bytes available and returns the number of bytes it consumed.
+ *
+ * Note: valid for the duration of the call only, see BufferProducer.
+ */
+using BufferConsumer = FunctionRef<std::size_t(const void*, std::size_t)>;
+
 /**
  * Interface for log buffers.
  *
@@ -51,7 +71,7 @@ public:
      *                 It should return the number of bytes consumed.
      * @return True if the read operation was successful (data was available), false otherwise.
      */
-    virtual bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) = 0;
+    virtual bool read(BufferConsumer consumer) = 0;
 
     /**
      * Writes data to the buffer.
@@ -61,6 +81,6 @@ public:
      *                 It should return the number of bytes written.
      * @return True if the write operation was successful (space was available), false otherwise.
      */
-    virtual bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) = 0;
+    virtual bool write(std::size_t reserveSize, BufferProducer producer) = 0;
 };
 }  // namespace se_oss
