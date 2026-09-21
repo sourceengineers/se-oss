@@ -2,7 +2,7 @@
 # Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.25)
 project(se_oss)
 
 # library components
