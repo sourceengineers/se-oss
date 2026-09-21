@@ -58,6 +58,17 @@
             }
         },
         {
+            "name": "ci-benchmark",
+            "displayName": "Host benchmarks using the deferred benchmark log configuration.",
+            "inherits": "gcc-x86_64",
+            "binaryDir": "build/x86_64/benchmark",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "SE_OSS_BENCHMARKS": "ON",
+                "SE_OSS_SUPPORT_CBOR": "ON"
+            }
+        },
+        {
             "name": "ci-test",
             "displayName": "Host toolchain for testing and coverage",
             "inherits": "gcc-x86_64",
@@ -101,8 +112,8 @@
         },
         {
             "name": "ci-benchmark",
-            "configurePreset": "ci-host",
-            "targets": [ "se_log_benchmark" ]
+            "configurePreset": "ci-benchmark",
+            "targets": [ "se_log_benchmark", "se_log_benchmark_cbor", "se_log_benchmark_lookup" ]
         }
     ],
 
@@ -134,6 +145,14 @@
             "steps": [
                 { "type": "configure", "name": "ci-example-deferred" },
                 { "type": "build",     "name": "ci-example-deferred" }
+            ]
+        },
+        {
+            "name": "ci-benchmark",
+            "displayName": "Build benchmarks",
+            "steps": [
+                { "type": "configure", "name": "ci-benchmark" },
+                { "type": "build",     "name": "ci-benchmark" }
             ]
         },
         {
