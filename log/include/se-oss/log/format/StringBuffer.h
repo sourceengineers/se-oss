@@ -52,7 +52,7 @@ public:
         if (!_valid || string == nullptr) {
             return;
         }
-        std::size_t copyLength = strnlen(string, _capacity - _length - TERMINATION_LENGTH);
+        std::size_t copyLength = boundedLength(string, _capacity - _length - TERMINATION_LENGTH);
         std::copy_n(string, copyLength, _buffer + _length);
         _length += copyLength;
         _buffer[_length] = TERMINATION_CHARACTER;
@@ -64,16 +64,16 @@ public:
         if (formatString == nullptr || !_valid) {
             return;
         }
-        int32_t length = std::snprintf(_buffer + _length, _capacity - _length, formatString, values...);
-        if (length < 0) {
+        int32_t formattedLength = std::snprintf(_buffer + _length, _capacity - _length, formatString, values...);
+        if (formattedLength < 0) {
             _valid = false;
             _buffer[_length] = TERMINATION_CHARACTER;
-        } else if (_length + static_cast<std::size_t>(length) >= _capacity) {
+        } else if (_length + static_cast<std::size_t>(formattedLength) >= _capacity) {
             // snprintf truncated the string in _buffer but returned the length as if it was formatted successfully
             // So, we need to truncate the length manually.
             _length = _capacity - TERMINATION_LENGTH;
         } else {
-            _length += static_cast<std::size_t>(length);
+            _length += static_cast<std::size_t>(formattedLength);
         }
     }
 
@@ -142,16 +142,16 @@ public:
         auto epochSeconds = static_cast<time_t>(timestampMilliseconds / MILLISECONDS_PER_SECOND);
         tm time {};
         auto* timeOutput = gmtime_r(&epochSeconds, &time);
-        std::size_t length {0U};
+        std::size_t formattedLength {0U};
         if (timeOutput == &time) {
-            length = std::strftime(_buffer + _length, _capacity - _length, format, &time);
+            formattedLength = std::strftime(_buffer + _length, _capacity - _length, format, &time);
         }
 
-        if (length == 0) {
+        if (formattedLength == 0) {
             _valid = false;
             _buffer[_length] = TERMINATION_CHARACTER;
         } else {
-            _length += length;
+            _length += formattedLength;
         }
         // Note: a static cast is required so that the templated parameter has a fixed type.
         // Otherwise, some compilers will optimize the value out altogether.
@@ -161,6 +161,25 @@ public:
     std::size_t length() const { return _valid ? _length : 0U; }
 
 private:
+    /**
+     * Bounded string length.
+     *
+     * Note: replaces strnlen(), which is POSIX rather than ISO C++ and is therefore not exposed by every bare-metal
+     *       C library (e.g. newlib, unless _GNU_SOURCE is defined).
+     *
+     * @param string String to measure, must not be a nullptr.
+     * @param maxLength Maximum number of characters to inspect.
+     * @return Length of the string in characters, at most maxLength.
+     */
+    static std::size_t boundedLength(const char* string, std::size_t maxLength)
+    {
+        std::size_t stringLength {0U};
+        while (stringLength < maxLength && string[stringLength] != TERMINATION_CHARACTER) {
+            ++stringLength;
+        }
+        return stringLength;
+    }
+
     static constexpr std::size_t TERMINATION_LENGTH {1U};
     static constexpr char TERMINATION_CHARACTER {'\0'};
 

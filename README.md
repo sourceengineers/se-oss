@@ -96,9 +96,9 @@ cmake --workflow --preset ci-test
 
 ## License
 
-Software source files in this repository are licensed under the MIT license (see `LICENCE.MIT` or http://opensource.org/licenses/MIT) unless stated otherwhise in the file header.
+Software source files in this repository are licensed under the MIT license (see `LICENCE.MIT` or http://opensource.org/licenses/MIT) unless stated otherwise in the file header.
 
-Documentaiton source files in the `doc/` folder are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) unless stated otherwhise in the file header.
+Documentation source files in the `doc/` folder are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) unless stated otherwise in the file header.
 
 
 ## Contributing
@@ -137,7 +137,7 @@ where `<type>` is one of the following:
 - `refactor`: Refactoring production code
 - `test`: Adding or updating tests
 
-Furthermore, must breaking changes use an exclamation mark `!` after the type.
+Furthermore, breaking changes must use an exclamation mark `!` after the type.
 
 For example:
 
