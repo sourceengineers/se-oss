@@ -7,6 +7,7 @@
 #include "se-oss/log/sink/ILogSink.h"
 
 #include <cstring>
+#include <thread>
 
 #include <gtest/gtest.h>
 #include <se-oss/log/buffer/AtomicBuffer.h>
@@ -76,6 +77,18 @@ TEST_F(AtomicBufferTest, WriteFullBuffer)
     auto writeMore = buffer.reserveWrite(2U);
     EXPECT_EQ(writeMore.data, nullptr);
     EXPECT_EQ(writeMore.size, 0U);
+}
+
+TEST_F(AtomicBufferTest, RejectsReservationLargerThanCapacity)
+{
+    AtomicBuffer<10> buffer;
+
+    auto writeRegion = buffer.reserveWrite(11U);
+
+    EXPECT_EQ(writeRegion.data, nullptr);
+    EXPECT_EQ(writeRegion.size, 0U);
+    EXPECT_EQ(buffer.size(), 0U);
+    EXPECT_EQ(buffer.free(), buffer.capacity());
 }
 
 TEST_F(AtomicBufferTest, WrapAround)
@@ -210,4 +223,220 @@ TEST_F(AtomicBufferTest, ReserveWrite_ZeroBytes_ReturnsEmptyRegion)
     auto region = buffer.reserveWrite(0U);
     EXPECT_EQ(region.data, nullptr);
     EXPECT_EQ(region.size, 0U);
+}
+
+TEST_F(AtomicBufferTest, RejectsOverlappingOperations)
+{
+    AtomicBuffer<20> buffer;
+
+    auto writeRegion = buffer.reserveWrite(10U);
+    ASSERT_NE(writeRegion.data, nullptr);
+    EXPECT_EQ(buffer.reserveWrite(1U).data, nullptr);
+    buffer.commitWrite(writeRegion.size);
+
+    auto readRegion = buffer.acquireRead();
+    ASSERT_NE(readRegion.data, nullptr);
+    EXPECT_EQ(buffer.acquireRead().data, nullptr);
+    buffer.consumeRead(readRegion.size);
+}
+
+TEST_F(AtomicBufferTest, CompletionWithoutOutstandingOperationHasNoEffect)
+{
+    AtomicBuffer<20> buffer;
+    auto writeRegion = buffer.reserveWrite(10U);
+    ASSERT_NE(writeRegion.data, nullptr);
+    buffer.commitWrite(writeRegion.size);
+
+    auto readRegion = buffer.acquireRead();
+    ASSERT_NE(readRegion.data, nullptr);
+    buffer.consumeRead(4U);
+    auto sizeBefore = buffer.size();
+    auto freeBefore = buffer.free();
+
+    buffer.commitWrite(5U);
+    buffer.consumeRead(5U);
+
+    EXPECT_EQ(buffer.size(), sizeBefore);
+    EXPECT_EQ(buffer.free(), freeBefore);
+}
+
+TEST_F(AtomicBufferTest, WriterReachingPhysicalEndWithReaderAtZero_KeepsGuardByte)
+{
+    // Physical storage is capacity + 1. With the reader at 0, the last physical slot is the guard byte, so a
+    // reservation that would land the writer exactly on the physical end must be rejected even though the
+    // contiguous tail is large enough.
+    AtomicBuffer<4> buffer;
+
+    auto writeRegion = buffer.reserveWrite(4U);
+    ASSERT_NE(writeRegion.data, nullptr);
+    std::memset(writeRegion.data, 'A', writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
+    EXPECT_EQ(buffer.size(), 4U);
+    EXPECT_EQ(buffer.free(), 0U);
+
+    EXPECT_EQ(buffer.reserveWrite(1U).data, nullptr);
+    EXPECT_EQ(buffer.size(), 4U);
+    EXPECT_EQ(buffer.free(), 0U);
+
+    auto readRegion = buffer.acquireRead();
+    ASSERT_EQ(readRegion.size, 4U);
+    buffer.consumeRead(readRegion.size);
+
+    EXPECT_EQ(buffer.acquireRead().data, nullptr);
+    EXPECT_EQ(buffer.size(), 0U);
+    EXPECT_EQ(buffer.free(), 4U);
+}
+
+TEST_F(AtomicBufferTest, WriterReachingPhysicalEndWithReaderAhead_DrainsToEmpty)
+{
+    // reader = 2, writer lands exactly on the physical end (5). After draining, reader == writer == watermark. This
+    // must be read as empty, not as a full buffer starting at 0.
+    AtomicBuffer<4> buffer;
+
+    auto writeRegion = buffer.reserveWrite(2U);
+    ASSERT_NE(writeRegion.data, nullptr);
+    std::memset(writeRegion.data, 'X', writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
+    auto readRegion = buffer.acquireRead();
+    ASSERT_EQ(readRegion.size, 2U);
+    buffer.consumeRead(readRegion.size);
+
+    writeRegion = buffer.reserveWrite(3U);
+    ASSERT_NE(writeRegion.data, nullptr);
+    std::memset(writeRegion.data, 'Y', writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
+    EXPECT_EQ(buffer.size(), 3U);
+
+    readRegion = buffer.acquireRead();
+    ASSERT_EQ(readRegion.size, 3U);
+    EXPECT_EQ(std::memcmp(readRegion.data, "YYY", 3U), 0);
+    buffer.consumeRead(readRegion.size);
+
+    EXPECT_EQ(buffer.size(), 0U);
+    EXPECT_EQ(buffer.free(), 4U);
+    EXPECT_EQ(buffer.acquireRead().data, nullptr);
+
+    // The producer must still be able to wrap and the consumer must follow it to the beginning.
+    writeRegion = buffer.reserveWrite(2U);
+    ASSERT_NE(writeRegion.data, nullptr);
+    std::memset(writeRegion.data, 'Z', writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
+
+    readRegion = buffer.acquireRead();
+    ASSERT_EQ(readRegion.size, 2U);
+    EXPECT_EQ(std::memcmp(readRegion.data, "ZZ", 2U), 0);
+    buffer.consumeRead(readRegion.size);
+    EXPECT_EQ(buffer.size(), 0U);
+}
+
+TEST_F(AtomicBufferTest, ConcurrentVariableChunkSizesPreserveByteSequence)
+{
+    // Cycling chunk sizes make the writer visit every tail offset, including landing exactly on the physical end.
+    // Fixed chunk sizes (see the test below) never reach that state.
+    constexpr std::size_t numberOfBytes {2000000U};
+    AtomicBuffer<64> buffer;
+    std::atomic<bool> producerFinished {false};
+
+    std::thread producer([&]() {
+        std::size_t produced {0U};
+        std::size_t iteration {0U};
+        while (produced < numberOfBytes) {
+            auto requested = std::min<std::size_t>(1U + (iteration++ % 13U), numberOfBytes - produced);
+            auto region = buffer.reserveWrite(requested);
+            if (region.data == nullptr) {
+                std::this_thread::yield();
+                continue;
+            }
+            auto* bytes = static_cast<uint8_t*>(region.data);
+            for (std::size_t i = 0U; i < region.size; ++i) {
+                bytes[i] = static_cast<uint8_t>((produced + i) % 251U);
+            }
+            buffer.commitWrite(region.size);
+            produced += region.size;
+        }
+        producerFinished.store(true);
+    });
+
+    std::size_t consumed {0U};
+    std::size_t overReads {0U};
+    std::size_t mismatches {0U};
+    while (!producerFinished.load() || consumed < numberOfBytes) {
+        auto region = buffer.acquireRead();
+        if (region.data == nullptr) {
+            std::this_thread::yield();
+            continue;
+        }
+        if (consumed + region.size > numberOfBytes) {
+            ++overReads;
+        }
+        auto* bytes = static_cast<const uint8_t*>(region.data);
+        for (std::size_t i = 0U; i < region.size && consumed + i < numberOfBytes; ++i) {
+            if (bytes[i] != static_cast<uint8_t>((consumed + i) % 251U)) {
+                ++mismatches;
+            }
+        }
+        buffer.consumeRead(region.size);
+        consumed += region.size;
+    }
+    producer.join();
+
+    EXPECT_EQ(mismatches, 0U);
+    EXPECT_EQ(overReads, 0U);
+    EXPECT_EQ(consumed, numberOfBytes);
+    EXPECT_EQ(buffer.size(), 0U);
+}
+
+TEST_F(AtomicBufferTest, ConcurrentProducerConsumerPreservesByteSequence)
+{
+    constexpr std::size_t numberOfBytes {500000U};
+    AtomicBuffer<127> buffer;
+    std::atomic<bool> producerFinished {false};
+    std::atomic<bool> mismatch {false};
+    std::atomic<bool> invalidReportedSize {false};
+
+    std::thread producer([&]() {
+        std::size_t produced {0U};
+        while (produced < numberOfBytes) {
+            auto requested = std::min<std::size_t>(17U, numberOfBytes - produced);
+            auto region = buffer.reserveWrite(requested);
+            if (region.data == nullptr) {
+                std::this_thread::yield();
+                continue;
+            }
+            auto* bytes = static_cast<uint8_t*>(region.data);
+            for (std::size_t i = 0U; i < region.size; ++i) {
+                bytes[i] = static_cast<uint8_t>((produced + i) % 251U);
+            }
+            buffer.commitWrite(region.size);
+            produced += region.size;
+        }
+        producerFinished.store(true);
+    });
+
+    std::size_t consumed {0U};
+    while (!producerFinished.load() || consumed < numberOfBytes) {
+        if (buffer.size() > buffer.capacity() || buffer.free() > buffer.capacity()) {
+            invalidReportedSize.store(true);
+        }
+        auto region = buffer.acquireRead();
+        if (region.data == nullptr) {
+            std::this_thread::yield();
+            continue;
+        }
+        auto bytesToConsume = std::min<std::size_t>(11U, region.size);
+        auto* bytes = static_cast<const uint8_t*>(region.data);
+        for (std::size_t i = 0U; i < bytesToConsume; ++i) {
+            if (bytes[i] != static_cast<uint8_t>((consumed + i) % 251U)) {
+                mismatch.store(true);
+            }
+        }
+        buffer.consumeRead(bytesToConsume);
+        consumed += bytesToConsume;
+    }
+    producer.join();
+
+    EXPECT_FALSE(mismatch.load());
+    EXPECT_FALSE(invalidReportedSize.load());
+    EXPECT_EQ(consumed, numberOfBytes);
+    EXPECT_EQ(buffer.size(), 0U);
 }

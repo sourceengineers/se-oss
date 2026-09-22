@@ -60,6 +60,7 @@ public:
      * Reserves a contiguous region for writing.
      *
      * A successful reservation must be followed by commitWrite(), even when no bytes were written.
+     * Only one reservation may be outstanding. The returned region remains valid until commitWrite() is called.
      *
      * @param size Number of contiguous bytes to reserve.
      * @return The reserved region, or {nullptr, 0U} if insufficient space is available.
@@ -69,6 +70,8 @@ public:
     /**
      * Commits data written to the region returned by reserveWrite().
      *
+     * The reserved region must not be accessed after this call.
+     *
      * @param bytesWritten Number of bytes written, not exceeding the reserved region size.
      */
     virtual void commitWrite(std::size_t bytesWritten) = 0;
@@ -77,6 +80,7 @@ public:
      * Acquires the next contiguous region available for reading.
      *
      * A successful acquisition must be followed by consumeRead(), even when no bytes were read.
+     * Only one acquisition may be outstanding. The returned region remains valid until consumeRead() is called.
      *
      * @return The readable region, or {nullptr, 0U} if the buffer is empty.
      */
@@ -84,6 +88,8 @@ public:
 
     /**
      * Consumes data from the region returned by acquireRead().
+     *
+     * The acquired region must not be accessed after this call.
      *
      * @param bytesRead Number of bytes read, not exceeding the acquired region size.
      */
