@@ -42,25 +42,21 @@ TEST_F(AtomicBufferTest, SimpleWriteRead)
     AtomicBuffer<1024> buffer;
     const std::string data = "Hello World";
 
-    // Write
-    bool writeResult = buffer.write(data.size(), [&](void* ptr, size_t size) {
-        std::memcpy(ptr, data.data(), size);
-        return size;
-    });
-
-    EXPECT_TRUE(writeResult);
+    auto writeRegion = buffer.reserveWrite(data.size());
+    ASSERT_NE(writeRegion.data, nullptr);
+    EXPECT_EQ(writeRegion.size, data.size());
+    std::memcpy(writeRegion.data, data.data(), writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
     EXPECT_EQ(buffer.size(), data.size());
     EXPECT_EQ(buffer.free(), 1024 - data.size());
 
-    // Read
     std::string readData;
     readData.resize(data.size());
-    bool readResult = buffer.read([&](const void* ptr, size_t size) {
-        std::memcpy(readData.data(), ptr, size);
-        return size;
-    });
-
-    EXPECT_TRUE(readResult);
+    auto readRegion = buffer.acquireRead();
+    ASSERT_NE(readRegion.data, nullptr);
+    EXPECT_EQ(readRegion.size, readData.size());
+    std::memcpy(&readData[0], readRegion.data, readRegion.size);
+    buffer.consumeRead(readRegion.size);
     EXPECT_EQ(readData, data);
     EXPECT_EQ(buffer.size(), 0);
     EXPECT_EQ(buffer.free(), 1024);
@@ -71,19 +67,15 @@ TEST_F(AtomicBufferTest, WriteFullBuffer)
     AtomicBuffer<10> buffer;
 
     std::vector<uint8_t> data(10, 0xFF);
-    bool writeResult = buffer.write(data.size(), [&](void* ptr, size_t size) {
-        std::memcpy(ptr, data.data(), size);
-        return size;
-    });
-
-    EXPECT_TRUE(writeResult);
+    auto writeRegion = buffer.reserveWrite(data.size());
+    ASSERT_NE(writeRegion.data, nullptr);
+    std::memcpy(writeRegion.data, data.data(), writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
     EXPECT_EQ(buffer.size(), 10);
 
-    bool writeMore = buffer.write(2, [&](void*, size_t sz) {
-        EXPECT_TRUE(false);  // this never gets called
-        return sz;
-    });
-    EXPECT_FALSE(writeMore);
+    auto writeMore = buffer.reserveWrite(2U);
+    EXPECT_EQ(writeMore.data, nullptr);
+    EXPECT_EQ(writeMore.size, 0U);
 }
 
 TEST_F(AtomicBufferTest, WrapAround)
@@ -91,64 +83,55 @@ TEST_F(AtomicBufferTest, WrapAround)
     AtomicBuffer<20> buffer;
 
     // Write 15 bytes
-    bool w1 = buffer.write(15, [&](void* dest, size_t sz) {
-        std::memset(dest, 'A', sz);
-        return sz;
-    });
-    EXPECT_TRUE(w1);
+    auto w1 = buffer.reserveWrite(15U);
+    ASSERT_NE(w1.data, nullptr);
+    std::memset(w1.data, 'A', w1.size);
+    buffer.commitWrite(w1.size);
     EXPECT_EQ(buffer.size(), 15);
     EXPECT_EQ(buffer.free(), 5);
 
     // Read 10 bytes
     size_t bytesToRead = 10;
-    bool r1 = buffer.read([&](const void* src, size_t sz) {
-        size_t consumed = std::min(sz, bytesToRead);
-        bytesToRead -= consumed;
-        return consumed;
-    });
-    EXPECT_TRUE(r1);
+    auto r1 = buffer.acquireRead();
+    ASSERT_NE(r1.data, nullptr);
+    size_t consumed = std::min(r1.size, bytesToRead);
+    bytesToRead -= consumed;
+    buffer.consumeRead(consumed);
     EXPECT_EQ(buffer.size(), 5);
     EXPECT_EQ(buffer.free(), 15);
     // Reader is now at 10. Writer is at 15.
 
     // Now write 11 bytes.
     // Reader is at 10.
-    bool w2_fail = buffer.write(11, [&](void* dest, size_t sz) {
-        EXPECT_TRUE(false);  // this never gets called
-        return sz;
-    });
-    EXPECT_FALSE(w2_fail);
+    auto w2Fail = buffer.reserveWrite(11U);
+    EXPECT_EQ(w2Fail.data, nullptr);
 
     // Try writing 9 bytes (should succeed). Writer wraps to 0.
-    bool w2 = buffer.write(9, [&](void* dest, size_t sz) {
-        std::memset(dest, 'B', sz);
-        return sz;
-    });
-
-    EXPECT_TRUE(w2);
+    auto w2 = buffer.reserveWrite(9U);
+    ASSERT_NE(w2.data, nullptr);
+    std::memset(w2.data, 'B', w2.size);
+    buffer.commitWrite(w2.size);
     // Size: 5 (old) + 9 (new) = 14
     EXPECT_EQ(buffer.size(), 14);
     EXPECT_EQ(buffer.free(), 0);  // the last 6 bytes are not usable due to watermark
 
     // Read 14 bytes and reset watermark
     bytesToRead = 5;
-    bool r2 = buffer.read([&](const void* src, size_t sz) {
-        EXPECT_EQ(bytesToRead, sz);
-        size_t consumed = std::min(sz, bytesToRead);
-        bytesToRead -= consumed;
-        return consumed;
-    });
-    EXPECT_TRUE(r2);
+    auto r2 = buffer.acquireRead();
+    ASSERT_NE(r2.data, nullptr);
+    EXPECT_EQ(bytesToRead, r2.size);
+    consumed = std::min(r2.size, bytesToRead);
+    bytesToRead -= consumed;
+    buffer.consumeRead(consumed);
     EXPECT_EQ(buffer.size(), 9);
 
     bytesToRead = 9;
-    bool r3 = buffer.read([&](const void* src, size_t sz) {
-        EXPECT_EQ(bytesToRead, sz);
-        size_t consumed = std::min(sz, bytesToRead);
-        bytesToRead -= consumed;
-        return consumed;
-    });
-    EXPECT_TRUE(r3);
+    auto r3 = buffer.acquireRead();
+    ASSERT_NE(r3.data, nullptr);
+    EXPECT_EQ(bytesToRead, r3.size);
+    consumed = std::min(r3.size, bytesToRead);
+    bytesToRead -= consumed;
+    buffer.consumeRead(consumed);
     EXPECT_EQ(buffer.size(), 0);
     EXPECT_EQ(buffer.free(), 20);
 }
@@ -156,22 +139,19 @@ TEST_F(AtomicBufferTest, WrapAround)
 TEST_F(AtomicBufferTest, ReadEmpty)
 {
     AtomicBuffer<1024> buffer;
-    bool readResult = buffer.read([](const void*, size_t sz) {
-        EXPECT_TRUE(false);  // this never gets called
-        return sz;
-    });
-    EXPECT_FALSE(readResult);
+    auto region = buffer.acquireRead();
+    EXPECT_EQ(region.data, nullptr);
+    EXPECT_EQ(region.size, 0U);
 }
 
-TEST_F(AtomicBufferTest, Write_ProducerReturnsZero_NoStateChange)
+TEST_F(AtomicBufferTest, CommitWrite_ZeroBytes_NoStateChange)
 {
     AtomicBuffer<1024> buffer;
     auto sizeBefore = buffer.size();
     auto freeBefore = buffer.free();
 
-    bool writeResult = buffer.write(10, [](void*, size_t) -> size_t { return 0; });
-    // write returns true (space was available) but no data committed
-    EXPECT_TRUE(writeResult);
+    ASSERT_NE(buffer.reserveWrite(10U).data, nullptr);
+    buffer.commitWrite(0U);
     EXPECT_EQ(buffer.size(), sizeBefore);
     EXPECT_EQ(buffer.free(), freeBefore);
 }
@@ -181,27 +161,22 @@ TEST_F(AtomicBufferTest, Write_WriterBehindReader_InsufficientSpace)
     AtomicBuffer<20> buffer;
 
     // Fill 15 bytes
-    buffer.write(15, [](void* dest, size_t sz) {
-        std::memset(dest, 'A', sz);
-        return sz;
-    });
+    auto region = buffer.reserveWrite(15U);
+    std::memset(region.data, 'A', region.size);
+    buffer.commitWrite(region.size);
 
     // Read 15 bytes to advance reader to 15
-    buffer.read([](const void*, size_t sz) { return sz; });
+    auto readRegion = buffer.acquireRead();
+    buffer.consumeRead(readRegion.size);
 
     // Write 10 bytes, writer wraps to 0
-    buffer.write(10, [](void* dest, size_t sz) {
-        std::memset(dest, 'B', sz);
-        return sz;
-    });
+    region = buffer.reserveWrite(10U);
+    std::memset(region.data, 'B', region.size);
+    buffer.commitWrite(region.size);
     // Now writer=10, reader=15. Writer is behind reader.
 
     // Try to reserve 6 bytes: reader - writer = 5, which is <= 6 → fail
-    bool result = buffer.write(6, [](void* dest, size_t sz) {
-        EXPECT_TRUE(false);  // should not be called
-        return sz;
-    });
-    EXPECT_FALSE(result);
+    EXPECT_EQ(buffer.reserveWrite(6U).data, nullptr);
 }
 
 TEST_F(AtomicBufferTest, Read_ReaderAtWatermark_Resets)
@@ -209,36 +184,30 @@ TEST_F(AtomicBufferTest, Read_ReaderAtWatermark_Resets)
     AtomicBuffer<20> buffer;
 
     // Write 15 bytes (writer at 15)
-    buffer.write(15, [](void* dest, size_t sz) {
-        std::memset(dest, 'A', sz);
-        return sz;
-    });
+    auto writeRegion = buffer.reserveWrite(15U);
+    std::memset(writeRegion.data, 'A', writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
 
     // Read all 15 bytes (reader at 15)
-    buffer.read([](const void*, size_t sz) { return sz; });
+    auto readRegion = buffer.acquireRead();
+    buffer.consumeRead(readRegion.size);
 
-    // Write 5 bytes, wraps: watermark set to 15, writer at 5
-    buffer.write(10, [](void* dest, size_t sz) {
-        std::memset(dest, 'C', sz);
-        return sz;
-    });
+    // Write 10 bytes, wraps: watermark set to 15, writer at 10
+    writeRegion = buffer.reserveWrite(10U);
+    std::memset(writeRegion.data, 'C', writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
 
     // Reader is at 15, watermark is at 15 → reader >= watermark triggers reset
-    bool readResult = buffer.read([](const void*, size_t sz) { return sz; });
-    EXPECT_TRUE(readResult);
+    readRegion = buffer.acquireRead();
+    ASSERT_NE(readRegion.data, nullptr);
+    buffer.consumeRead(readRegion.size);
     EXPECT_EQ(buffer.size(), 0);
 }
 
-TEST_F(AtomicBufferTest, NoProducer)
+TEST_F(AtomicBufferTest, ReserveWrite_ZeroBytes_ReturnsEmptyRegion)
 {
     AtomicBuffer<1024> buffer;
-    bool writeResult = buffer.write(10, nullptr);
-    EXPECT_FALSE(writeResult);
-}
-
-TEST_F(AtomicBufferTest, NoConsumer)
-{
-    AtomicBuffer<1024> buffer;
-    bool readResult = buffer.read(nullptr);
-    EXPECT_FALSE(readResult);
+    auto region = buffer.reserveWrite(0U);
+    EXPECT_EQ(region.data, nullptr);
+    EXPECT_EQ(region.size, 0U);
 }

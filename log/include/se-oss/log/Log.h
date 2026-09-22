@@ -264,28 +264,27 @@ void Logger::log(LogLevel level, TFormat format, const Values&... values)
         return;
     }
 
-    // Function used to serialize a log record into a reserved space provided by the buffer
-    auto logSerializerFunction = [&](void* buffer, std::size_t size) -> std::size_t {
-        std::size_t bytesWritten {0U};
+    auto region = _context.reserveMessage(log_conf::MAX_MESSAGE_LENGTH + LogHeader::PACKED_SIZE);
+    if (region.data == nullptr || region.size == 0U) {
+        return;
+    }
 
-        if (buffer != nullptr && size > LogHeader::PACKED_SIZE) {
-            auto* byteBuffer = static_cast<uint8_t*>(buffer);
-            std::size_t usableBufferSize = size - LogHeader::PACKED_SIZE;
-            std::size_t messageLength =
-                log_conf::Formatter::format(byteBuffer + LogHeader::PACKED_SIZE, usableBufferSize, record, format, std::forward<const Values>(values)...);
+    auto* byteBuffer = static_cast<uint8_t*>(region.data);
+    std::size_t usableBufferSize = region.size - LogHeader::PACKED_SIZE;
+    std::size_t messageLength = log_conf::Formatter::format(
+        byteBuffer + LogHeader::PACKED_SIZE,
+        usableBufferSize,
+        record,
+        format,
+        std::forward<const Values>(values)...
+    );
 
-            LogHeader header {};
-            header.metadata = record.metadata;
-            header.messageLength = messageLength;
-            auto* headerEnd = serialize(header, byteBuffer, LogHeader::PACKED_SIZE);
-
-            if (messageLength > 0U && headerEnd != nullptr) {
-                bytesWritten = messageLength + LogHeader::PACKED_SIZE;
-            }
-        }
-        return bytesWritten;
-    };
-    _context.writeMessage(log_conf::MAX_MESSAGE_LENGTH + LogHeader::PACKED_SIZE, logSerializerFunction);
+    LogHeader header {};
+    header.metadata = record.metadata;
+    header.messageLength = messageLength;
+    auto* headerEnd = serialize(header, byteBuffer, LogHeader::PACKED_SIZE);
+    std::size_t bytesWritten = messageLength > 0U && headerEnd != nullptr ? messageLength + LogHeader::PACKED_SIZE : 0U;
+    _context.commitMessage(bytesWritten);
 }
 
 inline LogRecord Logger::createRecord(LogLevel level) const

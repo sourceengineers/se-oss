@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <functional>
+#include <cstddef>
 
 namespace se_oss {
 /**
@@ -20,6 +20,18 @@ protected:
     IBuffer() = default;
 
 public:
+    struct WriteRegion
+    {
+        void* data {nullptr};
+        std::size_t size {0U};
+    };
+
+    struct ReadRegion
+    {
+        const void* data {nullptr};
+        std::size_t size {0U};
+    };
+
     virtual ~IBuffer() = default;
     IBuffer(const IBuffer&) = delete;
     IBuffer(IBuffer&&) = delete;
@@ -45,22 +57,40 @@ public:
     virtual std::size_t free() const = 0;
 
     /**
-     * Reads data from the buffer.
+     * Reserves a contiguous region for writing.
      *
-     * @param consumer A function that consumes data. It receives a pointer to the data and the size available.
-     *                 It should return the number of bytes consumed.
-     * @return True if the read operation was successful (data was available), false otherwise.
+     * A successful reservation must be followed by commitWrite(), even when no bytes were written.
+     *
+     * @param size Number of contiguous bytes to reserve.
+     * @return The reserved region, or {nullptr, 0U} if insufficient space is available.
      */
-    virtual bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) = 0;
+    virtual WriteRegion reserveWrite(std::size_t size) = 0;
 
     /**
-     * Writes data to the buffer.
+     * Commits data written to the region returned by reserveWrite().
      *
-     * @param reserveSize The amount of linear data to reserve. This limit must not be exceeded in the write operation.
-     * @param producer A function that produces data. It receives a pointer to the buffer value and the size available.
-     *                 It should return the number of bytes written.
-     * @return True if the write operation was successful (space was available), false otherwise.
+     * @param bytesWritten Number of bytes written, not exceeding the reserved region size.
      */
-    virtual bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) = 0;
+    virtual void commitWrite(std::size_t bytesWritten) = 0;
+
+    /**
+     * Acquires the next contiguous region available for reading.
+     *
+     * A successful acquisition must be followed by consumeRead(), even when no bytes were read.
+     *
+     * @return The readable region, or {nullptr, 0U} if the buffer is empty.
+     */
+    virtual ReadRegion acquireRead() = 0;
+
+    /**
+     * Consumes data from the region returned by acquireRead().
+     *
+     * @param bytesRead Number of bytes read, not exceeding the acquired region size.
+     */
+    virtual void consumeRead(std::size_t bytesRead) = 0;
 };
+
+constexpr IBuffer::ReadRegion EMPTY_READ_REGION {nullptr, 0U};
+constexpr IBuffer::WriteRegion EMPTY_WRITE_REGION {nullptr, 0U};
+
 }  // namespace se_oss

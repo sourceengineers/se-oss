@@ -8,17 +8,17 @@
 
 #include "IBuffer.h"
 
+#include <algorithm>
 #include <array>
 #include <atomic>
-#include <functional>
 
 namespace se_oss {
 
 /**
  * Thread-safe Single Producer Single Consumer (SPSC) circular buffer.
  *
- * This buffer is designed for lock-free communication between one single producer and one single background thread (consumer).
- * Note that the read and write access are non-reentrant.
+ * This buffer is designed for lock-free communication between one single producer and one single background thread
+ * (consumer). Note that the read and write access are non-reentrant.
  *
  * Based on the lock-free ring-buffer by ferrous systems: https://ferrous-systems.com/blog/lock-free-ring-buffer/
  *
@@ -67,58 +67,62 @@ public:
         }
     }
 
-    bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
+    WriteRegion reserveWrite(std::size_t reserveSize) override
     {
-        if (producer == nullptr) {
-          return false;
+        if (reserveSize == 0U) {
+            return EMPTY_WRITE_REGION;
         }
         auto writer = _writer.load();
         auto reader = _reader.load();
         auto watermark = _watermark.load();
-        bool updateWatermark {false};
+        _updateWatermarkAfterWrite = false;
 
         // writer is behind reader -> check size up to reader
         if ((writer < reader) && (reader - writer <= reserveSize)) {
-            return false;
+            return EMPTY_WRITE_REGION;
         }
         // writer is ahead of reader -> check size up to watermark
         if (writer >= reader && watermark - writer < reserveSize) {
             // no space until watermark try wrap around
             if (reader <= reserveSize) {
-                return false;
+                return EMPTY_WRITE_REGION;
             }
 
             // adjust watermark and wrap around
-            watermark = writer;
-            updateWatermark = true;
+            _reservedWatermark = writer;
+            _updateWatermarkAfterWrite = true;
             writer = 0U;
         }
 
-        auto bytesWritten = producer(_buffer.data() + writer, reserveSize);
-        if (bytesWritten > 0U) {
-            if (updateWatermark) {
-                _watermark.store(watermark);
-            }
-            _writer.store(writer + std::min(bytesWritten, reserveSize));
-        }
-        return true;
+        _reservedWritePosition = writer;
+        _reservedWriteSize = reserveSize;
+        return {_buffer.data() + writer, reserveSize};
     }
 
-    bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) override
+    void commitWrite(std::size_t bytesWritten) override
     {
-        if (consumer == nullptr) {
-          return false;
+        bytesWritten = std::min(bytesWritten, _reservedWriteSize);
+        if (bytesWritten > 0U) {
+            if (_updateWatermarkAfterWrite) {
+                _watermark.store(_reservedWatermark);
+            }
+            _writer.store(_reservedWritePosition + bytesWritten);
         }
+        _reservedWriteSize = 0U;
+        _updateWatermarkAfterWrite = false;
+    }
+
+    ReadRegion acquireRead() override
+    {
         auto writer = _writer.load();
         auto reader = _reader.load();
         auto watermark = _watermark.load();
-        bool updateWatermark {false};
+        _updateWatermarkAfterRead = false;
         std::size_t bytesAvailable {0U};
 
         if (reader >= watermark) {
             reader = 0U;
-            watermark = _buffer.size();
-            updateWatermark = true;
+            _updateWatermarkAfterRead = true;
         }
 
         if (reader <= writer) {
@@ -128,19 +132,26 @@ public:
         }
 
         if (bytesAvailable == 0U) {
-            return false;
+            return EMPTY_READ_REGION;
         }
 
-        auto bytesRead = consumer(_buffer.data() + reader, bytesAvailable);
-        _reader.store(reader + std::min(bytesRead, bytesAvailable));
-        if (updateWatermark) {
+        _acquiredReadPosition = reader;
+        _acquiredReadSize = bytesAvailable;
+        return {_buffer.data() + reader, bytesAvailable};
+    }
+
+    void consumeRead(std::size_t bytesRead) override
+    {
+        _reader.store(_acquiredReadPosition + std::min(bytesRead, _acquiredReadSize));
+        if (_updateWatermarkAfterRead) {
             // The watermark is only update here when the reader is ahead of the
             // writer. On the other hand, the writer can only update the
             // watermark when it's ahead of the reader. So, there is no race
             // condition here.
-            _watermark.store(watermark);
+            _watermark.store(_buffer.size());
         }
-        return true;
+        _acquiredReadSize = 0U;
+        _updateWatermarkAfterRead = false;
     }
 
 private:
@@ -150,5 +161,14 @@ private:
     std::atomic<std::size_t> _reader {0U};
     std::atomic<std::size_t> _writer {0U};
     std::atomic<std::size_t> _watermark {_buffer.size()};
+
+    std::size_t _reservedWritePosition {0U};
+    std::size_t _reservedWriteSize {0U};
+    std::size_t _reservedWatermark {0U};
+    bool _updateWatermarkAfterWrite {false};
+
+    std::size_t _acquiredReadPosition {0U};
+    std::size_t _acquiredReadSize {0U};
+    bool _updateWatermarkAfterRead {false};
 };
 }  // namespace se_oss

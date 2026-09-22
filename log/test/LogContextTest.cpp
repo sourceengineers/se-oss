@@ -51,8 +51,9 @@ TEST_F(LogContextTest, Statistics_DroppedMessages)
 
     // Write with a reserve size larger than buffer capacity.
     std::size_t hugeReserveSize = 1024 * 1024;
-    context.writeMessage(hugeReserveSize, [](void*, std::size_t) -> std::size_t { return 0; });
+    auto region = context.reserveMessage(hugeReserveSize);
 
+    EXPECT_EQ(region.data, nullptr);
     LogStatistics stats = context.statistics();
     EXPECT_GE(stats.droppedMessages, 1U);
 }

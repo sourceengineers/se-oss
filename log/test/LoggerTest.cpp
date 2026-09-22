@@ -18,9 +18,7 @@ class LoggerTest : public Test
 protected:
     void SetUp() override
     {
-        _context = std::make_unique<LogContext>(
-            1, "loggertest", _sink, []() -> uint64_t { return 12345ULL; }
-        );
+        _context = std::make_unique<LogContext>(1, "loggertest", _sink, []() -> uint64_t { return 12345ULL; });
     }
 
     LogSinkMock _sink;
@@ -94,7 +92,7 @@ TEST_F(LoggerTest, Log_FilteredOut_NoWrite)
 TEST_F(LoggerTest, Log_FormatterReturnsZero_NoHeader)
 {
     // When the buffer is too small for any content, the formatter returns 0
-    // and the producer lambda returns 0 (no header written).
+    // and no bytes are committed.
     // This is hard to trigger directly because the buffer is allocated internally.
     // We cover the bytesWritten == 0 branch by having the filter pass but
     // using a nullptr format string which causes the formatter to produce 0 bytes
@@ -102,8 +100,7 @@ TEST_F(LoggerTest, Log_FormatterReturnsZero_NoHeader)
     Logger logger(*_context);
     logger.setLogLevel(LogLevel::TRACE);
 
-    // The write should still happen via writeMessage, but the producer returns 0
-    // so no data is actually committed to the buffer.
+    // The reservation still happens, but no data is committed to the buffer.
     // We can't easily mock the formatter, but we can verify no crash.
     EXPECT_CALL(_sink, write(_, _, _)).Times(AtLeast(0));
     logger.log(LogLevel::INFO, static_cast<const char*>(nullptr));

@@ -8,13 +8,12 @@
 
 #include "ILogFilter.h"
 #include "LogFilter.h"
+#include "UserLogConf.h"
 #include "buffer/IBuffer.h"
 #include "sink/ILogSink.h"
 
 #include <atomic>
 #include <memory>
-
-#include "UserLogConf.h"
 
 namespace se_oss {
 
@@ -49,7 +48,8 @@ public:
     uint64_t time() const { return _timeProvider ? _timeProvider() : INVALID_TIME; }
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
-    void writeMessage(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer);
+    IBuffer::WriteRegion reserveMessage(std::size_t size);
+    void commitMessage(std::size_t bytesWritten);
 
     /**
      * Distributes messages from the buffer to the sink.
@@ -59,7 +59,9 @@ public:
      * @param maxNumberOfMessages Maximum number of messages to process in this call.
      */
     template<class TBuffer = log_conf::Buffer>
-    std::enable_if_t<log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(std::size_t maxNumberOfMessages = 20U) const
+    std::enable_if_t<log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(
+        std::size_t maxNumberOfMessages = 20U
+    ) const
     {
         (void)this;
         (void)maxNumberOfMessages;
@@ -75,7 +77,9 @@ public:
      * @param maxNumberOfMessages Maximum number of messages to process in this call.
      */
     template<class TBuffer = log_conf::Buffer>
-    std::enable_if_t<!log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(std::size_t maxNumberOfMessages = 20U)
+    std::enable_if_t<!log_detail::is_immediate_buffer<TBuffer>::value, void> distributeMessages(
+        std::size_t maxNumberOfMessages = 20U
+    )
     {
         bool readSuccessful {true};
         for (size_t i = 0; i < maxNumberOfMessages && readSuccessful; ++i) {
