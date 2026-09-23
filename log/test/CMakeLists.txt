@@ -9,6 +9,8 @@ add_executable(
         AggregatedSinkTest.cpp
         AtomicBufferTest.cpp
         BufferSinkTest.cpp
+        CapturingLoggerTest.cpp
+        CapturingLogSinkTest.cpp
         CborFormatterTest.cpp
         ConsoleWriterTest.cpp
         FilteredSinkTest.cpp
