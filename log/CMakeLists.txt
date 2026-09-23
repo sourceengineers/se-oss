@@ -74,6 +74,9 @@ endif ()
 
 add_library(se_oss::log ALIAS se_oss_log)
 
+# test support for projects using the logger when SE_OSS_LOG_TESTS is enabled
+add_subdirectory(test)
+
 # examples and tests
 if (${SE_OSS_LOG_EXAMPLES})
     message(STATUS "[se-log] Examples enabled")
@@ -83,7 +86,6 @@ endif ()
 if (${SE_OSS_LOG_TESTS})
     message(STATUS "[se-log] Tests enabled")
     enable_testing()
-    add_subdirectory(test)
 
     include(${CMAKE_SOURCE_DIR}/cmake/static-analysis.cmake)
     se_static_analysis(TARGET se_oss_log)

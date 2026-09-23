@@ -2,6 +2,17 @@
 # Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
 # SPDX-License-Identifier: MIT
 
+# header-only test support of projects using the logger; always available, independent of SE_OSS_LOG_TESTS
+add_library(se_oss_log_test_support INTERFACE)
+target_include_directories(se_oss_log_test_support INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(se_oss_log_test_support INTERFACE se_oss::log)
+add_library(se_oss::log_test_support ALIAS se_oss_log_test_support)
+
+if (NOT ${SE_OSS_LOG_TESTS})
+    return()
+endif ()
+
+# tests of the log library
 enable_testing()
 
 add_executable(
@@ -9,6 +20,8 @@ add_executable(
         AggregatedSinkTest.cpp
         AtomicBufferTest.cpp
         BufferSinkTest.cpp
+        CapturingLoggerTest.cpp
+        CapturingLogSinkTest.cpp
         CborFormatterTest.cpp
         ConsoleWriterTest.cpp
         FilteredSinkTest.cpp
@@ -28,7 +41,7 @@ add_executable(
 target_link_libraries(
         se_log_tests
         PRIVATE
-        se_oss::log
+        se_oss::log_test_support
         GTest::gmock
         GTest::gtest_main
 )

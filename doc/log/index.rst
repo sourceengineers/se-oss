@@ -22,5 +22,6 @@ Features:
     formatter
     filtering
     resource-replacement
+    testing
 ..     structured-log
 
