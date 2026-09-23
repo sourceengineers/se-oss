@@ -195,7 +195,7 @@ namespace se_oss {
  * This class is responsible for logging messages to a configured sink via a buffer.
  * It manages the log level, statistics, and message distribution.
  */
-class Logger final : public ILogFilter
+class Logger final : public ILogFilterSetter
 {
 public:
     /**
@@ -237,8 +237,8 @@ public:
     void setName(const char* name) { _name = name; }
 
     // ILogFilter realization
-    void setLogLevel(LogLevel level) override { return _context.setLogLevel(level); }
-    void setFilter(LogFilterFunction filter) override { return _context.setFilter(filter); }
+    void setLogFilterLevel(LogLevel level) override { return _context.setLogFilterLevel(level); }
+    void setCustomLogFilter(const ILogFilter* filter) override { return _context.setCustomLogFilter(filter); }
 
 private:
     LogContext& _context;

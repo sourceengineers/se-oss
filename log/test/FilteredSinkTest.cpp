@@ -12,6 +12,16 @@
 using namespace se_oss;
 using namespace testing;
 
+namespace {
+
+class ContextTagFilter final : public ILogFilter
+{
+public:
+    bool passesFilter(const LogMetadata& metadata) const override { return metadata.contextTag == 42; }
+};
+
+}  // namespace
+
 class FilteredSinkTest : public Test
 {
 protected:
@@ -30,7 +40,7 @@ protected:
         std::array<uint8_t, 128> dummyData {};
         LogMetadata metadata {};
         metadata.level = logLevel;
-        _filteredSink.setLogLevel(filter);
+        _filteredSink.setLogFilterLevel(filter);
         EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(expectCall ? 1 : 0);
         _filteredSink.write(metadata, dummyData.data(), dummyData.size());
         Mock::VerifyAndClearExpectations(&_filteredSink.inner());
@@ -120,8 +130,9 @@ TEST_F(FilteredSinkTest, CustomFilter)
 {
     LogMetadata metadata {};
     std::array<uint8_t, 128> dummyData {};
+    ContextTagFilter filter;
 
-    _filteredSink.setFilter([](const auto& metadata) -> bool { return metadata.contextTag == 42; });
+    _filteredSink.setCustomLogFilter(&filter);
 
     metadata.contextTag = 1;
     EXPECT_CALL(_filteredSink.inner(), write(_, _)).Times(0);

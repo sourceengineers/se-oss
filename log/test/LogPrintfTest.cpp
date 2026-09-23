@@ -67,7 +67,7 @@ protected:
 
         // Set up sink
         _logRegistry->attachSink(LogSinks::BUFFER_SINK, std::move(bufferSink));
-        _logRegistry->getSink(LogSinks::BUFFER_SINK).setLogLevel(se_oss::LogLevel::TRACE);
+        _logRegistry->getSink(LogSinks::BUFFER_SINK).setLogFilterLevel(se_oss::LogLevel::TRACE);
     }
 
     void TearDown() override { _logRegistry.reset(); }
@@ -79,7 +79,7 @@ protected:
 TEST_F(LogPrintfTest, TestAllSeverities)
 {
     Logger logger = _logRegistry->createLogger(LogComponents::TEST_COMP);
-    logger.setLogLevel(se_oss::LogLevel::TRACE);
+    logger.setLogFilterLevel(se_oss::LogLevel::TRACE);
 
     LOG_TRACE(logger, "Test Trace %d", 1);
     LOG_DEBUG(logger, "Test Debug %s", "debug");
@@ -114,7 +114,7 @@ TEST_F(LogPrintfTest, TestAllSeverities)
 TEST_F(LogPrintfTest, TestLogLevelFiltering)
 {
     Logger logger = _logRegistry->createLogger(LogComponents::TEST_COMP);
-    logger.setLogLevel(se_oss::LogLevel::INFO);  // Only INFO and above
+    logger.setLogFilterLevel(se_oss::LogLevel::INFO);  // Only INFO and above
 
     LOG_TRACE(logger, "Hidden Trace");
     LOG_DEBUG(logger, "Hidden Debug");

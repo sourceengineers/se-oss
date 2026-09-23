@@ -13,6 +13,22 @@
 using namespace se_oss;
 using namespace testing;
 
+namespace {
+
+class RecordingFilter final : public ILogFilter
+{
+public:
+    bool passesFilter(const LogMetadata&) const override
+    {
+        called = true;
+        return true;
+    }
+
+    mutable bool called {false};
+};
+
+}  // namespace
+
 class LoggerTest : public Test
 {
 protected:
@@ -56,16 +72,13 @@ TEST_F(LoggerTest, Name_SetOverrides)
 TEST_F(LoggerTest, SetFilter_DelegatesToContext)
 {
     Logger logger(*_context);
-    bool filterCalled = false;
-    logger.setFilter([&filterCalled](const LogMetadata&) -> bool {
-        filterCalled = true;
-        return true;
-    });
+    RecordingFilter filter;
+    logger.setCustomLogFilter(&filter);
 
     // Verify filter was applied by logging a message
     EXPECT_CALL(_sink, write(_, _, _)).Times(AtLeast(0));
     logger.log(LogLevel::INFO, "test");
-    EXPECT_TRUE(filterCalled);
+    EXPECT_TRUE(filter.called);
 }
 
 TEST_F(LoggerTest, CopyConstructor)
@@ -82,7 +95,7 @@ TEST_F(LoggerTest, CopyConstructor)
 TEST_F(LoggerTest, Log_FilteredOut_NoWrite)
 {
     Logger logger(*_context);
-    logger.setLogLevel(LogLevel::FATAL);
+    logger.setLogFilterLevel(LogLevel::FATAL);
 
     // DEBUG should be filtered out — no write to sink
     EXPECT_CALL(_sink, write(_, _, _)).Times(0);
@@ -98,7 +111,7 @@ TEST_F(LoggerTest, Log_FormatterReturnsZero_NoHeader)
     // using a nullptr format string which causes the formatter to produce 0 bytes
     // when valid becomes false.
     Logger logger(*_context);
-    logger.setLogLevel(LogLevel::TRACE);
+    logger.setLogFilterLevel(LogLevel::TRACE);
 
     // The reservation still happens, but no data is committed to the buffer.
     // We can't easily mock the formatter, but we can verify no crash.

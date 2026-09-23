@@ -7,8 +7,8 @@
 #pragma once
 
 #include "IWriter.h"
-#include "se-oss/log/ILogFilter.h"
 #include "se-oss/log/Types.h"
+#include "se-oss/log/filter/ILogFilterSetter.h"
 
 #include <cstring>
 
@@ -20,7 +20,7 @@ namespace se_oss {
  * A sink is responsible for writing formatted log messages to a destination.
  * It combines filtering capabilities (via ILogFilter) with writing capabilities.
  */
-class ILogSink : public ILogFilter
+class ILogSink : public ILogFilterSetter
 {
 protected:
     ILogSink() = default;
@@ -47,8 +47,8 @@ public:
     virtual void flush() = 0;
 
     // ILogFilter implementation
-    void setLogLevel(LogLevel level) override = 0;
-    void setFilter(LogFilterFunction filter) override = 0;
+    void setLogFilterLevel(LogLevel level) override = 0;
+    void setCustomLogFilter(const ILogFilter* filter) override = 0;
 };
 
 /**

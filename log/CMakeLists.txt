@@ -28,7 +28,9 @@ target_sources(
         TYPE HEADERS
         FILES
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/Conf.h
-        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/ILogFilter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/filter/ILogFilterSetter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/filter/ILogFilter.h
+        ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/filter/LogFilter.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/Log.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/LogRegistry.h
         ${CMAKE_CURRENT_LIST_DIR}/include/se-oss/log/ResourceDatabase.h

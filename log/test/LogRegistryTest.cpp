@@ -74,7 +74,7 @@ protected:
         _buffer.clear();
         _registry = std::make_unique<LogRegistry<TestContexts, TestSinks>>();
         _registry->attachSink(TestSinks::SINK_A, std::make_unique<FilteredSink<BufferSink>>(_buffer));
-        _registry->getSink(TestSinks::SINK_A).setLogLevel(LogLevel::TRACE);
+        _registry->getSink(TestSinks::SINK_A).setLogFilterLevel(LogLevel::TRACE);
     }
 
     std::vector<uint8_t> _buffer;
@@ -87,7 +87,7 @@ TEST_F(LogRegistryCustomTest, GetTime_NoProvider_ReturnsZero)
     _registry->setTimeProvider(nullptr);
 
     Logger logger = _registry->createLogger(TestContexts::COMP_A);
-    logger.setLogLevel(LogLevel::TRACE);
+    logger.setLogFilterLevel(LogLevel::TRACE);
     logger.log(LogLevel::INFO, "time check");
 
     // The timestamp in the output should reflect 0 (no time provider)
@@ -100,7 +100,7 @@ TEST_F(LogRegistryCustomTest, SetTimeProvider_UsesCustomProvider)
     _registry->setTimeProvider([]() -> uint64_t { return 99999ULL; });
 
     Logger logger = _registry->createLogger(TestContexts::COMP_A);
-    logger.setLogLevel(LogLevel::TRACE);
+    logger.setLogFilterLevel(LogLevel::TRACE);
     logger.log(LogLevel::INFO, "with time");
     _registry->distributeMessages();
 
@@ -111,8 +111,8 @@ TEST_F(LogRegistryCustomTest, DistributeMessages_IteratesAllContexts)
 {
     Logger loggerA = _registry->createLogger(TestContexts::COMP_A);
     Logger loggerB = _registry->createLogger(TestContexts::COMP_B);
-    loggerA.setLogLevel(LogLevel::TRACE);
-    loggerB.setLogLevel(LogLevel::TRACE);
+    loggerA.setLogFilterLevel(LogLevel::TRACE);
+    loggerB.setLogFilterLevel(LogLevel::TRACE);
 
     loggerA.log(LogLevel::INFO, "from A");
     loggerB.log(LogLevel::INFO, "from B");

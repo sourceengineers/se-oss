@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "ILogFilter.h"
-#include "LogFilter.h"
 #include "UserLogConf.h"
 #include "buffer/IBuffer.h"
+#include "filter/ILogFilterSetter.h"
+#include "filter/LogFilter.h"
 #include "sink/ILogSink.h"
 
 #include <atomic>
@@ -25,7 +25,7 @@ struct LogStatistics
     uint32_t droppedMessages {0}; /**< Number of messages dropped due to buffer overflow or other issues. */
 };
 
-class LogContext : public ILogFilter
+class LogContext : public ILogFilterSetter
 {
 public:
     LogContext(uint8_t tag, const char* name, ILogSink& sink, TimeProvider timeProvider) :
@@ -88,8 +88,8 @@ public:
     }
 
     // ILogFilter realization
-    void setLogLevel(LogLevel level) override { return _filter.setLogLevel(level); }
-    void setFilter(LogFilterFunction filter) override { return _filter.setFilter(filter); }
+    void setLogFilterLevel(LogLevel level) override { return _filter.setLogFilterLevel(level); }
+    void setCustomLogFilter(const ILogFilter* filter) override { return _filter.setCustomLogFilter(filter); }
 
 private:
     LogFilter _filter {};
