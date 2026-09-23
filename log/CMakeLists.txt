@@ -74,8 +74,7 @@ endif ()
 
 add_library(se_oss::log ALIAS se_oss_log)
 
-# test support for projects using the logger (se_oss::log_test_support), and the tests themselves
-# when SE_OSS_LOG_TESTS is enabled
+# test support for projects using the logger when SE_OSS_LOG_TESTS is enabled
 add_subdirectory(test)
 
 # examples and tests

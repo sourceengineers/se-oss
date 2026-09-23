@@ -2,8 +2,7 @@
 # Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
 # SPDX-License-Identifier: MIT
 
-# header-only test support (CapturingLogSink, CapturingLogger, LogSinkMock) for the unit tests
-# of projects using the logger; always available, independent of SE_OSS_LOG_TESTS
+# header-only test support of projects using the logger; always available, independent of SE_OSS_LOG_TESTS
 add_library(se_oss_log_test_support INTERFACE)
 target_include_directories(se_oss_log_test_support INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(se_oss_log_test_support INTERFACE se_oss::log)
