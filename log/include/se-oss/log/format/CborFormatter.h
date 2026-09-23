@@ -54,7 +54,7 @@ public:
      */
     template<typename TFormat, typename... Values>
     static size_t
-    format(void* buffer, std::size_t bufferSize, const LogRecord& record, TFormat formatString, const Values&... values)
+    format(void* buffer, std::size_t bufferSize, const LogRecord& record, TFormat formatString, const Values... values)
     {
         if (buffer == nullptr) {
             return 0U;
@@ -85,7 +85,7 @@ public:
 
 private:
     template<typename... Values>
-    static void serializeValues(CborEncoder& encoder, const Values&... values)
+    static void serializeValues(CborEncoder& encoder, const Values... values)
     {
         CborEncoder arrayEncoder;
         size_t nValues = sizeof...(Values);

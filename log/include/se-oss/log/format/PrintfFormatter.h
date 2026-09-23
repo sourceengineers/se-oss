@@ -34,7 +34,7 @@ public:
         std::size_t bufferSize,
         const LogRecord& record,
         const char* const formatString,
-        const Values&... values
+        const Values... values
     )
     {
         if (buffer == nullptr || formatString == nullptr) {
@@ -58,7 +58,7 @@ public:
      * @return The number of bytes written, or 0 on failure.
      */
     template<typename... Values>
-    static size_t format(void* buffer, std::size_t bufferSize, const LogRecord&, uint32_t, const Values&...)
+    static size_t format(void* buffer, std::size_t bufferSize, const LogRecord&, uint32_t, const Values...)
     {
         // Note: declared at block scope on purpose. As a static constexpr class member this array would need an
         //       additional out-of-line definition to be ODR-usable in C++14, which C++17 no longer requires.
