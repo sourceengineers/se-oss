@@ -13,15 +13,28 @@
 using namespace se_oss;
 using namespace testing;
 
-class LoggerTest : public Test
+namespace {
+
+class RecordingFilter final : public ILogFilter
+{
+public:
+    bool passesFilter(const LogMetadata&) const override
+    {
+        called = true;
+        return true;
+    }
+
+    mutable bool called {false};
+};
+
+}  // namespace
+
+class LoggerTest : public Test, public ITimeProvider
 {
 protected:
-    void SetUp() override
-    {
-        _context = std::make_unique<LogContext>(
-            1, "loggertest", _sink, []() -> uint64_t { return 12345ULL; }
-        );
-    }
+    void SetUp() override { _context = std::make_unique<LogContext>(1, "loggertest", _sink, *this); }
+
+    uint64_t time() const override { return 12345U; }
 
     LogSinkMock _sink;
     std::unique_ptr<LogContext> _context;
@@ -58,16 +71,13 @@ TEST_F(LoggerTest, Name_SetOverrides)
 TEST_F(LoggerTest, SetFilter_DelegatesToContext)
 {
     Logger logger(*_context);
-    bool filterCalled = false;
-    logger.setFilter([&filterCalled](const LogMetadata&) -> bool {
-        filterCalled = true;
-        return true;
-    });
+    RecordingFilter filter;
+    logger.setCustomLogFilter(&filter);
 
     // Verify filter was applied by logging a message
     EXPECT_CALL(_sink, write(_, _, _)).Times(AtLeast(0));
     logger.log(LogLevel::INFO, "test");
-    EXPECT_TRUE(filterCalled);
+    EXPECT_TRUE(filter.called);
 }
 
 TEST_F(LoggerTest, CopyConstructor)
@@ -84,7 +94,7 @@ TEST_F(LoggerTest, CopyConstructor)
 TEST_F(LoggerTest, Log_FilteredOut_NoWrite)
 {
     Logger logger(*_context);
-    logger.setLogLevel(LogLevel::FATAL);
+    logger.setLogFilterLevel(LogLevel::FATAL);
 
     // DEBUG should be filtered out — no write to sink
     EXPECT_CALL(_sink, write(_, _, _)).Times(0);
@@ -94,16 +104,15 @@ TEST_F(LoggerTest, Log_FilteredOut_NoWrite)
 TEST_F(LoggerTest, Log_FormatterReturnsZero_NoHeader)
 {
     // When the buffer is too small for any content, the formatter returns 0
-    // and the producer lambda returns 0 (no header written).
+    // and no bytes are committed.
     // This is hard to trigger directly because the buffer is allocated internally.
     // We cover the bytesWritten == 0 branch by having the filter pass but
     // using a nullptr format string which causes the formatter to produce 0 bytes
     // when valid becomes false.
     Logger logger(*_context);
-    logger.setLogLevel(LogLevel::TRACE);
+    logger.setLogFilterLevel(LogLevel::TRACE);
 
-    // The write should still happen via writeMessage, but the producer returns 0
-    // so no data is actually committed to the buffer.
+    // The reservation still happens, but no data is committed to the buffer.
     // We can't easily mock the formatter, but we can verify no crash.
     EXPECT_CALL(_sink, write(_, _, _)).Times(AtLeast(0));
     logger.log(LogLevel::INFO, static_cast<const char*>(nullptr));

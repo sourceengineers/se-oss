@@ -132,9 +132,10 @@ The library provides two types of buffers:
 
 * ``ImmediateBuffer``: The buffer is used for string formatting only, the log output is send immediately to the sink.
   This buffer is suited for simple single-thread applications.
-* ``AtomicBuffer``: This buffer is lock-free and thread-safe in a single-producer single-consumer scenario.
+* ``AtomicBuffer``: This mutex-free buffer is thread-safe in a single-producer single-consumer scenario. Whether its
+  atomic operations are lock-free depends on the target platform.
   Log messages are passed on to sink when the user calls ``logRegistry->distributeMessages();``
-  This buffer is suited for multi-thread applications.
+  This buffer is suited for multi-thread applications with one producer thread per buffer.
 
 
 .. _default_conf:

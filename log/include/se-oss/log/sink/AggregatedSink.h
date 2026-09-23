@@ -49,24 +49,17 @@ public:
         }
     }
 
-    void setLogLevel(LogLevel level) override
+    void setLogFilterLevel(LogLevel level) override
     {
         for (const auto& sink : _sinks) {
-            sink.second->setLogLevel(level);
+            sink.second->setLogFilterLevel(level);
         }
-        _filter = nullptr;
     }
 
-    void setFilter(LogFilterFunction filter) override
+    void setCustomLogFilter(const ILogFilter* filter) override
     {
-        _filter = filter;
         for (const auto& sink : _sinks) {
-            sink.second->setFilter([this](const LogMetadata& metadata) -> bool {
-                if (_filter == nullptr) {
-                    return false;
-                }
-                return _filter(metadata);
-            });
+            sink.second->setCustomLogFilter(filter);
         }
     }
 
@@ -92,7 +85,6 @@ public:
 
 private:
     std::unordered_map<TSink, std::unique_ptr<ILogSink>> _sinks {};
-    LogFilterFunction _filter {};
 };
 
 }  // namespace se_oss

@@ -53,15 +53,18 @@ enum class DefaultLogSink : uint8_t
  * @tparam TSink Enum type representing the log sinks.
  */
 template<typename TContext = DefaultLogContext, typename TSink = DefaultLogSink>
-class LogRegistry
+class LogRegistry : public ITimeProvider
 {
 public:
     static_assert(std::is_enum<TContext>::value, "TContext must be an enum type");
-    static_assert(std::is_same<std::underlying_type_t<TContext>, uint8_t>::value, "TContext underlying type must be uint8_t");
+    static_assert(
+        std::is_same<std::underlying_type_t<TContext>, uint8_t>::value,
+        "TContext underlying type must be uint8_t"
+    );
     static_assert(std::is_enum<TSink>::value, "TSink must be an enum type");
 
     LogRegistry() = default;
-    ~LogRegistry() = default;
+    ~LogRegistry() override = default;
     LogRegistry(const LogRegistry&) = delete;
     LogRegistry(LogRegistry&&) = delete;
     LogRegistry& operator=(const LogRegistry&) = delete;
@@ -99,9 +102,7 @@ public:
             _logContexts.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(context),
-                std::forward_as_tuple(static_cast<uint8_t>(context), toString(context), _sinkHandler, [this]() {
-                    return getTime();
-                })
+                std::forward_as_tuple(static_cast<uint8_t>(context), toString(context), _sinkHandler, *this)
             );
         }
         return _logContexts.at(context);
@@ -109,9 +110,14 @@ public:
 
     /**
      * Sets the time provider.
-     * @param provider A function returning the current time in microseconds.
+     * @param provider A function or non-capturing lambda returning the current time in microseconds.
      */
-    void setTimeProvider(const std::function<uint64_t()>& provider) { _timeProvider = provider; }
+    void setTimeProvider(TimeProvider provider) { _timeProvider = provider; }
+
+    /**
+     * Returns the current time in microseconds, or zero if no provider is registered.
+     */
+    uint64_t time() const override { return _timeProvider != nullptr ? _timeProvider() : 0U; }
 
     /**
      * Attaches a sink to a specific sink ID.
@@ -148,27 +154,18 @@ public:
 private:
     AggregatedSink<TSink> _sinkHandler {};
     std::unordered_map<TContext, LogContext> _logContexts {};
-    std::function<uint64_t()> _timeProvider =
+    TimeProvider _timeProvider =
 #ifdef SE_OSS_HAS_CHRONO
-        {[]() {
-            return std::chrono::duration_cast<std::chrono::microseconds>(
-                       std::chrono::system_clock::now().time_since_epoch()
-            )
-                .count();
-        }};
+        []() -> uint64_t {
+        return static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch())
+                .count()
+        );
+    };
     // If chrono is available on the platform, add it as the default time provider
 #else
-        {};
+        nullptr;
 #endif
-
-    uint64_t getTime()
-    {
-        if (_timeProvider) {
-            return _timeProvider();
-        } else {
-            return 0U;
-        }
-    }
 
     template<typename T = TSink>
     std::enable_if_t<!std::is_same<T, DefaultLogSink>::value, void> createDefaultSinkIfNeeded() const

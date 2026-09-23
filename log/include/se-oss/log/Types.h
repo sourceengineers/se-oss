@@ -7,7 +7,6 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
 
 namespace se_oss {
 
@@ -115,6 +114,9 @@ enum class TimeFormat : uint8_t
     ISO8601
 };
 
-using TimeProvider = std::function<uint64_t()>;
+/**
+ * Function returning the current time in microseconds.
+ */
+using TimeProvider = uint64_t (*)();
 
 }  // namespace se_oss

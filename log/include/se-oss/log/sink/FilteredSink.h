@@ -7,8 +7,8 @@
 #pragma once
 
 #include "ILogSink.h"
-#include "se-oss/log/ILogFilter.h"
-#include "se-oss/log/LogFilter.h"
+#include "se-oss/log/filter/ILogFilterSetter.h"
+#include "se-oss/log/filter/LogFilter.h"
 
 namespace se_oss {
 
@@ -55,9 +55,9 @@ public:
 
     void flush() override { _sink.flush(); }
 
-    void setLogLevel(LogLevel level) override { _filter.setLogLevel(level); }
+    void setLogFilterLevel(LogLevel level) override { _filter.setLogFilterLevel(level); }
 
-    void setFilter(LogFilterFunction filter) override { _filter.setFilter(filter); }
+    void setCustomLogFilter(const ILogFilter* filter) override { _filter.setCustomLogFilter(filter); }
 
     /**
      * Provides access to the underlying writer.

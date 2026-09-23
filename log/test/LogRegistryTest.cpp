@@ -74,7 +74,7 @@ protected:
         _buffer.clear();
         _registry = std::make_unique<LogRegistry<TestContexts, TestSinks>>();
         _registry->attachSink(TestSinks::SINK_A, std::make_unique<FilteredSink<BufferSink>>(_buffer));
-        _registry->getSink(TestSinks::SINK_A).setLogLevel(LogLevel::TRACE);
+        _registry->getSink(TestSinks::SINK_A).setLogFilterLevel(LogLevel::TRACE);
     }
 
     std::vector<uint8_t> _buffer;
@@ -86,8 +86,11 @@ TEST_F(LogRegistryCustomTest, GetTime_NoProvider_ReturnsZero)
     // Replace the default time provider with nothing
     _registry->setTimeProvider(nullptr);
 
-    Logger logger = _registry->createLogger(TestContexts::COMP_A);
-    logger.setLogLevel(LogLevel::TRACE);
+    LogContext& context = _registry->createOrGetContext(TestContexts::COMP_A);
+    EXPECT_EQ(context.time(), 0U);
+
+    Logger logger {context};
+    logger.setLogFilterLevel(LogLevel::TRACE);
     logger.log(LogLevel::INFO, "time check");
 
     // The timestamp in the output should reflect 0 (no time provider)
@@ -97,10 +100,12 @@ TEST_F(LogRegistryCustomTest, GetTime_NoProvider_ReturnsZero)
 
 TEST_F(LogRegistryCustomTest, SetTimeProvider_UsesCustomProvider)
 {
+    LogContext& context = _registry->createOrGetContext(TestContexts::COMP_A);
     _registry->setTimeProvider([]() -> uint64_t { return 99999ULL; });
+    EXPECT_EQ(context.time(), 99999ULL);
 
     Logger logger = _registry->createLogger(TestContexts::COMP_A);
-    logger.setLogLevel(LogLevel::TRACE);
+    logger.setLogFilterLevel(LogLevel::TRACE);
     logger.log(LogLevel::INFO, "with time");
     _registry->distributeMessages();
 
@@ -111,8 +116,8 @@ TEST_F(LogRegistryCustomTest, DistributeMessages_IteratesAllContexts)
 {
     Logger loggerA = _registry->createLogger(TestContexts::COMP_A);
     Logger loggerB = _registry->createLogger(TestContexts::COMP_B);
-    loggerA.setLogLevel(LogLevel::TRACE);
-    loggerB.setLogLevel(LogLevel::TRACE);
+    loggerA.setLogFilterLevel(LogLevel::TRACE);
+    loggerB.setLogFilterLevel(LogLevel::TRACE);
 
     loggerA.log(LogLevel::INFO, "from A");
     loggerB.log(LogLevel::INFO, "from B");

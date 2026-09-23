@@ -13,7 +13,7 @@ int main()
 
     se_oss::Logger log = logRegistry->createLogger(se_oss::DefaultLogContext::DEFAULT);
 
-    log.setLogLevel(se_oss::LogLevel::TRACE);
+    log.setLogFilterLevel(se_oss::LogLevel::TRACE);
 
     LOG_TRACE(log, "trace");
     LOG_DEBUG(log, "debug");

@@ -6,13 +6,9 @@
 
 #pragma once
 
-#include "Types.h"
-
-#include <functional>
+#include "../Types.h"
 
 namespace se_oss {
-
-using LogFilterFunction = std::function<bool(const LogMetadata&)>;
 
 class ILogFilter
 {
@@ -26,16 +22,6 @@ public:
     ILogFilter& operator=(const ILogFilter&) = delete;
     ILogFilter& operator=(ILogFilter&&) = delete;
 
-    /**
-     * Sets the minimum log level for the filter.
-     * @param level The minimum log level.
-     */
-    virtual void setLogLevel(LogLevel level) = 0;
-
-    /**
-     * Sets a custom filter function.
-     * @param filter A function that takes LogMetadata and returns true to allow the message.
-     */
-    virtual void setFilter(LogFilterFunction filter) = 0;
+    virtual bool passesFilter(const LogMetadata& metadata) const = 0;
 };
 }  // namespace se_oss

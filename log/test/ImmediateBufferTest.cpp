@@ -33,46 +33,52 @@ TEST_F(ImmediateBufferTest, ReadWrite)
     for (size_t i = 0U; i < 10U; ++i) {
         std::array<uint8_t, 42U> data {};
         std::fill(data.begin(), data.end(), std::rand());
-        bool writeSuccessful = buffer.write(data.size(), [&](void* ptr, size_t size) {
-            std::memcpy(ptr, data.data(), data.size());
-            return size;
-        });
-        EXPECT_TRUE(writeSuccessful);
+        auto writeRegion = buffer.reserveWrite(data.size());
+        ASSERT_NE(writeRegion.data, nullptr);
+        EXPECT_EQ(writeRegion.size, data.size());
+        std::memcpy(writeRegion.data, data.data(), writeRegion.size);
+        buffer.commitWrite(writeRegion.size);
 
         std::array<uint8_t, 42U> readData;
-        bool readSuccessful = buffer.read([&](const void* ptr, size_t size) {
-            std::memcpy(readData.data(), ptr, readData.size());
-            return size;
-        });
-        EXPECT_TRUE(readSuccessful);
+        auto readRegion = buffer.acquireRead();
+        ASSERT_NE(readRegion.data, nullptr);
+        EXPECT_EQ(readRegion.size, readData.size());
+        std::memcpy(readData.data(), readRegion.data, readData.size());
+        buffer.consumeRead(readRegion.size);
         EXPECT_EQ(readData, data);
     }
 }
 
-TEST_F(ImmediateBufferTest, Write_ReserveTooLarge_ReturnsFalse)
+TEST_F(ImmediateBufferTest, ReserveWrite_TooLarge_ReturnsEmptyRegion)
 {
     ImmediateBuffer<16> buffer;
     std::size_t tooLarge = buffer.capacity() + 1;
-    bool result = buffer.write(tooLarge, [](void*, size_t sz) { return sz; });
-    EXPECT_FALSE(result);
+    auto region = buffer.reserveWrite(tooLarge);
+    EXPECT_EQ(region.data, nullptr);
+    EXPECT_EQ(region.size, 0U);
 }
 
-TEST_F(ImmediateBufferTest, Write_ProducerReturnsZero_ReturnsFalse)
+TEST_F(ImmediateBufferTest, CommitWrite_ZeroBytes_DoesNotAddData)
 {
     ImmediateBuffer<128> buffer;
-    bool result = buffer.write(10, [](void*, size_t) -> size_t { return 0; });
-    EXPECT_FALSE(result);
+    ASSERT_NE(buffer.reserveWrite(10U).data, nullptr);
+    buffer.commitWrite(0U);
+    EXPECT_EQ(buffer.size(), 0U);
+    EXPECT_EQ(buffer.acquireRead().data, nullptr);
 }
 
-TEST_F(ImmediateBufferTest, Read_ConsumerReturnsZero_ReturnsFalse)
+TEST_F(ImmediateBufferTest, ConsumeRead_PartialReadAdvancesRegion)
 {
     ImmediateBuffer<128> buffer;
-    // Write some data first
-    buffer.write(10, [](void* ptr, size_t sz) {
-        std::memset(ptr, 0xAB, 10);
-        return sz;
-    });
-    // Consumer returns 0
-    bool result = buffer.read([](const void*, size_t) -> size_t { return 0; });
-    EXPECT_FALSE(result);
+    auto writeRegion = buffer.reserveWrite(10U);
+    ASSERT_NE(writeRegion.data, nullptr);
+    std::memset(writeRegion.data, 0xAB, writeRegion.size);
+    buffer.commitWrite(writeRegion.size);
+
+    auto firstRead = buffer.acquireRead();
+    buffer.consumeRead(4U);
+    auto secondRead = buffer.acquireRead();
+
+    EXPECT_EQ(secondRead.data, static_cast<const uint8_t*>(firstRead.data) + 4U);
+    EXPECT_EQ(secondRead.size, 6U);
 }

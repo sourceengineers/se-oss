@@ -15,10 +15,12 @@ namespace se_oss {
 class LogSinkMock : public se_oss::ILogSink
 {
 public:
+    // clang-format off
     MOCK_METHOD(void, write, (const LogMetadata&, const void*, std::size_t), (override));
     MOCK_METHOD(void, flush, (), (override));
-    MOCK_METHOD(void, setLogLevel, (LogLevel), (override));
-    MOCK_METHOD(void, setFilter, (LogFilterFunction), (override));
+    MOCK_METHOD(void, setLogFilterLevel, (LogLevel), (override));
+    MOCK_METHOD(void, setCustomLogFilter, (const ILogFilter*), (override));
+    // clang-format on
 };
 
-}
+}  // namespace se_oss

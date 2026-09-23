@@ -9,6 +9,7 @@
 #include "IBuffer.h"
 #include "se-oss/log/sink/ILogSink.h"
 
+#include <algorithm>
 #include <array>
 
 namespace se_oss {
@@ -34,26 +35,44 @@ public:
     ImmediateBuffer& operator=(ImmediateBuffer&&) = delete;
 
     std::size_t capacity() const override { return _formatBuffer.size(); }
-    std::size_t size() const override { return 0U; }
-    std::size_t free() const override { return _formatBuffer.size(); }
+    std::size_t size() const override { return _size - _readPosition; }
+    std::size_t free() const override { return size() == 0U ? _formatBuffer.size() : 0U; }
 
-    bool read(const std::function<std::size_t(const void*, std::size_t)>& consumer) override
+    WriteRegion reserveWrite(std::size_t size) override
     {
-        return consumer(_formatBuffer.data(), _size) > 0U;
+        if (size == 0U || size > free()) {
+            return {nullptr, 0U};
+        }
+        _reservedSize = size;
+        return {_formatBuffer.data(), size};
     }
 
-    bool write(std::size_t reserveSize, const std::function<std::size_t(void*, std::size_t)>& producer) override
+    void commitWrite(std::size_t bytesWritten) override
     {
-        if (reserveSize > _formatBuffer.size()) {
-            return false;
+        _size = std::min(bytesWritten, _reservedSize);
+        _readPosition = 0U;
+        _reservedSize = 0U;
+    }
+
+    ReadRegion acquireRead() override
+    {
+        return size() > 0U ? ReadRegion {_formatBuffer.data() + _readPosition, size()} : EMPTY_READ_REGION;
+    }
+
+    void consumeRead(std::size_t bytesRead) override
+    {
+        _readPosition += std::min(bytesRead, size());
+        if (_readPosition == _size) {
+            _readPosition = 0U;
+            _size = 0U;
         }
-        _size = producer(_formatBuffer.data(), _formatBuffer.size());
-        return _size > 0U;
     }
 
 private:
     std::array<uint8_t, MAX_MESSAGE_LENGTH + LogHeader::PACKED_SIZE> _formatBuffer {};
     std::size_t _size {0U};
+    std::size_t _readPosition {0U};
+    std::size_t _reservedSize {0U};
 };
 
 }  // namespace se_oss

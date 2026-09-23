@@ -16,11 +16,11 @@ int main()
 
     auto logRegistry = std::make_unique<se_oss::LogRegistry<MyLogContext, MyLogSink>>();
     logRegistry->attachSink(MyLogSink::SHELL, std::move(shellSink));
-    logRegistry->getSink(MyLogSink::SHELL).setLogLevel(se_oss::LogLevel::TRACE);
+    logRegistry->getSink(MyLogSink::SHELL).setLogFilterLevel(se_oss::LogLevel::TRACE);
 
     se_oss::Logger log = logRegistry->createLogger(MyLogContext::CELLULAR);
 
-    log.setLogLevel(se_oss::LogLevel::TRACE);
+    log.setLogFilterLevel(se_oss::LogLevel::TRACE);
 
     LOG_TRACE(log, "trace");
     LOG_DEBUG(log, "debug");
