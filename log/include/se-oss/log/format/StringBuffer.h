@@ -59,7 +59,7 @@ public:
     }
 
     template<typename... Values>
-    void append(const char* const formatString, const Values&... values)
+    void append(const char* const formatString, const Values... values)
     {
         if (formatString == nullptr || !_valid) {
             return;

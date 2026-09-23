@@ -222,7 +222,7 @@ public:
      * @param values The arguments to format.
      */
     template<typename TFormat, typename... Values>
-    void log(LogLevel level, TFormat format, const Values&... values);
+    void log(LogLevel level, TFormat format, const Values... values);
 
     /**
      * Retrieves current logger statistics.
@@ -252,7 +252,7 @@ private:
 inline Logger::Logger(LogContext& context) : _context {context}, _name {context.name()} { }
 
 template<typename TFormat, typename... Values>
-void Logger::log(LogLevel level, TFormat format, const Values&... values)
+void Logger::log(LogLevel level, TFormat format, const Values... values)
 {
     static_assert(
         std::is_same<TFormat, const char*>::value || std::is_same<TFormat, uint32_t>::value,

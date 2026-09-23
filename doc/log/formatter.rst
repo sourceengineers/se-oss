@@ -212,7 +212,7 @@ Then select your formatter class in the log configuration.
             std::size_t bufferSize,
             const se_oss::LogRecord& record,
             const char* const formatString,
-            const Values&... values
+            const Values... values
         )
         {
             LogStringBuffer string {buffer, bufferSize};

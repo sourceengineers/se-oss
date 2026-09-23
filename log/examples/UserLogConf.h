@@ -64,7 +64,7 @@ public:
         std::size_t bufferSize,
         const se_oss::LogRecord& record,
         const char* const formatString,
-        const Values&... values
+        const Values... values
     )
     {
         if (buffer == nullptr || formatString == nullptr) {
