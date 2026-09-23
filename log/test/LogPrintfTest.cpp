@@ -60,7 +60,7 @@ protected:
 
         // Mock time: 1234567890000 microseconds since epoch
         // ISO8601: 1970-01-15T06:56:07.890Z
-        _logRegistry->setTimeProvider([]() { return 1234567890000ULL; });
+        _logRegistry->setTimeProvider([]() -> uint64_t { return 1234567890000ULL; });
 
         _buffer.clear();
         auto bufferSink = std::make_unique<FilteredSink<BufferSink>>(_buffer);

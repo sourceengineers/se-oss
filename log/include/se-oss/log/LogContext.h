@@ -1,11 +1,12 @@
 /*
  * Copyright (c) 2026 Source Engineers GmbH
- *
+ * Licensed under the MIT License, see LICENSE.MIT in the se-oss project root for full terms.
  * SPDX-License-Identifier: MIT
  */
 
 #pragma once
 
+#include "ITimeProvider.h"
 #include "UserLogConf.h"
 #include "buffer/IBuffer.h"
 #include "filter/ILogFilterSetter.h"
@@ -28,11 +29,11 @@ struct LogStatistics
 class LogContext : public ILogFilterSetter
 {
 public:
-    LogContext(uint8_t tag, const char* name, ILogSink& sink, TimeProvider timeProvider) :
+    LogContext(uint8_t tag, const char* name, ILogSink& sink, ITimeProvider& timeProvider) :
         _contextTag {tag},
         _name {name},
         _sink {sink},
-        _timeProvider {std::move(timeProvider)}
+        _timeProvider {timeProvider}
     {
     }
     ~LogContext() override = default;
@@ -45,7 +46,7 @@ public:
     void setContextTag(uint8_t tag) { _contextTag = tag; }
     const char* name() const { return _name; }
     LogStatistics statistics() const { return _statistics; }
-    uint64_t time() const { return _timeProvider ? _timeProvider() : INVALID_TIME; }
+    uint64_t time() const { return _timeProvider.time(); }
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
     IBuffer::WriteRegion reserveMessage(std::size_t size);
@@ -98,7 +99,7 @@ private:
     log_conf::Buffer _buffer {};
     ILogSink& _sink;
     LogStatistics _statistics {};
-    const TimeProvider _timeProvider {};
+    ITimeProvider& _timeProvider;
 
     bool distributeSingleMessage();
 };

@@ -86,7 +86,10 @@ TEST_F(LogRegistryCustomTest, GetTime_NoProvider_ReturnsZero)
     // Replace the default time provider with nothing
     _registry->setTimeProvider(nullptr);
 
-    Logger logger = _registry->createLogger(TestContexts::COMP_A);
+    LogContext& context = _registry->createOrGetContext(TestContexts::COMP_A);
+    EXPECT_EQ(context.time(), 0U);
+
+    Logger logger {context};
     logger.setLogFilterLevel(LogLevel::TRACE);
     logger.log(LogLevel::INFO, "time check");
 
@@ -97,7 +100,9 @@ TEST_F(LogRegistryCustomTest, GetTime_NoProvider_ReturnsZero)
 
 TEST_F(LogRegistryCustomTest, SetTimeProvider_UsesCustomProvider)
 {
+    LogContext& context = _registry->createOrGetContext(TestContexts::COMP_A);
     _registry->setTimeProvider([]() -> uint64_t { return 99999ULL; });
+    EXPECT_EQ(context.time(), 99999ULL);
 
     Logger logger = _registry->createLogger(TestContexts::COMP_A);
     logger.setLogFilterLevel(LogLevel::TRACE);

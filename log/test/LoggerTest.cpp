@@ -29,13 +29,12 @@ public:
 
 }  // namespace
 
-class LoggerTest : public Test
+class LoggerTest : public Test, public ITimeProvider
 {
 protected:
-    void SetUp() override
-    {
-        _context = std::make_unique<LogContext>(1, "loggertest", _sink, []() -> uint64_t { return 12345ULL; });
-    }
+    void SetUp() override { _context = std::make_unique<LogContext>(1, "loggertest", _sink, *this); }
+
+    uint64_t time() const override { return 12345U; }
 
     LogSinkMock _sink;
     std::unique_ptr<LogContext> _context;
