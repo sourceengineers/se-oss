@@ -7,21 +7,21 @@
 #pragma once
 
 #include "CapturingLogSink.h"
-#include "FixedTimeProvider.h"
 #include "se-oss/log/Log.h"
-#include "se-oss/log/LogContext.h"
+#include "se-oss/log/LogRegistry.h"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <memory>
 #include <string>
 
 namespace se_oss {
 
 /**
- * One-member test fixture for logging: bundles a CapturingLogSink, a LogContext with a fixed
- * time and a Logger to hand to the class under test.
+ * One-member test fixture for logging: a default LogRegistry whose sink is a CapturingLogSink,
+ * with a fixed time and a Logger to hand to the class under test.
  *
  * Records are checked with contains() or through sink(). In a deferred (AtomicBuffer) log
  * configuration both drain the context first, so pending messages are visible without an
@@ -31,13 +31,16 @@ class CapturingLogger final
 {
 public:
     /**
-     * @param name Context name; appears in the formatted text as `[name]`.
-     * @param tag Context tag.
+     * @param name Logger name; appears in the formatted text as `[name]`.
+     * @param tag Logger tag.
      */
     explicit CapturingLogger(const char* name = "test", uint8_t tag = 0U) :
-        _context {tag, name, _sink, _timeProvider},
-        _logger {_context}
+        _sink {attachCapturingSink(_registry)},
+        _logger {_registry.createLogger(DefaultLogContext::DEFAULT)}
     {
+        _registry.setTimeProvider(fixedTime);
+        _logger.setName(name);
+        _logger.setLogTag(tag);
     }
 
     ~CapturingLogger() = default;
@@ -57,13 +60,18 @@ public:
     CapturingLogSink& sink()
     {
         drain();
-        return _sink;
+        return *_sink;
     }
 
     /**
-     * The context, e.g. to set the log level under test.
+     * The registry, e.g. to create further loggers.
      */
-    LogContext& context() { return _context; }
+    LogRegistry<>& registry() { return _registry; }
+
+    /**
+     * The context of the logger, e.g. to set the log level under test.
+     */
+    LogContext& context() { return _registry.createOrGetContext(DefaultLogContext::DEFAULT); }
 
     /**
      * @return true when a record with the given level exists whose text contains substring.
@@ -71,7 +79,7 @@ public:
     bool contains(LogLevel level, const char* substring)
     {
         drain();
-        const auto& records = _sink.records();
+        const auto& records = _sink->records();
         return std::any_of(records.begin(), records.end(), [level, substring](const CapturingLogSink::Record& record) {
             return (record.level == level) && (record.text.find(substring) != std::string::npos);
         });
@@ -83,7 +91,7 @@ public:
     bool contains(const char* substring)
     {
         drain();
-        const auto& records = _sink.records();
+        const auto& records = _sink->records();
         return std::any_of(records.begin(), records.end(), [substring](const CapturingLogSink::Record& record) {
             return record.text.find(substring) != std::string::npos;
         });
@@ -95,7 +103,7 @@ public:
     std::size_t count()
     {
         drain();
-        return _sink.count();
+        return _sink->count();
     }
 
     /**
@@ -104,19 +112,27 @@ public:
     void clear()
     {
         drain();
-        _sink.clear();
+        _sink->clear();
     }
 
 private:
-    static constexpr uint64_t FIXED_TIMESTAMP {0U};
-
-    CapturingLogSink _sink {};
-    FixedTimeProvider _timeProvider {FIXED_TIMESTAMP};
-    LogContext _context;
+    LogRegistry<> _registry {};
+    CapturingLogSink* _sink;
     Logger _logger;
 
+    static uint64_t fixedTime() { return 0U; }
+
+    // Attached before the first logger is created, otherwise the registry attaches its ConsoleSink.
+    static CapturingLogSink* attachCapturingSink(LogRegistry<>& registry)
+    {
+        auto sink = std::make_unique<CapturingLogSink>();
+        CapturingLogSink* raw = sink.get();
+        registry.attachSink(DefaultLogSink::CONSOLE, std::move(sink));
+        return raw;
+    }
+
     // No-op with an ImmediateBuffer; moves every pending record to the sink with an AtomicBuffer.
-    void drain() { _context.distributeMessages(std::numeric_limits<std::size_t>::max()); }
+    void drain() { context().distributeMessages(std::numeric_limits<std::size_t>::max()); }
 };
 
 }  // namespace se_oss

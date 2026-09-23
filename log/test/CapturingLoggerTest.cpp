@@ -73,7 +73,7 @@ TEST(CapturingLoggerTest, UsesTheGivenNameAndAFixedTimestamp)
 
     ASSERT_EQ(1U, log.count());
     EXPECT_THAT(log.sink().records()[0].text, HasSubstr("[Unit]"));
-    EXPECT_EQ(4U, log.context().contextTag());
+    EXPECT_EQ(4U, log.logger().logTag());
     EXPECT_EQ(0U, log.context().time());
 }
 

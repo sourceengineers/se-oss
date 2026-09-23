@@ -74,12 +74,9 @@ endif ()
 
 add_library(se_oss::log ALIAS se_oss_log)
 
-# header-only test support (CapturingLogSink, CapturingLogger, FixedTimeProvider) for the unit
-# tests of projects using the logger; always available, independent of SE_OSS_LOG_TESTS
-add_library(se_oss_log_test_support INTERFACE)
-target_include_directories(se_oss_log_test_support INTERFACE ${CMAKE_CURRENT_LIST_DIR}/test)
-target_link_libraries(se_oss_log_test_support INTERFACE se_oss::log)
-add_library(se_oss::log_test_support ALIAS se_oss_log_test_support)
+# test support for projects using the logger (se_oss::log_test_support), and the tests themselves
+# when SE_OSS_LOG_TESTS is enabled
+add_subdirectory(test)
 
 # examples and tests
 if (${SE_OSS_LOG_EXAMPLES})
@@ -90,7 +87,6 @@ endif ()
 if (${SE_OSS_LOG_TESTS})
     message(STATUS "[se-log] Tests enabled")
     enable_testing()
-    add_subdirectory(test)
 
     include(${CMAKE_SOURCE_DIR}/cmake/static-analysis.cmake)
     se_static_analysis(TARGET se_oss_log)

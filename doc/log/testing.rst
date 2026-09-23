@@ -18,13 +18,11 @@ unit tests through the ``se_oss::log_test_support`` target:
    * - Header
      - Purpose
    * - ``CapturingLogger.h``
-     - One fixture member that bundles a ``CapturingLogSink``, a ``LogContext`` with a fixed
-       timestamp and a ``Logger`` to hand to the class under test.
+     - One fixture member: a default ``LogRegistry`` whose sink is a ``CapturingLogSink``, with
+       a fixed timestamp and a ``Logger`` to hand to the class under test.
    * - ``CapturingLogSink.h``
-     - ``ILogSink`` that records each message's level and formatted text.
-   * - ``FixedTimeProvider.h``
-     - ``ITimeProvider`` with a fixed, settable time, for building a ``LogContext`` by hand.
-       Declare it before the context, which keeps a reference to it.
+     - ``ILogSink`` that records each message's level and formatted text. Attach it to a
+       ``LogRegistry`` when a ``CapturingLogger`` does not fit.
    * - ``LogSinkMock.h``
      - Google Mock of ``ILogSink``, for pure call expectations.
 
