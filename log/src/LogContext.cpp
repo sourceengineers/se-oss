@@ -12,7 +12,7 @@ IBuffer::WriteRegion LogContext::reserveMessage(std::size_t size)
 {
     auto region = _buffer.reserveWrite(size);
     if (region.data == nullptr || region.size == 0U) {
-        _statistics.droppedMessages++;
+        _droppedMessages.fetch_add(1U, std::memory_order_relaxed);
     }
     return region;
 }
@@ -25,7 +25,7 @@ void LogContext::commitMessage(std::size_t bytesWritten)
     // too. A deferred buffer is drained later by distributeMessages(); a successful write is all
     // there is to check here.
     if (log_detail::is_immediate_buffer<log_conf::Buffer>::value && !distributeSingleMessage()) {
-        _statistics.droppedMessages++;
+        _droppedMessages.fetch_add(1U, std::memory_order_relaxed);
     }
 }
 
