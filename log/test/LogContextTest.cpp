@@ -62,6 +62,41 @@ TEST_F(LogContextTest, Statistics_DroppedMessages)
     EXPECT_GE(stats.droppedMessages, 1U);
 }
 
+TEST_F(LogContextTest, Statistics_CountsEveryFailedReservation)
+{
+    LogContext context(0, "test", _sink, *this);
+    constexpr uint32_t DROPS {5U};
+
+    for (uint32_t i = 0U; i < DROPS; ++i) {
+        EXPECT_EQ(context.reserveMessage(1024 * 1024).data, nullptr);
+    }
+
+    EXPECT_EQ(context.statistics().droppedMessages, DROPS);
+}
+
+TEST_F(LogContextTest, Statistics_CountsFailedImmediateDistribution)
+{
+    LogContext context(0, "test", _sink, *this);
+
+    // Committing zero bytes leaves nothing to hand to the sink, so the message counts as dropped.
+    ASSERT_NE(context.reserveMessage(16U).data, nullptr);
+    context.commitMessage(0U);
+
+    EXPECT_EQ(context.statistics().droppedMessages, 1U);
+}
+
+TEST_F(LogContextTest, Statistics_ReturnsSnapshot)
+{
+    LogContext context(0, "test", _sink, *this);
+    (void)context.reserveMessage(1024 * 1024);
+    LogStatistics snapshot = context.statistics();
+
+    (void)context.reserveMessage(1024 * 1024);
+
+    EXPECT_EQ(snapshot.droppedMessages, 1U);
+    EXPECT_EQ(context.statistics().droppedMessages, 2U);
+}
+
 TEST_F(LogContextTest, DistributeMessages_ImmediateMode_ReturnsEarly)
 {
     // The logger is in immediate mode, so distributeMessages will do nothing.

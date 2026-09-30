@@ -26,6 +26,12 @@ struct LogStatistics
     uint32_t droppedMessages {0}; /**< Number of messages dropped due to buffer overflow or other issues. */
 };
 
+/**
+ * Log context of one logger: filter, buffer, sink and statistics.
+ *
+ * The dropped-message counter is atomic, so concurrent producers count every drop, provided
+ * the buffer itself is externally synchronized for concurrent producers.
+ */
 class LogContext : public ILogFilterSetter
 {
 public:
@@ -45,7 +51,17 @@ public:
     uint8_t contextTag() const { return _contextTag; }
     void setContextTag(uint8_t tag) { _contextTag = tag; }
     const char* name() const { return _name; }
-    LogStatistics statistics() const { return _statistics; }
+
+    /**
+     * Returns a snapshot of the statistics, safe to call concurrently with logging.
+     */
+    LogStatistics statistics() const
+    {
+        LogStatistics statistics {};
+        statistics.droppedMessages = _droppedMessages.load(std::memory_order_relaxed);
+        return statistics;
+    }
+
     uint64_t time() const { return _timeProvider.time(); }
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
@@ -98,7 +114,7 @@ private:
     const char* _name {nullptr};
     log_conf::Buffer _buffer {};
     ILogSink& _sink;
-    LogStatistics _statistics {};
+    std::atomic<uint32_t> _droppedMessages {0U};
     ITimeProvider& _timeProvider;
 
     bool distributeSingleMessage();
