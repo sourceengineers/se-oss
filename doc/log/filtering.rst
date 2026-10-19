@@ -48,6 +48,9 @@ The filter can be set to a ``LogLevel``:
     logRegistry->getContext(MyLogContext::THREAD_A).setLogLevel(se_oss::LogLevel::INFO);
     logRegistry->getSink(MyLogSink::FILE).setLogLevel(se_oss::LogLevel::ERROR)
 
+``LogLevel::OFF`` as filter level blocks every message. A message logged at ``LogLevel::OFF`` never passes a filter,
+whatever the filter level or custom filter.
+
 Function-based Filtering
 ------------------------
 

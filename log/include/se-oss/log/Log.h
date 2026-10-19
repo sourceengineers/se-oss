@@ -19,75 +19,17 @@
 #ifndef SE_OSS_LOG_REPLACE_STRINGS
 
 /**
- * @def LOG_TRACE(logger, format, ...)
+ * @def LOG_MESSAGE(logger, level, format, ...)
  *
- * Logs a message with TRACE level.
+ * Logs a message with the given level. LOG_TRACE to LOG_FATAL log through it with a fixed level; use it directly when
+ * the level is known only at runtime.
  * @param logger The Logger instance.
+ * @param level The LogLevel of the message, any expression, evaluated once. A message at LogLevel::OFF is never logged.
  * @param ... The format string and additional arguments.
  */
-#define LOG_TRACE(logger, ...)                              \
-    do {                                                    \
-        logger.log(se_oss::LogLevel::TRACE, ##__VA_ARGS__); \
-    } while (false)
-
-/**
- * @def LOG_DEBUG(logger, format, ...)
- *
- * Logs a message with DEBUG level.
- * @param logger The Logger instance.
- * @param ... The format string and additional arguments
- */
-#define LOG_DEBUG(logger, ...)                              \
-    do {                                                    \
-        logger.log(se_oss::LogLevel::DEBUG, ##__VA_ARGS__); \
-    } while (false)
-
-/**
- * @def LOG_INFO(logger, format, ...)
- *
- * Logs a message with INFO level.
- * @param logger The Logger instance.
- * @param ... The format string and additional arguments
- */
-#define LOG_INFO(logger, ...)                              \
-    do {                                                   \
-        logger.log(se_oss::LogLevel::INFO, ##__VA_ARGS__); \
-    } while (false)
-
-/**
- * @def LOG_WARN(logger, format, ...)
- *
- * Logs a message with WARN level.
- * @param logger The Logger instance.
- * @param ... The format string and additional arguments
- */
-#define LOG_WARN(logger, ...)                              \
-    do {                                                   \
-        logger.log(se_oss::LogLevel::WARN, ##__VA_ARGS__); \
-    } while (false)
-
-/**
- * @def LOG_ERROR(logger, format, ...)
- *
- * Logs a message with ERROR level.
- * @param logger The Logger instance.
- * @param ... The format string and additional arguments
- */
-#define LOG_ERROR(logger, ...)                              \
-    do {                                                    \
-        logger.log(se_oss::LogLevel::ERROR, ##__VA_ARGS__); \
-    } while (false)
-
-/**
- * @def LOG_FATAL(logger, format, ...)
- *
- * Logs a message with FATAL level.
- * @param logger The Logger instance.
- * @param ... The format string and additional arguments
- */
-#define LOG_FATAL(logger, ...)                              \
-    do {                                                    \
-        logger.log(se_oss::LogLevel::FATAL, ##__VA_ARGS__); \
+#define LOG_MESSAGE(logger, level, ...)   \
+    do {                                  \
+        logger.log(level, ##__VA_ARGS__); \
     } while (false)
 
 #else
@@ -102,90 +44,76 @@
         decltype(se_oss::buildResourceIdentifier<FormatString>(std::make_index_sequence<sizeof(format)>()))>()
 
 /**
+ * @def LOG_MESSAGE(logger, level, format, ...)
+ *
+ * Logs a message with the given level. LOG_TRACE to LOG_FATAL log through it with a fixed level; use it directly when
+ * the level is known only at runtime.
+ * @param logger The Logger instance.
+ * @param level The LogLevel of the message, any expression, evaluated once. A message at LogLevel::OFF is never logged.
+ * @param format The format string, a string literal.
+ * @param ... Additional arguments.
+ */
+#define LOG_MESSAGE(logger, level, format, ...)                             \
+    do {                                                                    \
+        LOG_INTERNAL_STRING_TYPE(format);                                   \
+        logger.log(level, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
+    } while (false)
+
+#endif
+
+/**
  * @def LOG_TRACE(logger, format, ...)
  *
  * Logs a message with TRACE level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments.
  */
-#define LOG_TRACE(logger, format, ...)                                                        \
-    do {                                                                                      \
-        LOG_INTERNAL_STRING_TYPE(format);                                                     \
-        logger.log(se_oss::LogLevel::TRACE, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
-    } while (false)
+#define LOG_TRACE(logger, ...) LOG_MESSAGE(logger, se_oss::LogLevel::TRACE, __VA_ARGS__)
 
 /**
  * @def LOG_DEBUG(logger, format, ...)
  *
  * Logs a message with DEBUG level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments.
  */
-#define LOG_DEBUG(logger, format, ...)                                                        \
-    do {                                                                                      \
-        LOG_INTERNAL_STRING_TYPE(format);                                                     \
-        logger.log(se_oss::LogLevel::DEBUG, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
-    } while (false)
+#define LOG_DEBUG(logger, ...) LOG_MESSAGE(logger, se_oss::LogLevel::DEBUG, __VA_ARGS__)
 
 /**
  * @def LOG_INFO(logger, format, ...)
  *
  * Logs a message with INFO level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments.
  */
-#define LOG_INFO(logger, format, ...)                                                        \
-    do {                                                                                     \
-        LOG_INTERNAL_STRING_TYPE(format);                                                    \
-        logger.log(se_oss::LogLevel::INFO, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
-    } while (false)
+#define LOG_INFO(logger, ...) LOG_MESSAGE(logger, se_oss::LogLevel::INFO, __VA_ARGS__)
 
 /**
  * @def LOG_WARN(logger, format, ...)
  *
  * Logs a message with WARN level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments.
  */
-#define LOG_WARN(logger, format, ...)                                                        \
-    do {                                                                                     \
-        LOG_INTERNAL_STRING_TYPE(format);                                                    \
-        logger.log(se_oss::LogLevel::WARN, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
-    } while (false)
+#define LOG_WARN(logger, ...) LOG_MESSAGE(logger, se_oss::LogLevel::WARN, __VA_ARGS__)
 
 /**
  * @def LOG_ERROR(logger, format, ...)
  *
  * Logs a message with ERROR level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments.
  */
-#define LOG_ERROR(logger, format, ...)                                                        \
-    do {                                                                                      \
-        LOG_INTERNAL_STRING_TYPE(format);                                                     \
-        logger.log(se_oss::LogLevel::ERROR, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
-    } while (false)
+#define LOG_ERROR(logger, ...) LOG_MESSAGE(logger, se_oss::LogLevel::ERROR, __VA_ARGS__)
 
 /**
  * @def LOG_FATAL(logger, format, ...)
  *
  * Logs a message with FATAL level.
  * @param logger The Logger instance.
- * @param format The format string.
- * @param ... Additional arguments.
+ * @param ... The format string and additional arguments.
  */
-#define LOG_FATAL(logger, format, ...)                                                        \
-    do {                                                                                      \
-        LOG_INTERNAL_STRING_TYPE(format);                                                     \
-        logger.log(se_oss::LogLevel::FATAL, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
-    } while (false)
-
-#endif
+#define LOG_FATAL(logger, ...) LOG_MESSAGE(logger, se_oss::LogLevel::FATAL, __VA_ARGS__)
 
 namespace se_oss {
 

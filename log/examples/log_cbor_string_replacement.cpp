@@ -29,6 +29,9 @@ int main()
     LOG_ERROR(log, "error");
     LOG_FATAL(log, "fatal");
 
+    const se_oss::LogLevel runtimeLevel {se_oss::LogLevel::WARN};
+    LOG_MESSAGE(log, runtimeLevel, "level chosen at runtime %u", 1U);
+
     for (uint32_t i = 0; i < 10; ++i) {
         LOG_INFO(log, "hello %u", i);
     }
