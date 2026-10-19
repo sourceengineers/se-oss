@@ -23,7 +23,7 @@ enum class LogLevel : uint8_t
     WARN = 3,  //!< Warning conditions.
     ERROR = 4,  //!< Error conditions.
     FATAL = 5,  //!< Fatal errors causing termination.
-    OFF = UINT8_MAX  //!< Logging disabled.
+    OFF = UINT8_MAX  //!< Logging disabled: as a filter level it blocks every message, a message at OFF is never logged.
 };
 
 constexpr const char* toString(LogLevel level)

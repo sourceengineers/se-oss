@@ -126,6 +126,13 @@ TEST_F(FilteredSinkTest, FilterOff)
     callSink(filterLevel, LogLevel::FATAL, false);
 }
 
+TEST_F(FilteredSinkTest, MessageAtOffIsNeverWritten)
+{
+    callSink(LogLevel::TRACE, LogLevel::OFF, false);
+    callSink(LogLevel::FATAL, LogLevel::OFF, false);
+    callSink(LogLevel::OFF, LogLevel::OFF, false);
+}
+
 TEST_F(FilteredSinkTest, CustomFilter)
 {
     LogMetadata metadata {};

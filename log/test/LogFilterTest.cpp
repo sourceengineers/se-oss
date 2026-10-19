@@ -62,6 +62,19 @@ TEST_F(LogFilterTest, CustomFilter_Applies)
     EXPECT_FALSE(filter.passesFilter(metadata));
 }
 
+TEST_F(LogFilterTest, MessageAtOff_NeverPasses)
+{
+    LogFilter filter;
+    LogMetadata metadata {};
+    metadata.level = LogLevel::OFF;
+    metadata.contextTag = 1U;
+    EXPECT_FALSE(filter.passesFilter(metadata));
+
+    ContextTagFilter customFilter(1U);
+    filter.setCustomLogFilter(&customFilter);
+    EXPECT_FALSE(filter.passesFilter(metadata));
+}
+
 TEST_F(LogFilterTest, LogLevelFilter_Applies)
 {
     LogFilter filter;

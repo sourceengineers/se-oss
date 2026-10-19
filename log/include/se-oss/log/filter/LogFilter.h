@@ -24,6 +24,10 @@ public:
 
     [[nodiscard]] bool passesFilter(const LogMetadata& metadata) const
     {
+        // OFF disables logging: a message logged at OFF never passes, whatever the filter level
+        if (metadata.level == LogLevel::OFF) {
+            return false;
+        }
         if (metadata.level < log_conf::MAX_LOG_LEVEL) {
             return false;
         }
