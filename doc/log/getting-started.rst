@@ -61,6 +61,14 @@ The expected output on ``stdout`` is:
     2026-05-05T12:38:17.677Z E [default] -- Could not switch relay, current state=0
     2026-05-05T12:38:17.677Z F [default] -- External memory has been disconnected! Restarting device...
 
+When the level of a message is known only at runtime, ``LOG_MESSAGE`` takes it as a parameter. The macros above are
+``LOG_MESSAGE`` with a fixed level. A message at ``LogLevel::OFF`` is never logged.
+
+.. code-block:: c++
+
+    const se_oss::LogLevel level = linkLost ? se_oss::LogLevel::ERROR : se_oss::LogLevel::INFO;
+    LOG_MESSAGE(log, level, "Link state has changed to %d", -1);
+
 .. note::
     Formatting is fully configurable. You can choose different printf-style formatting options or implement your own variant altogether. See :ref:`configuration`.
 

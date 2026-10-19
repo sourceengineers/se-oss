@@ -49,6 +49,17 @@ std::string bufferToString(const std::vector<uint8_t>& buffer)
     return result;
 }
 
+std::vector<std::string> bufferToLines(const std::vector<uint8_t>& buffer)
+{
+    std::stringstream ss(bufferToString(buffer));
+    std::string line;
+    std::vector<std::string> lines;
+    while (std::getline(ss, line)) {
+        lines.push_back(line);
+    }
+    return lines;
+}
+
 }  // namespace
 
 class LogPrintfTest : public ::testing::Test
@@ -138,4 +149,48 @@ TEST_F(LogPrintfTest, TestLogLevelFiltering)
 
     EXPECT_TRUE(lines[0] == "1970-01-15T06:56:07.890Z I [test] -- Visible Info");
     EXPECT_TRUE(lines[1] == "1970-01-15T06:56:07.890Z W [test] -- Visible Warn");
+}
+
+TEST_F(LogPrintfTest, TestLogMessageWithRuntimeLevel)
+{
+    Logger logger = _logRegistry->createLogger(LogComponents::TEST_COMP);
+    logger.setLogFilterLevel(se_oss::LogLevel::TRACE);
+
+    const std::vector<LogLevel> levels {LogLevel::TRACE, LogLevel::DEBUG, LogLevel::INFO, LogLevel::WARN,
+                                        LogLevel::ERROR, LogLevel::FATAL, LogLevel::OFF};
+    for (const LogLevel level : levels) {
+        LOG_MESSAGE(logger, level, "Level %s", toString(level));
+    }
+    LOG_MESSAGE(logger, LogLevel::INFO, "Without arguments");
+
+    _logRegistry->distributeMessages();
+
+    const std::vector<std::string> lines = bufferToLines(_buffer);
+    ASSERT_EQ(lines.size(), 7);
+    EXPECT_EQ(lines[0], "1970-01-15T06:56:07.890Z T [test] -- Level trace");
+    EXPECT_EQ(lines[1], "1970-01-15T06:56:07.890Z D [test] -- Level debug");
+    EXPECT_EQ(lines[2], "1970-01-15T06:56:07.890Z I [test] -- Level info");
+    EXPECT_EQ(lines[3], "1970-01-15T06:56:07.890Z W [test] -- Level warn");
+    EXPECT_EQ(lines[4], "1970-01-15T06:56:07.890Z E [test] -- Level error");
+    EXPECT_EQ(lines[5], "1970-01-15T06:56:07.890Z F [test] -- Level fatal");
+    EXPECT_EQ(lines[6], "1970-01-15T06:56:07.890Z I [test] -- Without arguments");
+}
+
+TEST_F(LogPrintfTest, TestLogMessageEvaluatesTheLevelOnce)
+{
+    Logger logger = _logRegistry->createLogger(LogComponents::TEST_COMP);
+    uint32_t evaluations {0U};
+    const auto level = [&evaluations]() {
+        ++evaluations;
+        return LogLevel::WARN;
+    };
+
+    LOG_MESSAGE(logger, level(), "Evaluated once");
+
+    _logRegistry->distributeMessages();
+
+    EXPECT_EQ(evaluations, 1U);
+    const std::vector<std::string> lines = bufferToLines(_buffer);
+    ASSERT_EQ(lines.size(), 1);
+    EXPECT_EQ(lines[0], "1970-01-15T06:56:07.890Z W [test] -- Evaluated once");
 }
