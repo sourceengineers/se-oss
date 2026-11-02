@@ -7,5 +7,6 @@ dependencies = [
     "myst-parser>=5.0.0",
     "shibuya>=2026.1.9",
     "sphinx-autobuild>=2024.10.3",
+    "sphinx-sitemap>=2.9.0",
     "sphinx>=8.2.3",
 ]
