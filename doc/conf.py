@@ -36,6 +36,7 @@ author = "Source Engineers GmbH"
 
 extensions = [
     'myst_parser',
+    'sphinx_sitemap',
 ]
 
 templates_path = ["_templates"]
@@ -61,6 +62,12 @@ html_css_files = [
     'css/custom.css',
 ]
 html_extra_path = ["extra/google9cf079d8cd279935.html"]
+html_baseurl = "https://sourceengineers.github.io/se-oss/"
+
+# -- Sitemap configuration ------------------------------------------------
+# https://sphinx-sitemap.readthedocs.io/en/latest/configuration-values.html
+
+sitemap_url_scheme = "{link}"
 
 # -- LaTeX configuration --------------------------------------------------
 # https://www.sphinx-doc.org/en/master/latex.html
