@@ -21,6 +21,13 @@ void LogContext::commitMessage(std::size_t bytesWritten)
 {
     _buffer.commitWrite(bytesWritten);
 
+    // Nothing written means the message could not be formatted, e.g. because it did not fit the reserved region. It is
+    // lost just like a message without a reservation.
+    if (bytesWritten == 0U) {
+        _droppedMessages.fetch_add(1U, std::memory_order_relaxed);
+        return;
+    }
+
     // In immediate mode the message is handed to the sink right away, so that step has to succeed
     // too. A deferred buffer is drained later by distributeMessages(); a successful write is all
     // there is to check here.

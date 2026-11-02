@@ -74,15 +74,27 @@ TEST_F(LogContextTest, Statistics_CountsEveryFailedReservation)
     EXPECT_EQ(context.statistics().droppedMessages, DROPS);
 }
 
-TEST_F(LogContextTest, Statistics_CountsFailedImmediateDistribution)
+TEST_F(LogContextTest, Statistics_CountsEmptyCommit)
 {
     LogContext context(0, "test", _sink, *this);
 
-    // Committing zero bytes leaves nothing to hand to the sink, so the message counts as dropped.
+    // Committing zero bytes means the message could not be written, so it counts as dropped exactly once.
+    EXPECT_CALL(_sink, write(_, _, _)).Times(0);
     ASSERT_NE(context.reserveMessage(16U).data, nullptr);
     context.commitMessage(0U);
 
     EXPECT_EQ(context.statistics().droppedMessages, 1U);
+}
+
+TEST_F(LogContextTest, Statistics_EmptyCommitReleasesReservation)
+{
+    LogContext context(0, "test", _sink, *this);
+    ASSERT_NE(context.reserveMessage(16U).data, nullptr);
+    context.commitMessage(0U);
+
+    EXPECT_NE(context.reserveMessage(16U).data, nullptr);
+    context.commitMessage(0U);
+    EXPECT_EQ(context.statistics().droppedMessages, 2U);
 }
 
 TEST_F(LogContextTest, Statistics_ReturnsSnapshot)

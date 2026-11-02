@@ -66,6 +66,12 @@ public:
 
     bool passesFilter(LogMetadata metadata) const { return _filter.passesFilter(metadata); }
     IBuffer::WriteRegion reserveMessage(std::size_t size);
+
+    /**
+     * Commits the message written to the region returned by reserveMessage().
+     *
+     * @param bytesWritten Number of bytes written. 0 releases the reservation and counts the message as dropped.
+     */
     void commitMessage(std::size_t bytesWritten);
 
     /**
