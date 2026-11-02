@@ -94,7 +94,8 @@ The following parameters must be set in ``UserLogConf.h``:
      - Buffer used to store log records between logger and sink.
      - ``ImmediateBuffer``
    * - ``log_conf::MAX_MESSAGE_LENGTH``
-     - Maximum length of a log message.
+     - Maximum length of a log message. ``PrintfFormatter`` truncates a longer message, ``CborFormatter`` drops it
+       and counts it in ``LogStatistics::droppedMessages``.
      - 128
    * - ``log_conf::MAX_LOG_LEVEL``
      - Log levels above here will be included in the output binary.
