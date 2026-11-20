@@ -16,6 +16,49 @@
 #include <memory>
 #include <utility>
 
+namespace se_oss {
+namespace log_detail {
+
+/**
+ * Result of checkFormat(); only its size is ever taken.
+ */
+struct FormatChecked
+{
+};
+
+/**
+ * Lets the compiler check a log format string against its arguments, like a printf call (GCC and Clang, -Wformat).
+ *
+ * Used only in an unevaluated operand by LOG_INTERNAL_CHECK_FORMAT: it is never called, its arguments are never
+ * evaluated and no code is generated.
+ *
+ * @param format The printf format string.
+ * @return An empty FormatChecked.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((format(printf, 1, 2)))
+#endif
+inline FormatChecked checkFormat(const char* /*format*/, ...)
+{
+    return {};
+}
+
+}  // namespace log_detail
+}  // namespace se_oss
+
+/**
+ * @def LOG_INTERNAL_CHECK_FORMAT(format, ...)
+ *
+ * Checks the format string of a log call against its arguments at compile time. A mismatch is a -Wformat warning
+ * (an error with -Werror). The arguments are not evaluated. Define SE_OSS_LOG_DISABLE_FORMAT_CHECK, as a compile
+ * definition or in UserLogConf.h, to switch the check off.
+ */
+#ifndef SE_OSS_LOG_DISABLE_FORMAT_CHECK
+#define LOG_INTERNAL_CHECK_FORMAT(...) static_cast<void>(sizeof(se_oss::log_detail::checkFormat(__VA_ARGS__)))
+#else
+#define LOG_INTERNAL_CHECK_FORMAT(...) static_cast<void>(0)
+#endif
+
 #ifndef SE_OSS_LOG_REPLACE_STRINGS
 
 /**
@@ -25,11 +68,13 @@
  * the level is known only at runtime.
  * @param logger The Logger instance.
  * @param level The LogLevel of the message, any expression, evaluated once. A message at LogLevel::OFF is never logged.
- * @param ... The format string and additional arguments.
+ * @param ... The format string and additional arguments, checked against each other at compile time (see
+ *            LOG_INTERNAL_CHECK_FORMAT).
  */
-#define LOG_MESSAGE(logger, level, ...)   \
-    do {                                  \
-        logger.log(level, ##__VA_ARGS__); \
+#define LOG_MESSAGE(logger, level, ...)         \
+    do {                                        \
+        LOG_INTERNAL_CHECK_FORMAT(__VA_ARGS__); \
+        logger.log(level, ##__VA_ARGS__);       \
     } while (false)
 
 #else
@@ -51,10 +96,11 @@
  * @param logger The Logger instance.
  * @param level The LogLevel of the message, any expression, evaluated once. A message at LogLevel::OFF is never logged.
  * @param format The format string, a string literal.
- * @param ... Additional arguments.
+ * @param ... Additional arguments, checked against the format string at compile time (see LOG_INTERNAL_CHECK_FORMAT).
  */
 #define LOG_MESSAGE(logger, level, format, ...)                             \
     do {                                                                    \
+        LOG_INTERNAL_CHECK_FORMAT(format, ##__VA_ARGS__);                   \
         LOG_INTERNAL_STRING_TYPE(format);                                   \
         logger.log(level, LOG_INTERNAL_RESOURCE_ID(format), ##__VA_ARGS__); \
     } while (false)
