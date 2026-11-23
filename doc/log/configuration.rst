@@ -58,30 +58,31 @@ See :ref:`string_replacement` for details.
 
 .. _format_check:
 
-``SE_OSS_LOG_DISABLE_FORMAT_CHECK``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``SE_OSS_LOG_CHECK_PRINTF_FORMAT``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``LOG_*`` and ``LOG_MESSAGE`` macros let the compiler check the format string against its arguments, as for a
-``printf`` call. With GCC and Clang a mismatch is a ``-Wformat`` warning, with ``-Werror`` a build error. The check
-generates no code and does not evaluate the arguments. Direct ``Logger::log()`` calls are not checked.
+With this option enabled the ``LOG_*`` and ``LOG_MESSAGE`` macros let the compiler check the format string against its
+arguments, as for a ``printf`` call. With GCC and Clang a mismatch is a ``-Wformat`` warning, with ``-Werror`` a build
+error. The check generates no code and does not evaluate the arguments. Direct ``Logger::log()`` calls are not checked.
 
-The check is on by default. A wrong specifier is undefined behaviour in the ``PrintfFormatter`` and makes the
-``CborFormatter`` output decode differently from the host output (the CBOR encoding follows the argument type). Write
-specifiers that hold on every platform: ``PRIu32``, ``PRIX8`` and the other macros of ``<cinttypes>`` for fixed-width
-types, ``%zu`` for ``std::size_t``, and the specifier of the underlying type with an explicit cast for an enum.
+The check is off by default. Enable it where the format strings are printf style: in the ``PrintfFormatter`` a wrong
+specifier is undefined behaviour, and with the ``CborFormatter`` it keeps the formats consistent with the argument types
+when the host formats the messages as printf (the CBOR encoding follows the argument type). Leave it off when the format
+strings use another syntax. Write specifiers that hold on every platform: ``PRIu32``, ``PRIX8`` and the other macros of
+``<cinttypes>`` for fixed-width types, ``%zu`` for ``std::size_t``, and the specifier of the underlying type with an
+explicit cast for an enum.
 
 .. code-block:: c++
 
     LOG_INFO(log, "received %" PRIu32 " bytes on port %" PRIu8 ", %zu queued", length, port, queue.size());
 
-To switch the check off, for example while the format strings of an existing code base are migrated, define
-``SE_OSS_LOG_DISABLE_FORMAT_CHECK`` for the targets that should not be checked, or in ``UserLogConf.h`` for every
+Define ``SE_OSS_LOG_CHECK_PRINTF_FORMAT`` for the targets that should be checked, or in ``UserLogConf.h`` for every
 target that uses this configuration:
 
 .. code-block:: cmake
     :caption: CMakeLists.txt
 
-    target_compile_definitions(my_app PRIVATE SE_OSS_LOG_DISABLE_FORMAT_CHECK)
+    target_compile_definitions(my_app PRIVATE SE_OSS_LOG_CHECK_PRINTF_FORMAT)
 
 
 C++ Configuration
@@ -114,9 +115,9 @@ The following parameters must be set in ``UserLogConf.h``:
    * - ``SE_OSS_LOG_REPLACE_STRINGS``
      - Replace format strings with IDs
      - disabled
-   * - ``SE_OSS_LOG_DISABLE_FORMAT_CHECK``
-     - Switch off the compile-time check of format strings against their arguments, see :ref:`format_check`
-     - not defined (check on)
+   * - ``SE_OSS_LOG_CHECK_PRINTF_FORMAT``
+     - Check printf format strings against their arguments at compile time, see :ref:`format_check`
+     - disabled
    * - ``log_conf::Formatter``
      - Formatter used to format/serialize log records.
      - ``PrintfFormatter``

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-// Compiled, never linked, by the LogFormatCheck tests: a log call whose argument does not match its format. With the
-// format check on and -Werror=format it must fail to compile, with SE_OSS_LOG_DISABLE_FORMAT_CHECK it must compile.
+// Compiled, never linked, by the LogFormatCheck tests: a log call whose argument does not match its format. With
+// SE_OSS_LOG_CHECK_PRINTF_FORMAT and -Werror=format it must fail to compile, without it (the default) it must compile.
 
 #include "se-oss/log/Log.h"
 
