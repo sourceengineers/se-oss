@@ -56,6 +56,34 @@ That reduces binary size and log bandwidth requirements.
 
 See :ref:`string_replacement` for details.
 
+.. _format_check:
+
+``SE_OSS_LOG_CHECK_PRINTF_FORMAT``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With this option enabled the ``LOG_*`` and ``LOG_MESSAGE`` macros let the compiler check the format string against its
+arguments, as for a ``printf`` call. With GCC and Clang a mismatch is a ``-Wformat`` warning, with ``-Werror`` a build
+error. The check generates no code and does not evaluate the arguments. Direct ``Logger::log()`` calls are not checked.
+
+The check is off by default. Enable it where the format strings are printf style: in the ``PrintfFormatter`` a wrong
+specifier is undefined behaviour, and with the ``CborFormatter`` it keeps the formats consistent with the argument types
+when the host formats the messages as printf (the CBOR encoding follows the argument type). Leave it off when the format
+strings use another syntax. Write specifiers that hold on every platform: ``PRIu32``, ``PRIX8`` and the other macros of
+``<cinttypes>`` for fixed-width types, ``%zu`` for ``std::size_t``, and the specifier of the underlying type with an
+explicit cast for an enum.
+
+.. code-block:: c++
+
+    LOG_INFO(log, "received %" PRIu32 " bytes on port %" PRIu8 ", %zu queued", length, port, queue.size());
+
+Define ``SE_OSS_LOG_CHECK_PRINTF_FORMAT`` for the targets that should be checked, or in ``UserLogConf.h`` for every
+target that uses this configuration:
+
+.. code-block:: cmake
+    :caption: CMakeLists.txt
+
+    target_compile_definitions(my_app PRIVATE SE_OSS_LOG_CHECK_PRINTF_FORMAT)
+
 
 C++ Configuration
 -----------------
@@ -87,6 +115,9 @@ The following parameters must be set in ``UserLogConf.h``:
    * - ``SE_OSS_LOG_REPLACE_STRINGS``
      - Replace format strings with IDs
      - disabled
+   * - ``SE_OSS_LOG_CHECK_PRINTF_FORMAT``
+     - Check printf format strings against their arguments at compile time, see :ref:`format_check`
+     - disabled
    * - ``log_conf::Formatter``
      - Formatter used to format/serialize log records.
      - ``PrintfFormatter``
@@ -117,6 +148,7 @@ with a 2048 atomic byte buffer and a maximum message length of 256 bytes:
     namespace log_conf {
 
     // #define SE_OSS_LOG_REPLACE_STRINGS
+    // #define SE_OSS_LOG_CHECK_PRINTF_FORMAT
     using Formatter = PrintfFormatter<TimeFormat::ISO8601>;
     using Buffer = AtomicBuffer<2048>;
     constexpr std::size_t MAX_MESSAGE_LENGTH {256};

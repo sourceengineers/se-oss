@@ -15,10 +15,17 @@
 
 #include <gtest/gtest.h>
 
+#include <cinttypes>
+#include <cstddef>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+
+// the format check cases below test the check only when it is on (see log/test/CMakeLists.txt)
+#ifndef SE_OSS_LOG_CHECK_PRINTF_FORMAT
+#error "se_log_tests must be compiled with SE_OSS_LOG_CHECK_PRINTF_FORMAT"
+#endif
 
 using namespace se_oss;
 
@@ -193,4 +200,41 @@ TEST_F(LogPrintfTest, TestLogMessageEvaluatesTheLevelOnce)
     const std::vector<std::string> lines = bufferToLines(_buffer);
     ASSERT_EQ(lines.size(), 1);
     EXPECT_EQ(lines[0], "1970-01-15T06:56:07.890Z W [test] -- Evaluated once");
+}
+
+TEST_F(LogPrintfTest, TestPortableSpecifiersPassTheFormatCheck)
+{
+    Logger logger = _logRegistry->createLogger(LogComponents::TEST_COMP);
+    logger.setLogFilterLevel(se_oss::LogLevel::TRACE);
+    const uint32_t largeValue {4000000000U};
+    const uint8_t byteValue {0xFFU};
+    const std::size_t count {7U};
+
+    LOG_INFO(logger, "u32 %" PRIu32 " x8 %02" PRIX8 " size %zu name %s", largeValue, byteValue, count, "stack");
+
+    _logRegistry->distributeMessages();
+
+    const std::vector<std::string> lines = bufferToLines(_buffer);
+    ASSERT_EQ(lines.size(), 1);
+    EXPECT_EQ(lines[0], "1970-01-15T06:56:07.890Z I [test] -- u32 4000000000 x8 FF size 7 name stack");
+}
+
+TEST_F(LogPrintfTest, TestFormatCheckDoesNotEvaluateTheArguments)
+{
+    Logger logger = _logRegistry->createLogger(LogComponents::TEST_COMP);
+    logger.setLogFilterLevel(se_oss::LogLevel::TRACE);
+    uint32_t evaluations {0U};
+    const auto value = [&evaluations]() {
+        ++evaluations;
+        return evaluations;
+    };
+
+    LOG_INFO(logger, "Value %" PRIu32, value());
+
+    _logRegistry->distributeMessages();
+
+    EXPECT_EQ(evaluations, 1U);
+    const std::vector<std::string> lines = bufferToLines(_buffer);
+    ASSERT_EQ(lines.size(), 1);
+    EXPECT_EQ(lines[0], "1970-01-15T06:56:07.890Z I [test] -- Value 1");
 }

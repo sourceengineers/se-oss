@@ -31,6 +31,12 @@ namespace log_conf {
  */
 // #define SE_OSS_LOG_REPLACE_STRINGS
 
+/*
+ * Enable the compile time check of the printf format strings of the LOG_* macros against their arguments
+ * (GCC and Clang, -Wformat).
+ */
+// #define SE_OSS_LOG_CHECK_PRINTF_FORMAT
+
 using Formatter = PrintfFormatter<TimeFormat::ISO8601>;
 
 using Buffer = ImmediateBuffer<128>;
