@@ -25,6 +25,8 @@ if (${SE_OSS_LOG_EXAMPLE_DEFERRED})
 
     add_executable(example_log_cbor_string_replacement log_cbor_string_replacement.cpp)
     target_compile_definitions(example_log_cbor_string_replacement PUBLIC FORMAT_CBOR_REPLACE_STRINGS)
+    # compiles the format check together with the string replacement
+    target_compile_definitions(example_log_cbor_string_replacement PRIVATE SE_OSS_LOG_CHECK_PRINTF_FORMAT)
     target_link_libraries(example_log_cbor_string_replacement PRIVATE se_oss::log)
     include(../cmake/resource_database.cmake)
     se_create_resource_database(TARGET example_log_cbor_string_replacement)

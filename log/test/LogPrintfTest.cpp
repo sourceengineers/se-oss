@@ -22,6 +22,11 @@
 #include <string>
 #include <vector>
 
+// the format check cases below test the check only when it is on (see log/test/CMakeLists.txt)
+#ifndef SE_OSS_LOG_CHECK_PRINTF_FORMAT
+#error "se_log_tests must be compiled with SE_OSS_LOG_CHECK_PRINTF_FORMAT"
+#endif
+
 using namespace se_oss;
 
 namespace {

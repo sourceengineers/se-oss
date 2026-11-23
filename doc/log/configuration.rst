@@ -148,6 +148,7 @@ with a 2048 atomic byte buffer and a maximum message length of 256 bytes:
     namespace log_conf {
 
     // #define SE_OSS_LOG_REPLACE_STRINGS
+    // #define SE_OSS_LOG_CHECK_PRINTF_FORMAT
     using Formatter = PrintfFormatter<TimeFormat::ISO8601>;
     using Buffer = AtomicBuffer<2048>;
     constexpr std::size_t MAX_MESSAGE_LENGTH {256};
