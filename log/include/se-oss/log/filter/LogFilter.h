@@ -10,6 +10,15 @@
 #include "se-oss/log/Types.h"
 #include "se-oss/log/filter/ILogFilterSetter.h"
 
+// [[nodiscard]] is C++17; se-oss is also compiled as C++14 (clang: -Wc++17-attribute-extensions)
+#ifndef SE_OSS_NODISCARD
+#if __cplusplus >= 201703L
+#define SE_OSS_NODISCARD [[nodiscard]]
+#else
+#define SE_OSS_NODISCARD
+#endif
+#endif
+
 namespace se_oss {
 
 class LogFilter : public ILogFilterSetter
@@ -22,7 +31,7 @@ public:
     LogFilter& operator=(const LogFilter&) = delete;
     LogFilter& operator=(LogFilter&&) = delete;
 
-    [[nodiscard]] bool passesFilter(const LogMetadata& metadata) const
+    SE_OSS_NODISCARD bool passesFilter(const LogMetadata& metadata) const
     {
         // OFF disables logging: a message logged at OFF never passes, whatever the filter level
         if (metadata.level == LogLevel::OFF) {

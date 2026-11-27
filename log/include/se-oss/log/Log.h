@@ -78,7 +78,7 @@ inline FormatChecked checkFormat(const char* /*format*/, ...)
 #define LOG_MESSAGE(logger, level, ...)         \
     do {                                        \
         LOG_INTERNAL_CHECK_FORMAT(__VA_ARGS__); \
-        logger.log(level, ##__VA_ARGS__);       \
+        logger.log(level, __VA_ARGS__);         \
     } while (false)
 
 #else
