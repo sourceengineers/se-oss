@@ -7,6 +7,8 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
+
 using namespace se_oss;
 
 TEST(LogHeader, Serialize_NullBuffer_ReturnsNull)
